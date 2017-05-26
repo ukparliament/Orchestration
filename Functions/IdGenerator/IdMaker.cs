@@ -4,15 +4,15 @@ namespace Functions.IdGenerator
 {
     public class IdMaker
     {
-        private static string dataBaseUri = Environment.GetEnvironmentVariable("IdNamespace", EnvironmentVariableTarget.Process);
+        private static string idNamespace = Environment.GetEnvironmentVariable("IdNamespace", EnvironmentVariableTarget.Process);
 
         public string MakeId()
         {
-            if (dataBaseUri[dataBaseUri.Length - 1] != '/')
-                dataBaseUri = $"{dataBaseUri }/";
+            if (idNamespace[idNamespace.Length - 1] != '/')
+                idNamespace = $"{idNamespace}/";
             RandomStringGenerator generator = new RandomStringGenerator();
             var id = generator.GetAlphanumericId(8);
-            return $"{dataBaseUri}{id}";
+            return $"{idNamespace}{id}";
         }
     }
 

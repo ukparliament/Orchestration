@@ -1,0 +1,197 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "azureFunctionsResourceGroupName": {
+            "type": "string",
+            "metadata": {
+                "description": "Name of the Resource Group where Azure Functions are."
+            }
+        },
+        "azureFunctionsName": {
+            "type": "string",
+            "metadata": {
+                "description": "Name of the Azure Functions."
+            }
+        },
+        "serviceBusName": {
+            "type": "string",
+            "metadata": {
+                "description": "Name of the Service Bus."
+            }
+        },
+        "environment": {
+            "type": "string",
+            "metadata": {
+                "description": "Name of the environment that is being deployed to."
+            }
+        },
+        "releaseId": {
+            "type": "int",
+            "metadata": {
+                "description": "The identifier of the current release record."
+            }
+        }
+    },
+    "variables": {
+        "logicAppsSetting_name": "epetition"
+    },
+    "resources": [
+        {
+            "comments": "Logic App that obtains list of e-petitions.",
+            "type": "Microsoft.Logic/workflows",
+            "name": "[concat('getlistpage-',variables('logicAppsSetting_name'))]",
+            "apiVersion": "2016-06-01",
+            "location": "[resourceGroup().location]",
+            "tags": {
+                "34a4fc9c-8817-4c95-8e1b-76e27fbe2699": "f009d98d-028e-48bc-af57-944f3dd9a77c",
+                "Department": "Data & Search",
+                "Environment": "[parameters('environment')]",
+                "ReleaseId": "[parameters('releaseId')]",
+                "Type": "Logic App"
+            },
+            "properties": {
+                "state": "Enabled",
+                "definition": {
+                    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+                    "contentVersion": "1.0.0.0",
+                    "parameters": {
+                        "$connections": {
+                            "defaultValue": {},
+                            "type": "Object"
+                        }
+                    },
+                    "triggers": {
+                        "manual": {
+                            "inputs": {
+                                "schema": {
+                                    "properties": {
+                                        "batchId": {
+                                            "type": "string"
+                                        },
+                                        "pageNo": {
+                                            "type": "number"
+                                        }
+                                    },
+                                    "required": [
+                                        "pageNo",
+                                        "batchId"
+                                    ],
+                                    "type": "object"
+                                }
+                            },
+                            "kind": "Http",
+                            "type": "Request"
+                        }
+                    },
+                    "actions": {
+                        "Response": {
+                            "inputs": {
+                                "headers": {
+                                    "batchId": "@triggerBody()['batchId']"
+                                },
+                                "statusCode": 202
+                            },
+                            "runAfter": {
+                            },
+                            "type": "Response"
+                        },
+                        "LogicAppsErrorMessageLog": {
+                            "inputs": {
+                                "body": {
+                                    "action": "@actions('Get_List')",
+                                    "workflow": "@workflow()",
+                                    "batchId": "@triggerBody()['batchId']"
+                                },
+                                "function": {
+                                    "id": "[concat(subscription().id,'/resourceGroups/',parameters('azureFunctionsResourceGroupName'),'/providers/Microsoft.Web/sites/',parameters('azureFunctionsName'),'/functions/LogicAppsErrorMessageLog')]"
+                                },
+                                "retryPolicy": {
+                                    "type": "None"
+                                }
+                            },
+                            "runAfter": {
+                                "Get_List": [
+                                    "Failed"
+                                ]
+                            },
+                            "type": "Function"
+                        },
+                        "For_each": {
+                            "foreach": "@body('Get_List').data",
+                            "actions": {
+                                "Send_message": {
+                                    "runAfter": {},
+                                    "type": "ApiConnection",
+                                    "inputs": {
+                                        "body": {
+                                            "Properties": {
+                                                "url": "@item().links.self",
+                                                "batchId": "@triggerBody()['batchId']"
+                                            }
+                                        },
+                                        "host": {
+                                            "api": {
+                                                "runtimeUrl": "[concat('https://logic-apis-',resourceGroup().location,'.azure-apim.net/apim/servicebus')]"
+                                            },
+                                            "connection": {
+                                                "name": "@parameters('$connections')['servicebus']['connectionId']"
+                                            }
+                                        },
+                                        "method": "post",
+                                        "path": "[concat('/',variables('logicAppsSetting_name'),'/messages')]",
+                                        "retryPolicy": {
+                                            "count": 2,
+                                            "interval": "PT20S",
+                                            "type": "Fixed"
+                                        }
+                                    }
+                                }
+                            },
+                            "runAfter": {
+                                "Get_List": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Foreach"
+                        },
+                        "Get_List": {
+                            "inputs": {
+                                "headers": {
+                                    "Accept": "application/json"
+                                },
+                                "method": "GET",
+                                "retryPolicy": {
+                                    "count": 2,
+                                    "interval": "PT20S",
+                                    "type": "Fixed"
+                                },
+                                "uri": "https://petition.parliament.uk/petitions?page=@{triggerBody()['pageNo']}"
+                            },
+                            "runAfter": {
+                                "Response": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Http"
+                        }
+                    },
+                    "outputs": {}
+                },
+                "parameters": {
+                    "$connections": {
+                        "value": {
+                            "servicebus": {
+                                "connectionId": "[concat(subscription().id,'/resourceGroups/',resourceGroup().name,'/providers/Microsoft.Web/connections/',parameters('serviceBusName'),'connection')]",
+                                "connectionName": "[concat(parameters('serviceBusName'),'connection')]",
+                                "id": "[concat(subscription().id,'/providers/Microsoft.Web/locations/',resourceGroup().location,'/managedApis/servicebus')]"
+                            }
+                        }
+                    }
+                }
+            },
+            "resources": [],
+            "dependsOn": []
+        }
+    ]
+}

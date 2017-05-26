@@ -54,7 +54,7 @@ namespace Functions
             using (HttpClient client = new HttpClient())
             {
                 timer.Stop();
-                if (string.IsNullOrWhiteSpace(errorMessage))
+                if (string.IsNullOrWhiteSpace(errorMessage)==false)
                     telemetryClient.TrackTrace(errorMessage, Microsoft.ApplicationInsights.DataContracts.SeverityLevel.Error);
                 telemetryClient.TrackEvent("Finished", metrics: new Dictionary<string, double>() { { "ProcessTime", timer.Elapsed.TotalMilliseconds } });
                 return await client.PostAsync(callbackUrl, new StringContent(errorMessage ?? "OK"));

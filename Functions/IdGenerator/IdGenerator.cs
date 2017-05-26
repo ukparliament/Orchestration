@@ -18,7 +18,8 @@ namespace Functions.IdGenerator
         [FunctionName("IdGenerator")]
         public static async Task<string> Run([HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = null)]HttpRequestMessage req, TraceWriter log)
         {
-            telemetryClient.TrackEvent("IdGenerator triggered");
+            telemetryClient.Context.Operation.Name = "IdGenerator";
+            telemetryClient.TrackEvent("Triggered");
             IdMaker generator = new IdMaker();
             string id = generator.MakeId();
 

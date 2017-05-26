@@ -1,17 +1,10 @@
 ﻿using System;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Threading.Tasks;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.Http;
-using Microsoft.Azure.WebJobs.Host;
 
 namespace Functions.IdGenerator
 {
     public class IdMaker
     {
-        private static string dataBaseUri = Environment.GetEnvironmentVariable("DataBaseUri", EnvironmentVariableTarget.Process);
+        private static string dataBaseUri = Environment.GetEnvironmentVariable("IdNamespace", EnvironmentVariableTarget.Process);
 
         public string MakeId()
         {

@@ -18,6 +18,7 @@ namespace Functions.TransformationCountryGovRegister
             //Country
             result.Assert(subject, rdfTypeNode, result.CreateUriNode("parl:Country"));
             TripleGenerator.GenerateTriple(result, subject, "parl:countryGovRegisterId", doc, "root/*/key", settings.SourceXmlNamespaceManager);
+            TripleGenerator.GenerateTriple(result, subject, "parl:countryName", doc, "root/*/item/name", settings.SourceXmlNamespaceManager);
             TripleGenerator.GenerateTriple(result, subject, "parl:countryOfficialName", doc, "root/*/item/official-name", settings.SourceXmlNamespaceManager);
             TripleGenerator.GenerateTriple(result, subject, "parl:countryCitizenNames", doc, "root/*/item/citizen-names", settings.SourceXmlNamespaceManager);
             TripleGenerator.GenerateTriple(result, subject, "parl:govRegisterCountryStartDate", doc, "root/*/item/start-date", settings.SourceXmlNamespaceManager,"xsd:date");

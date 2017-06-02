@@ -32,12 +32,6 @@
         "description": "Start time for the Scheduler Job."
       }
     },
-    "schedulerName": {
-      "type": "string",
-      "metadata": {
-        "description": "Name of the Scheduler."
-      }
-    },
     "environment": {
       "type": "string",
       "metadata": {
@@ -51,7 +45,9 @@
       }
     }
   },
-  "variables": {},
+  "variables": {
+    "schedulerName": "scheduler"
+  },
   "resources": [
     {
       "comments": "Scheduler Job.",

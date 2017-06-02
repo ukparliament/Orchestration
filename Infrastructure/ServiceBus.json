@@ -1,0 +1,101 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "serviceBusName": {
+            "type": "string",
+            "metadata": {
+                "description": "Name of the Service Bus."
+            }
+        },        
+        "environment": {
+            "type": "string",
+            "metadata": {
+                "description": "Name of the environment that is being deployed to."
+            }
+        },
+        "releaseId": {
+            "type": "int",
+            "metadata": {
+                "description": "The identifier of the current release record."
+            }
+        }
+    },
+    "variables": {
+        "authorizationKeyName": "RootManageSharedAccessKey"
+    },
+    "resources": [
+        {
+            "comments": "Container (namespace) for Service Bus' queues.",
+            "type": "Microsoft.ServiceBus/namespaces",
+            "sku": {
+                "name": "Standard",
+                "tier": "Standard"
+            },
+            "kind": "Messaging",
+            "name": "[parameters('serviceBusName')]",
+            "apiVersion": "2015-08-01",
+            "location": "[resourceGroup().location]",
+            "tags": {
+                "34a4fc9c-8817-4c95-8e1b-76e27fbe2699": "f009d98d-028e-48bc-af57-944f3dd9a77c",
+                "Department": "Data & Search",
+                "Environment": "[parameters('environment')]",
+                "ReleaseId": "[parameters('releaseId')]",
+                "Type": "Service Bus"
+            },
+            "properties": {},
+            "resources": [],
+            "dependsOn": []
+        },
+        {
+            "comments": "Access key to Service Bus' queues.",
+            "type": "Microsoft.ServiceBus/namespaces/AuthorizationRules",
+            "name": "[concat(parameters('serviceBusName'),'/',variables('authorizationKeyName'))]",
+            "apiVersion": "2015-08-01",
+            "tags": {
+                "34a4fc9c-8817-4c95-8e1b-76e27fbe2699": "f009d98d-028e-48bc-af57-944f3dd9a77c",
+                "Department": "Data & Search",
+                "Environment": "[parameters('environment')]",
+                "ReleaseId": "[parameters('releaseId')]",
+                "Type": "Authorization Rule"
+            },
+            "properties": {
+                "rights": [
+                    "Listen",
+                    "Manage",
+                    "Send"
+                ]
+            },
+            "resources": [],
+            "dependsOn": [
+                "[resourceId('Microsoft.ServiceBus/namespaces', parameters('serviceBusName'))]"
+            ]
+        },
+        {
+            "comments": "API connection to Service Bus used by Logic Apps",
+            "type": "Microsoft.Web/connections",
+            "name": "[concat(parameters('serviceBusName'),'connection')]",
+            "apiVersion": "2016-06-01",
+            "location": "[resourceGroup().location]",
+            "tags": {
+                "34a4fc9c-8817-4c95-8e1b-76e27fbe2699": "f009d98d-028e-48bc-af57-944f3dd9a77c",
+                "Department": "Data & Search",
+                "Environment": "[parameters('environment')]",
+                "ReleaseId": "[parameters('releaseId')]",
+                "Type": "API Connection"
+            },
+            "properties": {
+                "api": {
+                    "id": "[concat(subscription().id,'/providers/Microsoft.Web/locations/',resourceGroup().location,'/managedApis/servicebus')]"
+                },
+                "displayName": "[concat(parameters('serviceBusName'),'connection')]",
+                "parameterValues": {
+                    "connectionString": "[listKeys(resourceId(subscription().subscriptionId,resourceGroup().name,'Microsoft.ServiceBus/namespaces/authorizationRules',parameters('serviceBusName'),variables('authorizationKeyName')),'2015-08-01').primaryConnectionString]"
+                }
+            },
+            "dependsOn": [
+                "[resourceId(subscription().subscriptionId,resourceGroup().name,'Microsoft.ServiceBus/namespaces/authorizationRules',parameters('serviceBusName'),variables('authorizationKeyName'))]"
+            ]
+        }
+    ]
+}

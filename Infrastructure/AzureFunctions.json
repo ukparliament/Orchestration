@@ -1,0 +1,190 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "azureFunctionsName": {
+            "type": "string",
+            "metadata": {
+                "description": "Name of the Azure Functions."
+            }
+        },
+        "storageAccountName": {
+            "type": "string",
+            "metadata": {
+                "description": "Name of the Storage Account for Azure Functions."
+            }
+        },
+        "operationsResourceGroupName": {
+            "type": "string",
+            "metadata": {
+                "description": "Name of the Resource Group where backup storage is."
+            }
+        },
+        "serviceBusName": {
+            "type": "string",
+            "metadata": {
+                "description": "Name of the Service Bus."
+            }
+        },
+        "schemaNamespace": {
+            "type": "string",
+            "metadata": {
+                "description": "Uri (namespace) for ids."
+            }
+        },
+        "idNamespace": {
+            "type": "string",
+            "metadata": {
+                "description": "Uri (namespace) for ids."
+            }
+        },
+        "apiManagementName": {
+            "type": "string",
+            "metadata": {
+                "description": "Name of the API Management."
+            }
+        },
+        "backupStorageAccountName": {
+            "type": "string",
+            "metadata": {
+                "description": "Name of the Storage Account to backup GraphDB data."
+            }
+        },
+        "environment": {
+            "type": "string",
+            "metadata": {
+                "description": "Name of the environment that is being deployed to."
+            }
+        },
+        "releaseId": {
+            "type": "int",
+            "metadata": {
+                "description": "The identifier of the current release record."
+            }
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "comments": "Storage Account for the Azure Functions",
+            "type": "Microsoft.Storage/storageAccounts",
+            "sku": {
+                "name": "Standard_LRS",
+                "tier": "Standard"
+            },
+            "kind": "Storage",
+            "name": "[parameters('storageAccountName')]",
+            "apiVersion": "2016-01-01",
+            "location": "[resourceGroup().location]",
+            "tags": {
+                "34a4fc9c-8817-4c95-8e1b-76e27fbe2699": "f009d98d-028e-48bc-af57-944f3dd9a77c",
+                "Department": "Data & Search",
+                "Environment": "[parameters('environment')]",
+                "ReleaseId": "[parameters('releaseId')]",
+                "Type": "Storage account"
+            },
+            "properties": {},
+            "resources": [],
+            "dependsOn": []
+        },
+        {
+            "comments": "App Service plan for the Azure Functions",
+            "type": "Microsoft.Web/serverfarms",
+            "sku": {
+                "name": "Y1",
+                "tier": "Dynamic",
+                "size": "Y1",
+                "family": "Y",
+                "capacity": 0
+            },
+            "kind": "functionapp",
+            "name": "[concat(parameters('azureFunctionsName'),'plan')]",
+            "apiVersion": "2015-08-01",
+            "location": "[resourceGroup().location]",
+            "tags": {
+                "34a4fc9c-8817-4c95-8e1b-76e27fbe2699": "f009d98d-028e-48bc-af57-944f3dd9a77c",
+                "Department": "Data & Search",
+                "Environment": "[parameters('environment')]",
+                "ReleaseId": "[parameters('releaseId')]",
+                "Type": "App service plan"
+            },
+            "properties": {
+                "name": "[concat(parameters('azureFunctionsName'),'plan')]",
+                "numberOfWorkers": 0
+            },
+            "resources": [],
+            "dependsOn": []
+        },
+        {
+            "comments": "App Service - Azure Functions",
+            "type": "Microsoft.Web/sites",
+            "kind": "functionapp",
+            "name": "[parameters('azureFunctionsName')]",
+            "apiVersion": "2015-08-01",
+            "location": "[resourceGroup().location]",
+            "tags": {
+                "34a4fc9c-8817-4c95-8e1b-76e27fbe2699": "f009d98d-028e-48bc-af57-944f3dd9a77c",
+                "Department": "Data & Search",
+                "Environment": "[parameters('environment')]",
+                "ReleaseId": "[parameters('releaseId')]",
+                "Type": "Azure Functions"
+            },
+            "properties": {
+                "name": "[parameters('azureFunctionsName')]",
+                "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', concat(parameters('azureFunctionsName'), 'Plan'))]"
+            },
+            "resources": [
+                {
+                    "comments": "Application settings to be used by Azure Functions",
+                    "apiVersion": "2015-08-01",
+                    "name": "appsettings",
+                    "type": "config",
+                    "dependsOn": [
+                        "[resourceId('Microsoft.Web/sites', parameters('azureFunctionsName'))]",
+                        "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]"
+                    ],
+                  "properties": {
+                    "AzureWebJobsDashboard": "[concat('DefaultEndpointsProtocol=https;AccountName=',parameters('storageAccountName'),';AccountKey=',listKeys(resourceId('Microsoft.Storage/storageAccounts',parameters('storageAccountName')),'2016-01-01').keys[0].value)]",
+                    "AzureWebJobsStorage": "[concat('DefaultEndpointsProtocol=https;AccountName=',parameters('storageAccountName'),';AccountKey=',listKeys(resourceId('Microsoft.Storage/storageAccounts',parameters('storageAccountName')),'2016-01-01').keys[0].value)]",
+                    "FUNCTIONS_EXTENSION_VERSION": "~1",
+                    "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING": "[concat('DefaultEndpointsProtocol=https;AccountName=',parameters('storageAccountName'),';AccountKey=',listKeys(resourceId('Microsoft.Storage/storageAccounts',parameters('storageAccountName')),'2016-01-01').keys[0].value)]",
+                    "WEBSITE_CONTENTSHARE": "[parameters('azureFunctionsName')]",
+                    "WEBSITE_NODE_DEFAULT_VERSION": "6.5.0",
+                    "IdNamespace": "[parameters('idNamespace')]",
+                    "SchemaNamespace": "[parameters('schemaNamespace')]",
+                    "ApplicationInsightsInstrumentationKey": "[reference(resourceId(subscription().subscriptionId,parameters('operationsResourceGroupName'),'Microsoft.Insights/Components','insightsdataplatform'),'2014-04-01').InstrumentationKey]",
+                    "ReleaseId": "[parameters('releaseId')]",
+                    "SubscriptionKey": ""
+                  }
+                },
+                {
+                    "comments": "Connection strings to be used by Azure Functions",
+                    "apiVersion": "2015-08-01",
+                    "name": "connectionstrings",
+                    "type": "config",
+                    "dependsOn": [
+                        "[resourceId('Microsoft.Web/sites', parameters('azureFunctionsName'))]",
+                        "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]"
+                    ],
+                    "properties": {
+                        "Data": {
+                            "value": "[concat('https://',parameters('apiManagementName'),'.azure-api.net/rdf4j/master-0')]",
+                            "type": "Custom"
+                        },
+                        "ServiceBus": {
+                            "value": "[listKeys(resourceId('Microsoft.ServiceBus/namespaces/authorizationRules',parameters('serviceBusName'),'RootManageSharedAccessKey'),'2015-08-01').primaryConnectionString]",
+                            "type": "Custom"
+                        },
+                        "BackupStorage": {
+                            "value": "[concat('DefaultEndpointsProtocol=https;AccountName=',parameters('backupStorageAccountName'),';AccountKey=',listKeys(resourceId(subscription().subscriptionId,parameters('operationsResourceGroupName'),'Microsoft.Storage/storageAccounts',parameters('backupStorageAccountName')),'2016-01-01').keys[0].value)]",
+                            "type": "Custom"
+                        }
+                    }
+                }
+            ],
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/serverfarms', concat(parameters('azureFunctionsName'), 'Plan'))]"
+            ]
+        }
+    ]
+}

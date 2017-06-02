@@ -1,0 +1,48 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "schedulerName": {
+            "type": "string",
+            "metadata": {
+                "description": "Name of the Scheduler."
+            }
+        },        
+        "environment": {
+            "type": "string",
+            "metadata": {
+                "description": "Name of the environment that is being deployed to."
+            }
+        },
+        "releaseId": {
+            "type": "int",
+            "metadata": {
+                "description": "The identifier of the current release record."
+            }
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "comments": "Scheduler containing jobs triggerring Logic Apps.",
+            "type": "Microsoft.Scheduler/jobCollections",
+            "name": "[parameters('schedulerName')]",
+            "apiVersion": "2016-03-01",
+            "location": "[resourceGroup().location]",
+            "tags": {
+                "34a4fc9c-8817-4c95-8e1b-76e27fbe2699": "f009d98d-028e-48bc-af57-944f3dd9a77c",
+                "Department": "Data & Search",
+                "Environment": "[parameters('environment')]",
+                "ReleaseId": "[parameters('releaseId')]",
+                "Type": "Scheduler"
+            },
+            "properties": {
+                "sku": {
+                    "name": "Standard"
+                },
+                "state": "Enabled"
+            },
+            "dependsOn": []
+        }
+    ]
+}

@@ -1,0 +1,131 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "logicAppsSetting_name": {
+      "type": "array",
+      "metadata": {
+        "description": "Names for Scheduler Job."
+      }
+    },
+    "azureFunctionsName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the Azure Functions."
+      }
+    },
+    "logicAppsSetting_frequency": {
+      "type": "array",
+      "metadata": {
+        "description": "Type of the frequency of the Scheduler Job."
+      }
+    },
+    "logicAppsSetting_interval": {
+      "type": "array",
+      "metadata": {
+        "description": "Interval for the type of the frequency of the Scheduler Job."
+      }
+    },
+    "logicAppsSetting_triggerTime": {
+      "type": "array",
+      "metadata": {
+        "description": "Start time for the Scheduler Job."
+      }
+    },
+    "schedulerName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the Scheduler."
+      }
+    },
+    "environment": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the environment that is being deployed to."
+      }
+    },
+    "releaseId": {
+      "type": "int",
+      "metadata": {
+        "description": "The identifier of the current release record."
+      }
+    }
+  },
+  "variables": {},
+  "resources": [
+    {
+      "comments": "Scheduler Job.",
+      "type": "Microsoft.Scheduler/jobCollections/jobs",
+      "copy": {
+        "name": "jobcopy",
+        "count": "[length(parameters('logicAppsSetting_name'))]"
+      },
+      "name": "[concat(parameters('schedulerName'),'/',parameters('logicAppsSetting_name')[copyIndex()])]",
+      "apiVersion": "2016-03-01",
+      "location": "[resourceGroup().location]",
+      "tags": {
+        "34a4fc9c-8817-4c95-8e1b-76e27fbe2699": "f009d98d-028e-48bc-af57-944f3dd9a77c",
+        "Department": "Data & Search",
+        "Environment": "[parameters('environment')]",
+        "ReleaseId": "[parameters('releaseId')]",
+        "Type": "Scheduler Job"
+      },
+      "properties": {
+        "startTime": "[parameters('logicAppsSetting_triggerTime')[copyIndex()]]",
+        "action": {
+          "request": {
+            "uri": "[listCallbackURL(concat(resourceId('Microsoft.Logic/workflows',concat('getlist-',parameters('logicAppsSetting_name')[copyIndex()])),'/triggers/manual'),'2016-06-01').value]",
+            "method": "POST"
+          },
+          "type": "HTTP",
+          "retryPolicy": {
+            "retryType": "none"
+          }
+        },
+        "recurrence": {
+          "frequency": "[parameters('logicAppsSetting_frequency')[copyIndex()]]",
+          "interval": "[parameters('logicAppsSetting_interval')[copyIndex()]]"
+        },
+        "state": "Enabled"
+      },
+      "resources": [],
+      "dependsOn": []
+    },
+    {
+      "comments": "Scheduler Job.",
+      "type": "Microsoft.Scheduler/jobCollections/jobs",
+      "name": "[concat(parameters('schedulerName'),'/graphdbbackup')]",
+      "apiVersion": "2016-03-01",
+      "location": "[resourceGroup().location]",
+      "tags": {
+        "34a4fc9c-8817-4c95-8e1b-76e27fbe2699": "f009d98d-028e-48bc-af57-944f3dd9a77c",
+        "Department": "Data & Search",
+        "Environment": "[parameters('environment')]",
+        "ReleaseId": "[parameters('releaseId')]",
+        "Type": "Scheduler Job"
+      },
+      "properties": {
+        "startTime": "05:00",
+        "action": {
+          "request": {
+            "uri": "[listsecrets(concat(resourceId('Microsoft.Web/sites',parameters('azureFunctionsName')),'/functions/GraphDBBackup'),'2015-08-01').trigger_url]",
+            "method": "POST"
+          },
+          "type": "Https",
+          "retryPolicy": {
+            "retryType": "None"
+          }
+        },
+        "recurrence": {
+          "frequency": "Hour",
+          "interval": 24
+        },
+        "state": "Enabled"
+      },
+      "resources": [],
+      "dependsOn": [
+        "[concat('Microsoft.Scheduler/jobCollections/', parameters('schedulerName'))]"
+      ]
+    }
+  ]
+}

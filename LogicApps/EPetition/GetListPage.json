@@ -2,12 +2,6 @@
     "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "azureFunctionsResourceGroupName": {
-            "type": "string",
-            "metadata": {
-                "description": "Name of the Resource Group where Azure Functions are."
-            }
-        },
         "azureFunctionsName": {
             "type": "string",
             "metadata": {
@@ -103,9 +97,9 @@
                                     "workflow": "@workflow()",
                                     "batchId": "@triggerBody()['batchId']"
                                 },
-                                "function": {
-                                    "id": "[concat(subscription().id,'/resourceGroups/',parameters('azureFunctionsResourceGroupName'),'/providers/Microsoft.Web/sites/',parameters('azureFunctionsName'),'/functions/LogicAppsErrorMessageLog')]"
-                                },
+                              "function": {
+                                "id": "[concat(subscription().id,'/resourceGroups/',resourceGroup().name,'/providers/Microsoft.Web/sites/',parameters('azureFunctionsName'),'/functions/LogicAppsErrorMessageLog')]"
+                              },
                                 "retryPolicy": {
                                     "type": "None"
                                 }

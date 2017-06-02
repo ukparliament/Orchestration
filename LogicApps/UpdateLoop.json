@@ -8,18 +8,6 @@
                 "description": "Names for Service Bus queues/workflows."
             }
         },
-        "azureFunctionsResourceGroupName": {
-            "type": "string",
-            "metadata": {
-                "description": "Name of the Resource Group where Azure Functions are."
-            }
-        },
-        "logicAppsSetting_transformationFunctionUri": {
-            "type": "array",
-            "metadata": {
-                "description": "Endpoints of the Azure Functions that perform transformation and update."
-            }
-        },
         "azureFunctionsName": {
             "type": "string",
             "metadata": {
@@ -75,7 +63,7 @@
                                                 "batchId": "@triggerBody().message.properties.batchId"
                                             },
                                             "function": {
-                                                "id": "[concat(subscription().id,'/resourceGroups/',parameters('azureFunctionsResourceGroupName'),'/providers/Microsoft.Web/sites/',parameters('azureFunctionsName'),'/functions/LogicAppsErrorMessageLog')]"
+                                                "id": "[concat(subscription().id,'/resourceGroups/',resourceGroup().name,'/providers/Microsoft.Web/sites/',parameters('azureFunctionsName'),'/functions/LogicAppsErrorMessageLog')]"
                                             },
                                             "retryPolicy": {
                                                 "type": "None"
@@ -102,7 +90,7 @@
                                     "batchId": "@triggerBody().message.properties.batchId"
                                 },
                                 "function": {
-                                    "id": "[concat(subscription().id,'/resourceGroups/',parameters('azureFunctionsResourceGroupName'),'/providers/Microsoft.Web/sites/',parameters('azureFunctionsName'),'/functions/LogicAppsErrorMessageLog')]"
+                                    "id": "[concat(subscription().id,'/resourceGroups/',resourceGroup().name,'/providers/Microsoft.Web/sites/',parameters('azureFunctionsName'),'/functions/LogicAppsErrorMessageLog')]"
                                 },
                                 "retryPolicy": {
                                     "type": "None"
@@ -120,15 +108,15 @@
                                 "retryPolicy": {
                                     "type": "None"
                                 },
-                                "subscribe": {
-                                    "body": {
-                                        "callbackUrl": "@listCallbackUrl()",
-                                        "url": "@triggerBody().message.properties.url",
-                                        "batchId": "@triggerBody().message.properties.batchId"
-                                    },
-                                    "method": "POST",
-                                    "uri": "[parameters('logicAppsSetting_transformationFunctionUri')[copyIndex()]]"
+                              "subscribe": {
+                                "body": {
+                                  "callbackUrl": "@listCallbackUrl()",
+                                  "url": "@triggerBody().message.properties.url",
+                                  "batchId": "@triggerBody().message.properties.batchId"
                                 },
+                                "method": "POST",
+                                "uri": "[listsecrets(concat(resourceId('Microsoft.Web/sites',parameters('azureFunctionsName')),concat('/functions/Transformation',parameters('logicAppsSetting_name')[copyIndex()])),'2015-08-01').trigger_url]"
+                              },
                                 "unsubscribe": {}
                             },
                             "runAfter": {},

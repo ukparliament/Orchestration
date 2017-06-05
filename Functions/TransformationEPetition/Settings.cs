@@ -69,29 +69,31 @@ namespace Functions.TransformationEPetition
 	                parl:additionalDetails ?additionalDetails;
 	                parl:closedAt ?closedAt;
 	                parl:action ?action;
-	                parl:ePetitionHasGovernmentResponse ?governmentResponse.
-		        ?governmentResponse parl:governmentResponseCreatedAt ?governmentResponseCreatedAt;
+	                parl:ePetitionHasGovernmentResponse ?governmentResponse;
+                    parl:ePetitionHasDebate ?debate;
+                    parl:ePetitionHasLocatedSignatureCount ?locatedSignature;
+                    parl:ePetitionHasModeration ?moderation;
+                    parl:ePetitionHasThresholdAttainment ?thresholdAttainment.
+		        ?governmentResponse a parl:GovernmentResponse;
+                    parl:governmentResponseCreatedAt ?governmentResponseCreatedAt;
 		            parl:governmentResponseUpdatedAt ?governmentResponseUpdatedAt;
 		            parl:governmentResponseDetails ?governmentResponseDetails;
 		            parl:governmentResponseSummary ?governmentResponseSummary.
-		        ?ePetition parl:ePetitionHasDebate ?debate
+                ?debate a parl:Debate;
 		            parl:debateProposedDate ?debateProposedDate;
                     parl:debateDate ?debateDate;
                     parl:debateVideoUrl ?debateVideoUrl;
                     parl:debateTranscriptUrl ?debateTranscriptUrl;
                     parl:debateOverview ?debateOverview.
-	            ?ePetition parl:ePetitionHasLocatedSignatureCount ?locatedSignature;
+                ?locatedSignatureCount a parl:LocatedSignatureCount;
                     parl:signatureCount ?signatureCount;
                     parl:signatureCountRetrievedAt ?signatureCountRetrievedAt;
                     parl:locatedSignatureCountHasPlace ?locatedSignatureCountHasPlace.
-                ?ePetition parl:ePetitionHasModerationState ?moderationState.
-                ?moderationState parl:moderationStateChange ?moderationStateChange;
-                    parl:moderationStateHasModerationOption ?moderationOption.
-                ?moderationOption parl:moderationOptionDetails ?moderationOptionDetails;
-                    parl:rejectionDetails ?rejectionDetails;
-                    parl:rejectionHasRejectionCode ?rejectionCode.
-                ?ePetition parl:ePetitionHasThresholdAttainment ?thresholdAttainment;
-                    parl:dateOfThresholdAttainment ?dateOfThresholdAttainment;
+                ?moderation a parl:Moderation; 
+                    parl:moderationHasModerationOption ?moderationOption;
+                    parl:moderatedAt ?moderatedAt.
+                ?thresholdAttainment a parl:ThresholdAttainment;
+                    parl:thresholdAttainmentAt ?thresholdAttainmentAt;
                     parl:thresholdAttainmentHasThreshold ?threshold.
             }
             where {
@@ -119,24 +121,19 @@ namespace Functions.TransformationEPetition
                     optional {?debate parl:debateOverview ?debateOverview}
 	            }
                 optional {
-                    ?ePetition parl:ePetitionHasLocatedSignatureCount ?locatedSignature
-                    optional {?locatedSignature parl:signatureCount ?signatureCount}
-                    optional {?locatedSignature parl:signatureCountRetrievedAt ?signatureCountRetrievedAt}
-                    optional {?locatedSignature parl:locatedSignatureCountHasPlace ?locatedSignatureCountHasPlace}
+                    ?ePetition parl:ePetitionHasLocatedSignatureCount ?locatedSignatureCount
+                    optional {?locatedSignatureCount parl:signatureCount ?signatureCount}
+                    optional {?locatedSignatureCount parl:signatureCountRetrievedAt ?signatureCountRetrievedAt}
+                    optional {?locatedSignatureCount parl:locatedSignatureCountHasPlace ?locatedSignatureCountHasPlace}
                 }
                 optional {
-                    ?ePetition parl:ePetitionHasModerationState ?moderationState
-                    optional {?moderationState parl:moderationStateChange ?moderationStateChange}
-                    optional {
-                        ?moderationState parl:moderationStateHasModerationOption ?moderationOption
-                        optional {?moderationOption parl:moderationOptionDetails ?moderationOptionDetails}
-                        optional {?moderationOption parl:rejectionDetails ?rejectionDetails}
-                        optional {?moderationOption parl:rejectionHasRejectionCode ?rejectionCode}
-                    }
+                    ?ePetition parl:ePetitionHasModeration ?moderation
+                    optional {?moderation parl:moderationAt ?moderationAt}
+                    optional {?moderation parl:moderationHasModerationOption ?moderationOption}
                 }
                 optional {
                     ?ePetition parl:ePetitionHasThresholdAttainment ?thresholdAttainment
-                    optional {?thresholdAttainment parl:dateOfThresholdAttainment ?dateOfThresholdAttainment}
+                    optional {?thresholdAttainment parl:thresholdAttainmentAt ?thresholdAttainmentAt}
                     optional {?thresholdAttainment parl:thresholdAttainmentHasThreshold ?threshold}
                 }
             }";

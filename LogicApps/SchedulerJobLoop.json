@@ -56,7 +56,7 @@
         "name": "jobcopy",
         "count": "[length(parameters('logicAppsSetting_name'))]"
       },
-      "name": "[concat(parameters('schedulerName'),'/',parameters('logicAppsSetting_name')[copyIndex()])]",
+      "name": "[concat(variables('schedulerName'),'/',parameters('logicAppsSetting_name')[copyIndex()])]",
       "apiVersion": "2016-03-01",
       "location": "[resourceGroup().location]",
       "tags": {
@@ -90,7 +90,7 @@
     {
       "comments": "Scheduler Job.",
       "type": "Microsoft.Scheduler/jobCollections/jobs",
-      "name": "[concat(parameters('schedulerName'),'/graphdbbackup')]",
+      "name": "[concat(variables('schedulerName'),'/graphdbbackup')]",
       "apiVersion": "2016-03-01",
       "location": "[resourceGroup().location]",
       "tags": {
@@ -120,7 +120,7 @@
       },
       "resources": [],
       "dependsOn": [
-        "[concat('Microsoft.Scheduler/jobCollections/', parameters('schedulerName'))]"
+        "[concat('Microsoft.Scheduler/jobCollections/', variables('schedulerName'))]"
       ]
     }
   ]

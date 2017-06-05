@@ -120,7 +120,6 @@
       },
       "resources": [],
       "dependsOn": [
-        "[concat('Microsoft.Scheduler/jobCollections/', variables('schedulerName'))]"
       ]
     }
   ]

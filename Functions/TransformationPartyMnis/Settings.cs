@@ -59,7 +59,7 @@ namespace Functions.TransformationPartyMnis
             }
         }
 
-        public string ExisitngGraphSparqlCommand
+        public string ExistingGraphSparqlCommand
         {
             get
             {

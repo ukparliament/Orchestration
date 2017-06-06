@@ -57,7 +57,7 @@ namespace Functions.TransformationTerritoryGovRegister
 			}
 		}
 
-		public string ExisitngGraphSparqlCommand
+		public string ExistingGraphSparqlCommand
         {
             get
             {

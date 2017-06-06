@@ -56,7 +56,7 @@ namespace Functions.TransformationEPetition
             }
         }
 
-        public string ExisitngGraphSparqlCommand
+        public string ExistingGraphSparqlCommand
         {
             get
             {
@@ -85,10 +85,10 @@ namespace Functions.TransformationEPetition
                     parl:debateVideoUrl ?debateVideoUrl;
                     parl:debateTranscriptUrl ?debateTranscriptUrl;
                     parl:debateOverview ?debateOverview.
-                ?locatedSignatureCount a parl:LocatedSignatureCount;
-                    parl:signatureCount ?signatureCount;
-                    parl:signatureCountRetrievedAt ?signatureCountRetrievedAt;
-                    parl:locatedSignatureCountHasPlace ?locatedSignatureCountHasPlace.
+             #   ?locatedSignatureCount a parl:LocatedSignatureCount;
+             #       parl:signatureCount ?signatureCount;
+             #       parl:signatureCountRetrievedAt ?signatureCountRetrievedAt;
+             #       parl:locatedSignatureCountHasPlace ?locatedSignatureCountHasPlace.
                 ?moderation a parl:Moderation; 
                     parl:moderationHasModerationOption ?moderationOption;
                     parl:moderatedAt ?moderatedAt.
@@ -120,12 +120,12 @@ namespace Functions.TransformationEPetition
                     optional {?debate parl:debateTranscriptUrl ?debateTranscriptUrl}
                     optional {?debate parl:debateOverview ?debateOverview}
 	            }
-                optional {
-                    ?ePetition parl:ePetitionHasLocatedSignatureCount ?locatedSignatureCount
-                    optional {?locatedSignatureCount parl:signatureCount ?signatureCount}
-                    optional {?locatedSignatureCount parl:signatureCountRetrievedAt ?signatureCountRetrievedAt}
-                    optional {?locatedSignatureCount parl:locatedSignatureCountHasPlace ?locatedSignatureCountHasPlace}
-                }
+             #   optional {
+             #       ?ePetition parl:ePetitionHasLocatedSignatureCount ?locatedSignatureCount
+             #       optional {?locatedSignatureCount parl:signatureCount ?signatureCount}
+             #       optional {?locatedSignatureCount parl:signatureCountRetrievedAt ?signatureCountRetrievedAt}
+             #       optional {?locatedSignatureCount parl:locatedSignatureCountHasPlace ?locatedSignatureCountHasPlace}
+             #   }
                 optional {
                     ?ePetition parl:ePetitionHasModeration ?moderation
                     optional {?moderation parl:moderationAt ?moderationAt}
@@ -150,7 +150,7 @@ namespace Functions.TransformationEPetition
 
         public string FullDataUrlParameterizedString(string dataUrl)
         {
-            return dataUrl;
+            return $"https://petition.parliament.uk/petitions/{dataUrl}.json";
         }
     }
 }

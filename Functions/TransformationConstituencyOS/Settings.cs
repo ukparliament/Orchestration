@@ -68,7 +68,7 @@ namespace Functions.TransformationConstituencyOS
             }
         }
 
-        public string ExisitngGraphSparqlCommand
+        public string ExistingGraphSparqlCommand
         {
             get
             {

@@ -10,7 +10,7 @@ namespace Functions
         XmlNamespaceManager SourceXmlNamespaceManager { get; }
         string SubjectRetrievalSparqlCommand { get; }
         Dictionary<string, string> SubjectRetrievalParameters { get; }
-        string ExisitngGraphSparqlCommand { get; }
+        string ExistingGraphSparqlCommand { get; }
         Dictionary<string, string> ExistingGraphSparqlParameters { get; }
 
         string FullDataUrlParameterizedString(string dataUrl);

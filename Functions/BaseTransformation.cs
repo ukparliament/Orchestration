@@ -93,7 +93,7 @@ namespace Functions
 
         private IGraph getExistingGraph(Uri subject, XDocument doc, T settings)
         {
-            SparqlParameterizedString sparql = new SparqlParameterizedString(settings.ExisitngGraphSparqlCommand);
+            SparqlParameterizedString sparql = new SparqlParameterizedString(settings.ExistingGraphSparqlCommand);
             sparql.SetUri("subject", subject);
             if (settings.ExistingGraphSparqlParameters != null)
                 foreach (KeyValuePair<string, string> nameXPathPair in settings.ExistingGraphSparqlParameters)

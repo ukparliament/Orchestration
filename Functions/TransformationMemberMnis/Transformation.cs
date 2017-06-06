@@ -172,7 +172,8 @@ namespace Functions.TransformationMemberMnis
                 telemetryClient.TrackTrace($"Seat incumbency ({startDateElement.Value})", Microsoft.ApplicationInsights.DataContracts.SeverityLevel.Verbose);
                 endDateElement = element.XPathSelectElement("atom:content/m:properties/d:EndDate", xmlNamespaceManager);
                 incumbencyNode = generateIncumbency(graph, oldGraph, subject, startDateElement, endDateElement);
-                generateSeatIncumbencyParliamentPeriod(graph, incumbencyNode, startDateElement);
+                bool hasEndDate = (endDateElement != null && string.IsNullOrWhiteSpace(endDateElement.Value) == false);
+                generateSeatIncumbencyParliamentPeriod(graph, incumbencyNode, startDateElement, endDateElement);
                 telemetryClient.TrackTrace($"Check seat ({startDateElement.Value})", Microsoft.ApplicationInsights.DataContracts.SeverityLevel.Verbose);
                 Uri houseSeatUri;
                 XElement constituencyElement = element.XPathSelectElement("atom:link[@title='Constituency']/m:inline/atom:entry/atom:content/m:properties", xmlNamespaceManager);
@@ -224,21 +225,27 @@ namespace Functions.TransformationMemberMnis
             return incumbencyNode;
         }
 
-        private void generateSeatIncumbencyParliamentPeriod(IGraph graph, IUriNode seatIncumbency, XElement startDateElement)
+        private void generateSeatIncumbencyParliamentPeriod(IGraph graph, IUriNode seatIncumbency, XElement startDateElement, XElement endDateElement)
         {
             IUriNode dataTypeNode = graph.CreateUriNode("xsd:date");
             string sparqlCommand = @"
         construct {
-            ?s a parl:ParliamentPeriod.
+            ?parliamentPeriod a parl:ParliamentPeriod.
         }where { 
-            ?s a parl:ParliamentPeriod;
-            parl:parliamentPeriodStartDate ?parliamentPeriodStartDate.
-            filter (?parliamentPeriodStartDate >= @startDate) 
-        } order by ?parliamentPeriodStartDate limit 1";
+            ?parliamentPeriod a parl:ParliamentPeriod;
+                parl:parliamentPeriodStartDate ?parliamentPeriodStartDate.
+            optional {?parliamentPeriod parl:parliamentPeriodEndDate ?parliamentPeriodEndDate}
+            filter ((?parliamentPeriodStartDate<=@startDate && ?parliamentPeriodEndDate>=@startDate) ||
+    	            (?parliamentPeriodStartDate<=@endDate && ?parliamentPeriodEndDate>=@endDate) ||
+                    (bound(?parliamentPeriodEndDate)=false && false=@hasEndDate))
+        }";
             SparqlParameterizedString sparql = new SparqlParameterizedString(sparqlCommand);
             sparql.Namespaces.AddNamespace("parl", new Uri(schemaNamespace));
             string startDate = giveMeDatePart(startDateElement);
+            string endDate = giveMeDatePart(endDateElement);
             sparql.SetLiteral("startDate", startDate, dataTypeNode.Uri);
+            sparql.SetLiteral("endDate", endDate, dataTypeNode.Uri);
+            sparql.SetLiteral("hasEndDate", string.IsNullOrWhiteSpace(endDate)==false);
             Uri parliamentPeriodUri = IdRetrieval.GetSubject(sparql.ToString(), false, telemetryClient);
             if (parliamentPeriodUri != null)
             {

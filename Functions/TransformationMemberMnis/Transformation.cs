@@ -237,6 +237,7 @@ namespace Functions.TransformationMemberMnis
             optional {?parliamentPeriod parl:parliamentPeriodEndDate ?parliamentPeriodEndDate}
             filter ((?parliamentPeriodStartDate<=@startDate && ?parliamentPeriodEndDate>=@startDate) ||
     	            (?parliamentPeriodStartDate<=@endDate && ?parliamentPeriodEndDate>=@endDate) ||
+                    (?parliamentPeriodStartDate>@startDate && ?parliamentPeriodEndDate<@endDate) ||
                     (bound(?parliamentPeriodEndDate)=false && false=@hasEndDate))
         }";
             SparqlParameterizedString sparql = new SparqlParameterizedString(sparqlCommand);

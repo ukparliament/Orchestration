@@ -170,7 +170,7 @@
           ],
           "properties": {
             "Data": {
-              "value": "[concat('https://',parameters('apiManagementName'),'.azure-api.net/rdf4j/master-0')]",
+              "value": "[concat('https://',parameters('apiManagementName'),'.azure-api.net/graph-store')]",
               "type": "Custom"
             },
             "ServiceBus": {

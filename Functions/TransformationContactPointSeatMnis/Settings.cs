@@ -59,7 +59,7 @@ namespace Functions.TransformationContactPointSeatMnis
             }
         }
 
-        public string ExisitngGraphSparqlCommand
+        public string ExistingGraphSparqlCommand
         {
             get
             {

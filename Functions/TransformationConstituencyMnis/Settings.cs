@@ -68,7 +68,7 @@ namespace Functions.Transformation
             }
         }
 
-        public string ExisitngGraphSparqlCommand
+        public string ExistingGraphSparqlCommand
         {
             get
             {

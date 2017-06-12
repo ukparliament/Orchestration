@@ -57,7 +57,7 @@ namespace Functions.TransformationConstituencyOSNI
             }
         }
 
-        public string ExisitngGraphSparqlCommand
+        public string ExistingGraphSparqlCommand
         {
             get
             {

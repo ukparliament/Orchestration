@@ -1,5 +1,6 @@
 ﻿using Microsoft.ApplicationInsights;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using VDS.RDF;
 using VDS.RDF.Query;
@@ -27,10 +28,30 @@ namespace Functions
 
             return getValue(sparql.ToString(), canCreateNewId, telemetryClient);
         }
-
         public static Uri GetSubject(string sparql, bool canCreateNewId, TelemetryClient telemetryClient)
         {
             return getValue(sparql, canCreateNewId, telemetryClient);
+        }
+        public static Dictionary<string, string> GetSubjects(string subjectType, string predicate, TelemetryClient telemetryClient)
+        {
+           string command = @"
+                construct{
+                    ?s @predicate ?objectValue.
+                }
+                where{
+                    ?s a @subjectType; 
+                        @predicate ?objectValue.
+                }";
+            SparqlParameterizedString sparql = new SparqlParameterizedString(command);
+            sparql.SetUri("subjectType", new Uri($"{schemaNamespace}{subjectType}"));
+            sparql.SetUri("predicate", new Uri($"{schemaNamespace}{predicate}"));
+            Dictionary<string, string> result = new Dictionary<string, string>();
+            IGraph graph = GraphRetrieval.GetGraph(sparql.ToString(), telemetryClient, "false");
+            foreach (Triple triple in graph.Triples)
+            {
+                result.Add(triple.Object.ToString(), triple.Subject.ToString());
+            }
+            return result;
         }
 
         private static Uri getValue(string sparql, bool canCreateNewId, TelemetryClient telemetryClient)

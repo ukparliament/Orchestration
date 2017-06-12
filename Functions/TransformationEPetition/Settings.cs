@@ -56,7 +56,7 @@ namespace Functions.TransformationEPetition
             }
         }
 
-        public string ExisitngGraphSparqlCommand
+        public string ExistingGraphSparqlCommand
         {
             get
             {
@@ -69,29 +69,33 @@ namespace Functions.TransformationEPetition
 	                parl:additionalDetails ?additionalDetails;
 	                parl:closedAt ?closedAt;
 	                parl:action ?action;
-	                parl:ePetitionHasGovernmentResponse ?governmentResponse.
-		        ?governmentResponse parl:governmentResponseCreatedAt ?governmentResponseCreatedAt;
+	                parl:ePetitionHasGovernmentResponse ?governmentResponse;
+                    parl:ePetitionHasDebate ?debate;
+                    parl:ePetitionHasLocatedSignatureCount ?locatedSignatureCount;
+                    parl:ePetitionHasModeration ?moderation;
+                    parl:ePetitionHasThresholdAttainment ?thresholdAttainment.
+		        ?governmentResponse a parl:GovernmentResponse;
+                    parl:governmentResponseCreatedAt ?governmentResponseCreatedAt;
 		            parl:governmentResponseUpdatedAt ?governmentResponseUpdatedAt;
 		            parl:governmentResponseDetails ?governmentResponseDetails;
 		            parl:governmentResponseSummary ?governmentResponseSummary.
-		        ?ePetition parl:ePetitionHasDebate ?debate
+                ?debate a parl:Debate;
 		            parl:debateProposedDate ?debateProposedDate;
                     parl:debateDate ?debateDate;
                     parl:debateVideoUrl ?debateVideoUrl;
                     parl:debateTranscriptUrl ?debateTranscriptUrl;
                     parl:debateOverview ?debateOverview.
-	            ?ePetition parl:ePetitionHasLocatedSignatureCount ?locatedSignature;
+                ?locatedSignatureCount a parl:LocatedSignatureCount;
                     parl:signatureCount ?signatureCount;
                     parl:signatureCountRetrievedAt ?signatureCountRetrievedAt;
                     parl:locatedSignatureCountHasPlace ?locatedSignatureCountHasPlace.
-                ?ePetition parl:ePetitionHasModerationState ?moderationState.
-                ?moderationState parl:moderationStateChange ?moderationStateChange;
-                    parl:moderationStateHasModerationOption ?moderationOption.
-                ?moderationOption parl:moderationOptionDetails ?moderationOptionDetails;
-                    parl:rejectionDetails ?rejectionDetails;
-                    parl:rejectionHasRejectionCode ?rejectionCode.
-                ?ePetition parl:ePetitionHasThresholdAttainment ?thresholdAttainment;
-                    parl:dateOfThresholdAttainment ?dateOfThresholdAttainment;
+                ?moderation a parl:Moderation; 
+                    parl:rejectionHasRejectionCode ?rejectionCode ;
+                    parl:rejectionDetails ?rejectionDetails ;
+                    parl:approvedAt ?approvedAt; 
+                    parl:rejectedAt ?rejectedAt.
+                ?thresholdAttainment a parl:ThresholdAttainment;
+                    parl:thresholdAttainmentAt ?thresholdAttainmentAt;
                     parl:thresholdAttainmentHasThreshold ?threshold.
             }
             where {
@@ -118,25 +122,34 @@ namespace Functions.TransformationEPetition
                     optional {?debate parl:debateTranscriptUrl ?debateTranscriptUrl}
                     optional {?debate parl:debateOverview ?debateOverview}
 	            }
-                optional {
-                    ?ePetition parl:ePetitionHasLocatedSignatureCount ?locatedSignature
-                    optional {?locatedSignature parl:signatureCount ?signatureCount}
-                    optional {?locatedSignature parl:signatureCountRetrievedAt ?signatureCountRetrievedAt}
-                    optional {?locatedSignature parl:locatedSignatureCountHasPlace ?locatedSignatureCountHasPlace}
-                }
-                optional {
-                    ?ePetition parl:ePetitionHasModerationState ?moderationState
-                    optional {?moderationState parl:moderationStateChange ?moderationStateChange}
-                    optional {
-                        ?moderationState parl:moderationStateHasModerationOption ?moderationOption
-                        optional {?moderationOption parl:moderationOptionDetails ?moderationOptionDetails}
-                        optional {?moderationOption parl:rejectionDetails ?rejectionDetails}
-                        optional {?moderationOption parl:rejectionHasRejectionCode ?rejectionCode}
+                OPTIONAL {
+                    ?locatedSignatureCount
+                        ^parl:ePetitionHasLocatedSignatureCount ?ePetition ;
+                        parl:signatureCount ?signatureCount ;
+                        parl:locatedSignatureCountHasPlace ?locatedSignatureCountHasPlace ;
+                        parl:signatureCountRetrievedAt ?signatureCountRetrievedAt .
+                    {
+                        SELECT ?ePetition ?locatedSignatureCountHasPlace (MAX(?signatureCountRetrievedAt) AS ?signatureCountRetrievedAt)
+                        WHERE {
+                            ?locatedSignatureCount 
+                                a parl:LocatedSignatureCount ;
+                                ^parl:ePetitionHasLocatedSignatureCount ?ePetition ;
+                                parl:signatureCountRetrievedAt ?signatureCountRetrievedAt ;
+                                parl:locatedSignatureCountHasPlace ?locatedSignatureCountHasPlace .
+                        }
+                        GROUP BY ?ePetition ?locatedSignatureCountHasPlace
                     }
                 }
                 optional {
+                    ?ePetition parl:ePetitionHasModeration ?moderation
+                    optional {?moderation parl:rejectedAt ?rejectedAt}
+                    optional {?moderation parl:approvedAt ?approvedAt}
+                    optional {?moderation parl:rejectionHasRejectionCode ?rejectionCode}
+                    optional {?moderation parl:rejectionDetails ?rejectionDetails}
+                }
+                optional {
                     ?ePetition parl:ePetitionHasThresholdAttainment ?thresholdAttainment
-                    optional {?thresholdAttainment parl:dateOfThresholdAttainment ?dateOfThresholdAttainment}
+                    optional {?thresholdAttainment parl:thresholdAttainmentAt ?thresholdAttainmentAt}
                     optional {?thresholdAttainment parl:thresholdAttainmentHasThreshold ?threshold}
                 }
             }";
@@ -153,7 +166,7 @@ namespace Functions.TransformationEPetition
 
         public string FullDataUrlParameterizedString(string dataUrl)
         {
-            return dataUrl;
+            return $"https://petition.parliament.uk/petitions/{dataUrl}.json";
         }
     }
 }

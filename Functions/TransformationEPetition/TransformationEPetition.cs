@@ -13,23 +13,8 @@ namespace Functions.TransformationEPetition
         [FunctionName("TransformationEPetition")]
         public static async Task<object> Run([HttpTrigger(WebHookType = "genericJson")]HttpRequestMessage req, TraceWriter log)
         {
-            log.Info($"Webhook was triggered!");
-
-            string jsonContent = await req.Content.ReadAsStringAsync();
-            dynamic data = JsonConvert.DeserializeObject(jsonContent);
-
-            if (data.first == null || data.last == null)
-            {
-                return req.CreateResponse(HttpStatusCode.BadRequest, new
-                {
-                    error = "Please pass first/last properties in the input object"
-                });
-            }
-
-            return req.CreateResponse(HttpStatusCode.OK, new
-            {
-                greeting = $"Hello {data.first} {data.last}!"
-            });
+            Transformation transformation = new Transformation();
+            return await transformation.Run(req, new Settings());
         }
     }
 }

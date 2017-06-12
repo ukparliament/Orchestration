@@ -10,7 +10,7 @@ using VDS.RDF.Query;
 
 namespace Functions.TransformationEPetition
 {
-    public class Transformation :BaseTransformation<Settings>
+    public class Transformation : BaseTransformation<Settings>
     {
         public override IGraph GenerateNewGraph(XDocument doc, IGraph oldGraph, Uri subjectUri, Settings settings)
         {
@@ -31,29 +31,40 @@ namespace Functions.TransformationEPetition
             generateTripleGovernmentResponse(result, oldGraph, subject, doc, settings.SourceXmlNamespaceManager);
             generateTripleDebate(result, oldGraph, subject, doc, settings.SourceXmlNamespaceManager);
             generateTripleLocatedSignatureCount(result, oldGraph, subject, doc, settings.SourceXmlNamespaceManager);
-            
+            generateTripleModeration(result, oldGraph, subject, doc, settings.SourceXmlNamespaceManager);
+
             return result;
         }
 
         private void generateTripleGovernmentResponse(IGraph graph, IGraph oldGraph, IUriNode subject, XDocument doc, XmlNamespaceManager xmlNamespaceManager)
         {
-            IUriNode governmentResponseNode = graph.CreateUriNode("parl:ePetitionHasGovernmentResponse");
-            IUriNode governmentResponse = generateLinkedObject(graph, oldGraph, subject, governmentResponseNode);
-            TripleGenerator.GenerateTriple((Graph)graph, governmentResponse, "parl:governmentResponseCreatedAt", doc, "root/data/attributes/government_response/created_at", xmlNamespaceManager, "xsd:dateTime");
-            TripleGenerator.GenerateTriple((Graph)graph, governmentResponse, "parl:governmentResponseUpdatedAt", doc, "root/data/attributes/government_response/updated_at", xmlNamespaceManager, "xsd:dateTime");
-            TripleGenerator.GenerateTriple((Graph)graph, governmentResponse, "parl:governmentResponseDetails", doc, "root/data/attributes/government_response/details", xmlNamespaceManager);
-            TripleGenerator.GenerateTriple((Graph)graph, governmentResponse, "parl:governmentResponseSummary", doc, "root/data/attributes/government_response/summary", xmlNamespaceManager);
+            XElement governmentResponseElement = doc.XPathSelectElement("root/data/attributes/government_response");
+            if (governmentResponseElement != null && governmentResponseElement.IsEmpty == false)
+            {
+                IUriNode governmentResponseNode = graph.CreateUriNode("parl:ePetitionHasGovernmentResponse");
+                IUriNode governmentResponse = generateLinkedObject(graph, oldGraph, subject, governmentResponseNode);
+                graph.Assert(governmentResponse, graph.CreateUriNode(new Uri(RdfSpecsHelper.RdfType)), graph.CreateUriNode("parl:GovernmentResponse"));
+                TripleGenerator.GenerateTriple((Graph)graph, governmentResponse, "parl:governmentResponseCreatedAt", doc, "root/data/attributes/government_response/created_at", xmlNamespaceManager, "xsd:dateTime");
+                TripleGenerator.GenerateTriple((Graph)graph, governmentResponse, "parl:governmentResponseUpdatedAt", doc, "root/data/attributes/government_response/updated_at", xmlNamespaceManager, "xsd:dateTime");
+                TripleGenerator.GenerateTriple((Graph)graph, governmentResponse, "parl:governmentResponseDetails", doc, "root/data/attributes/government_response/details", xmlNamespaceManager);
+                TripleGenerator.GenerateTriple((Graph)graph, governmentResponse, "parl:governmentResponseSummary", doc, "root/data/attributes/government_response/summary", xmlNamespaceManager);
+            }
         }
 
         private void generateTripleDebate(IGraph graph, IGraph oldGraph, IUriNode subject, XDocument doc, XmlNamespaceManager xmlNamespaceManager)
         {
-            IUriNode debateNode = graph.CreateUriNode("parl:ePetitionHasDebate");
-            IUriNode debate = generateLinkedObject(graph, oldGraph, subject, debateNode);
-            TripleGenerator.GenerateTriple((Graph)graph, debate, "parl:debateProposedDate", doc, "root/data/attributes/scheduled_debate_date", xmlNamespaceManager, "xsd:date");
-            TripleGenerator.GenerateTriple((Graph)graph, debate, "parl:debateDate", doc, "root/data/attributes/debate/debated_on", xmlNamespaceManager, "xsd:date");
-            TripleGenerator.GenerateTriple((Graph)graph, debate, "parl:debateVideoUrl", doc, "root/data/attributes/debate/video_url", xmlNamespaceManager);
-            TripleGenerator.GenerateTriple((Graph)graph, debate, "parl:debateTranscriptUrl", doc, "root/data/attributes/debate/transcript_url", xmlNamespaceManager);
-            TripleGenerator.GenerateTriple((Graph)graph, debate, "parl:debateOverview", doc, "root/data/attributes/debate/overview", xmlNamespaceManager);
+            XElement debateElement = doc.XPathSelectElement("root/data/attributes/debate");
+            if (debateElement != null && debateElement.IsEmpty == false)
+            {
+                IUriNode debateNode = graph.CreateUriNode("parl:ePetitionHasDebate");
+                IUriNode debate = generateLinkedObject(graph, oldGraph, subject, debateNode);
+                graph.Assert(debate, graph.CreateUriNode(new Uri(RdfSpecsHelper.RdfType)), graph.CreateUriNode("parl:Debate"));
+                TripleGenerator.GenerateTriple((Graph)graph, debate, "parl:debateProposedDate", doc, "root/data/attributes/scheduled_debate_date", xmlNamespaceManager, "xsd:date");
+                TripleGenerator.GenerateTriple((Graph)graph, debate, "parl:debateDate", doc, "root/data/attributes/debate/debated_on", xmlNamespaceManager, "xsd:date");
+                TripleGenerator.GenerateTriple((Graph)graph, debate, "parl:debateVideoUrl", doc, "root/data/attributes/debate/video_url", xmlNamespaceManager);
+                TripleGenerator.GenerateTriple((Graph)graph, debate, "parl:debateTranscriptUrl", doc, "root/data/attributes/debate/transcript_url", xmlNamespaceManager);
+                TripleGenerator.GenerateTriple((Graph)graph, debate, "parl:debateOverview", doc, "root/data/attributes/debate/overview", xmlNamespaceManager);
+            }
         }
         private void generateTripleThresholdAttainment(IGraph graph, IGraph oldGraph, IUriNode subject, XDocument doc, XmlNamespaceManager xmlNamespaceManager)
         {
@@ -86,9 +97,36 @@ namespace Functions.TransformationEPetition
             foreach (XElement constituency in doc.XPathSelectElements("root/data/attributes/signatures_by_constituency"))
             {
                 XElement onsCode = constituency.Element("ons_code");
-                if ((onsCode != null) && (string.IsNullOrWhiteSpace(onsCode.Value)==false) && (constituencies.ContainsKey(onsCode.Value)))
+                if ((onsCode != null) && (string.IsNullOrWhiteSpace(onsCode.Value) == false) && (constituencies.ContainsKey(onsCode.Value)))
                 {
-                        XDocument constituencyDoc = new XDocument(constituency);
+                    XDocument constituencyDoc = new XDocument(constituency);
+
+                    var count = constituency.Element("signature_count").Value;
+                    var onsCodeValue = onsCode.Value;
+                    var locatedSignatureCountForOnsCode = oldGraph.GetTriplesWithPredicateObject(graph.CreateUriNode("parl:locatedSignatureCountHasPlace"), graph.CreateUriNode(new Uri(constituencies[onsCode.Value])));
+                    var runIt = true;
+
+                    if (locatedSignatureCountForOnsCode!=null && locatedSignatureCountForOnsCode.Any())
+                    {
+                        var oldCountTriple = oldGraph.GetTriplesWithSubjectPredicate(locatedSignatureCountForOnsCode.SingleOrDefault().Subject, graph.CreateUriNode("parl:signatureCount")).SingleOrDefault();
+                        var oldCountNode = oldCountTriple.Object;
+
+                        var oldCount = (oldCountNode as ILiteralNode).Value;
+
+                        if (oldCount == count)
+                        {
+                            runIt = false;
+                            foreach (Triple triple in oldGraph.GetTriplesWithSubject(oldCountTriple.Subject))
+                            {
+                                graph.Assert(triple);
+                            }
+                            graph.Assert(subject, graph.CreateUriNode("parl:ePetitionHasLocatedSignatureCount"), oldCountTriple.Subject);
+
+                        }
+                    }
+
+                    if (runIt)
+                    {
                         string constituencySignatureCountId = new IdGenerator.IdMaker().MakeId();
                         IUriNode constituencySignatureCount = graph.CreateUriNode(new Uri(constituencySignatureCountId));
                         graph.Assert(constituencySignatureCount, graph.CreateUriNode(new Uri(RdfSpecsHelper.RdfType)), graph.CreateUriNode("parl:LocatedSignatureCount"));
@@ -96,6 +134,7 @@ namespace Functions.TransformationEPetition
                         graph.Assert(constituencySignatureCount, graph.CreateUriNode("parl:signatureCountRetrievedAt"), graph.CreateLiteralNode(DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ssZ"), graph.CreateUriNode("xsd:dateTime").Uri));
                         graph.Assert(constituencySignatureCount, graph.CreateUriNode("parl:locatedSignatureCountHasPlace"), graph.CreateUriNode(new Uri(constituencies[onsCode.Value])));
                         graph.Assert(subject, graph.CreateUriNode("parl:ePetitionHasLocatedSignatureCount"), constituencySignatureCount);
+                    }
                 }
             }
             Dictionary<string, string> countries = IdRetrieval.GetSubjects("Country", "countryGovRegisterId", telemetryClient);
@@ -106,14 +145,14 @@ namespace Functions.TransformationEPetition
                 XElement internationalAreaCode = internationalArea.Element("code");
                 if ((internationalAreaCode != null) && (string.IsNullOrWhiteSpace(internationalAreaCode.Value) == false) && (internationalAreas.ContainsKey(internationalAreaCode.Value)))
                 {
-                        XDocument countryDoc = new XDocument(internationalArea);
-                        string countrySignatureCountId = new IdGenerator.IdMaker().MakeId();
-                        IUriNode countrySignatureCount = graph.CreateUriNode(new Uri(countrySignatureCountId));
-                        graph.Assert(countrySignatureCount, graph.CreateUriNode(new Uri(RdfSpecsHelper.RdfType)), graph.CreateUriNode("parl:LocatedSignatureCount"));
-                        TripleGenerator.GenerateTriple((Graph)graph, countrySignatureCount, "parl:signatureCount", countryDoc, "signatures_by_country/signature_count", xmlNamespaceManager, "xsd:integer");
-                        graph.Assert(countrySignatureCount, graph.CreateUriNode("parl:signatureCountRetrievedAt"), graph.CreateLiteralNode(DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ssZ"), graph.CreateUriNode("xsd:dateTime").Uri));
-                        graph.Assert(countrySignatureCount, graph.CreateUriNode("parl:locatedSignatureCountHasPlace"), graph.CreateUriNode(new Uri(internationalAreas[internationalAreaCode.Value])));
-                        graph.Assert(subject, graph.CreateUriNode("parl:ePetitionHasLocatedSignatureCount"), countrySignatureCount);
+                    XDocument countryDoc = new XDocument(internationalArea);
+                    string countrySignatureCountId = new IdGenerator.IdMaker().MakeId();
+                    IUriNode countrySignatureCount = graph.CreateUriNode(new Uri(countrySignatureCountId));
+                    graph.Assert(countrySignatureCount, graph.CreateUriNode(new Uri(RdfSpecsHelper.RdfType)), graph.CreateUriNode("parl:LocatedSignatureCount"));
+                    TripleGenerator.GenerateTriple((Graph)graph, countrySignatureCount, "parl:signatureCount", countryDoc, "signatures_by_country/signature_count", xmlNamespaceManager, "xsd:integer");
+                    graph.Assert(countrySignatureCount, graph.CreateUriNode("parl:signatureCountRetrievedAt"), graph.CreateLiteralNode(DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ssZ"), graph.CreateUriNode("xsd:dateTime").Uri));
+                    graph.Assert(countrySignatureCount, graph.CreateUriNode("parl:locatedSignatureCountHasPlace"), graph.CreateUriNode(new Uri(internationalAreas[internationalAreaCode.Value])));
+                    graph.Assert(subject, graph.CreateUriNode("parl:ePetitionHasLocatedSignatureCount"), countrySignatureCount);
                 }
             }
 
@@ -121,22 +160,49 @@ namespace Functions.TransformationEPetition
 
         private void generateTripleModeration(IGraph graph, IGraph oldGraph, IUriNode subject, XDocument doc, XmlNamespaceManager xmlNamespaceManager)
         {
-            Uri governmentResponseUri;
-            IUriNode governmentResponseNode = graph.CreateUriNode("parl:ePetitionHasGovernmentResponse");
-            IEnumerable<Triple> existingGovernmentResponses = oldGraph.GetTriplesWithPredicate(governmentResponseNode);
-            if ((existingGovernmentResponses != null) && (existingGovernmentResponses.Any()))
+            XElement approvedAt = doc.XPathSelectElement("root/data/attributes/open_at");
+            if ((approvedAt != null) && (string.IsNullOrWhiteSpace(approvedAt.Value) == false))
             {
-                governmentResponseUri = ((IUriNode)existingGovernmentResponses.SingleOrDefault().Object).Uri;
+                IUriNode approval = generateLinkedSubject(graph, oldGraph, graph.CreateUriNode("parl:approvedAt"), graph.CreateLiteralNode(approvedAt.Value, graph.CreateUriNode("xsd:dateTime").Uri));
+                graph.Assert(subject, graph.CreateUriNode("parl:ePetitionHasModeration"), approval);
+                graph.Assert(approval, graph.CreateUriNode(new Uri(RdfSpecsHelper.RdfType)), graph.CreateUriNode("parl:Moderation"));
             }
-            else
+            XElement rejectedAt = doc.XPathSelectElement("root/data/attributes/rejected_at");
+            if ((rejectedAt != null) && (string.IsNullOrWhiteSpace(rejectedAt.Value) == false))
             {
-                string governmentResponseId = new IdGenerator.IdMaker().MakeId();
-                governmentResponseUri = new Uri(governmentResponseId);
-                telemetryClient.TrackTrace($"New government response {governmentResponseUri}", Microsoft.ApplicationInsights.DataContracts.SeverityLevel.Verbose);
+                XElement rejectionCode = doc.XPathSelectElement("root/data/attributes/rejection/code");
+                IUriNode rejection = generateLinkedSubject(graph, oldGraph, graph.CreateUriNode("parl:rejectedAt"), graph.CreateLiteralNode(rejectedAt.Value, graph.CreateUriNode("xsd:dateTime").Uri));
+                graph.Assert(subject, graph.CreateUriNode("parl:ePetitionHasModeration"), rejection);
+                graph.Assert(rejection, graph.CreateUriNode(new Uri(RdfSpecsHelper.RdfType)), graph.CreateUriNode("parl:Moderation"));
+                if ((rejectionCode != null) && (string.IsNullOrWhiteSpace(rejectionCode.Value) == false))
+                {
+                    Uri rejectionCodeUri = IdRetrieval.GetSubject("RejectionCode", "rejectionCodeName", rejectionCode.Value, false, telemetryClient);
+                    if (rejectionCodeUri != null)
+                    {
+                        graph.Assert(rejection, graph.CreateUriNode("parl:rejectionHasRejectionCode"), graph.CreateUriNode(rejectionCodeUri));
+                    }
+                    else
+                    {
+                        telemetryClient.TrackTrace($"Found rejected petition with a rejection code not currently supported - {rejectionCode.Value}", Microsoft.ApplicationInsights.DataContracts.SeverityLevel.Warning);
+                    }
+                }
+                else
+                {
+                    telemetryClient.TrackTrace("Found rejected petition with no rejection code", Microsoft.ApplicationInsights.DataContracts.SeverityLevel.Warning);
+                }
+                TripleGenerator.GenerateTriple((Graph)graph, rejection, "parl:rejectionDetails", doc, "root/data/attributes/rejection/details", xmlNamespaceManager);
             }
-            IUriNode governmentResponse = graph.CreateUriNode(governmentResponseUri);
-            graph.Assert(subject, governmentResponseNode, governmentResponse);
-            TripleGenerator.GenerateTriple((Graph)graph, governmentResponse, "parl:governmentResponseCreatedAt", doc, "root/data/attributes/government_response/created_at", xmlNamespaceManager, "xsd:dateTime");
+
+            IEnumerable<Triple> moderations = oldGraph.GetTriplesWithObject(graph.CreateUriNode("parl:Moderation"));
+            foreach (Triple moderation in moderations)
+            {
+                graph.Assert(moderation);
+                graph.Assert(subject, graph.CreateUriNode("parl:ePetitionHasModeration"), moderation.Subject);
+                foreach (Triple triple in oldGraph.GetTriplesWithSubject(moderation.Subject))
+                {
+                    graph.Assert(triple);
+                }
+            }
         }
 
         private IUriNode generateLinkedObject(IGraph graph, IGraph oldGraph, IUriNode subject, IUriNode linkedPredicateNode)

@@ -71,7 +71,7 @@ namespace Functions.TransformationEPetition
 	                parl:action ?action;
 	                parl:ePetitionHasGovernmentResponse ?governmentResponse;
                     parl:ePetitionHasDebate ?debate;
-                    parl:ePetitionHasLocatedSignatureCount ?locatedSignature;
+                    parl:ePetitionHasLocatedSignatureCount ?locatedSignatureCount;
                     parl:ePetitionHasModeration ?moderation;
                     parl:ePetitionHasThresholdAttainment ?thresholdAttainment.
 		        ?governmentResponse a parl:GovernmentResponse;
@@ -85,13 +85,15 @@ namespace Functions.TransformationEPetition
                     parl:debateVideoUrl ?debateVideoUrl;
                     parl:debateTranscriptUrl ?debateTranscriptUrl;
                     parl:debateOverview ?debateOverview.
-             #   ?locatedSignatureCount a parl:LocatedSignatureCount;
-             #       parl:signatureCount ?signatureCount;
-             #       parl:signatureCountRetrievedAt ?signatureCountRetrievedAt;
-             #       parl:locatedSignatureCountHasPlace ?locatedSignatureCountHasPlace.
+                ?locatedSignatureCount a parl:LocatedSignatureCount;
+                    parl:signatureCount ?signatureCount;
+                    parl:signatureCountRetrievedAt ?signatureCountRetrievedAt;
+                    parl:locatedSignatureCountHasPlace ?locatedSignatureCountHasPlace.
                 ?moderation a parl:Moderation; 
-                    parl:moderationHasModerationOption ?moderationOption;
-                    parl:moderatedAt ?moderatedAt.
+                    parl:rejectionHasRejectionCode ?rejectionCode ;
+                    parl:rejectionDetails ?rejectionDetails ;
+                    parl:approvedAt ?approvedAt; 
+                    parl:rejectedAt ?rejectedAt.
                 ?thresholdAttainment a parl:ThresholdAttainment;
                     parl:thresholdAttainmentAt ?thresholdAttainmentAt;
                     parl:thresholdAttainmentHasThreshold ?threshold.
@@ -120,16 +122,30 @@ namespace Functions.TransformationEPetition
                     optional {?debate parl:debateTranscriptUrl ?debateTranscriptUrl}
                     optional {?debate parl:debateOverview ?debateOverview}
 	            }
-             #   optional {
-             #       ?ePetition parl:ePetitionHasLocatedSignatureCount ?locatedSignatureCount
-             #       optional {?locatedSignatureCount parl:signatureCount ?signatureCount}
-             #       optional {?locatedSignatureCount parl:signatureCountRetrievedAt ?signatureCountRetrievedAt}
-             #       optional {?locatedSignatureCount parl:locatedSignatureCountHasPlace ?locatedSignatureCountHasPlace}
-             #   }
+                OPTIONAL {
+                    ?locatedSignatureCount
+                        ^parl:ePetitionHasLocatedSignatureCount ?ePetition ;
+                        parl:signatureCount ?signatureCount ;
+                        parl:locatedSignatureCountHasPlace ?locatedSignatureCountHasPlace ;
+                        parl:signatureCountRetrievedAt ?signatureCountRetrievedAt .
+                    {
+                        SELECT ?ePetition ?locatedSignatureCountHasPlace (MAX(?signatureCountRetrievedAt) AS ?signatureCountRetrievedAt)
+                        WHERE {
+                            ?locatedSignatureCount 
+                                a parl:LocatedSignatureCount ;
+                                ^parl:ePetitionHasLocatedSignatureCount ?ePetition ;
+                                parl:signatureCountRetrievedAt ?signatureCountRetrievedAt ;
+                                parl:locatedSignatureCountHasPlace ?locatedSignatureCountHasPlace .
+                        }
+                        GROUP BY ?ePetition ?locatedSignatureCountHasPlace
+                    }
+                }
                 optional {
                     ?ePetition parl:ePetitionHasModeration ?moderation
-                    optional {?moderation parl:moderationAt ?moderationAt}
-                    optional {?moderation parl:moderationHasModerationOption ?moderationOption}
+                    optional {?moderation parl:rejectedAt ?rejectedAt}
+                    optional {?moderation parl:approvedAt ?approvedAt}
+                    optional {?moderation parl:rejectionHasRejectionCode ?rejectionCode}
+                    optional {?moderation parl:rejectionDetails ?rejectionDetails}
                 }
                 optional {
                     ?ePetition parl:ePetitionHasThresholdAttainment ?thresholdAttainment

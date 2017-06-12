@@ -245,7 +245,7 @@ namespace Functions.TransformationMemberMnis
             string startDate = giveMeDatePart(startDateElement);
             string endDate = giveMeDatePart(endDateElement);
             sparql.SetLiteral("startDate", startDate, dataTypeNode.Uri);
-            sparql.SetLiteral("endDate", endDate, dataTypeNode.Uri);
+            sparql.SetLiteral("endDate", endDate??string.Empty, dataTypeNode.Uri);
             sparql.SetLiteral("hasEndDate", string.IsNullOrWhiteSpace(endDate)==false);
             Uri parliamentPeriodUri = IdRetrieval.GetSubject(sparql.ToString(), false, telemetryClient);
             if (parliamentPeriodUri != null)

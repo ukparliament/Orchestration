@@ -14,12 +14,6 @@
                 "description": "Number of messages to be read from the Service Bus queues."
             }
         },
-        "azureFunctionsResourceGroupName": {
-            "type": "string",
-            "metadata": {
-                "description": "Name of the Resource Group where Azure Functions are."
-            }
-        },
         "azureFunctionsName": {
             "type": "string",
             "metadata": {
@@ -105,9 +99,9 @@
                                     "action": "@actions('QueueMessagesRetrieval')",
                                     "workflow": "@workflow()"
                                 },
-                                "function": {
-                                    "id": "[concat(subscription().id,'/resourceGroups/',parameters('azureFunctionsResourceGroupName'),'/providers/Microsoft.Web/sites/',parameters('azureFunctionsName'),'/functions/LogicAppsErrorMessageLog')]"
-                                },
+                              "function": {
+                                "id": "[concat(subscription().id,'/resourceGroups/',resourceGroup().name,'/providers/Microsoft.Web/sites/',parameters('azureFunctionsName'),'/functions/LogicAppsErrorMessageLog')]"
+                              },
                                 "retryPolicy": {
                                     "type": "None"
                                 }
@@ -125,9 +119,9 @@
                                     "batchSize": "[parameters('logicAppsSetting_queueReadBatchSize')[copyIndex()]]",
                                     "queue": "[parameters('logicAppsSetting_name')[copyIndex()]]"
                                 },
-                                "function": {
-                                    "id": "[concat(subscription().id,'/resourceGroups/',parameters('azureFunctionsResourceGroupName'),'/providers/Microsoft.Web/sites/',parameters('azureFunctionsName'),'/functions/QueueMessagesRetrieval')]"
-                                },
+                              "function": {
+                                "id": "[concat(subscription().id,'/resourceGroups/',resourceGroup().name,'/providers/Microsoft.Web/sites/',parameters('azureFunctionsName'),'/functions/QueueMessagesRetrieval')]"
+                              },
                                 "retryPolicy": {
                                     "type": "None"
                                 }

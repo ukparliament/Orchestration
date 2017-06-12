@@ -5,19 +5,11 @@ Sets task variable.
 .DESCRIPTION
 Sets task variable. Due to the limitation with ARM templates it is splited into series of array variables (converted to json).
 
-.PARAMETER AzureFunctionsResourceGroupName
-Name of the Resource Group where the Azure Functions are.
-
-.PARAMETER AzureFunctionsName
-Name of the Azure FUnctions container.
-
 .NOTES
 This script is for use as a part of deployment in VSTS only.
 #>
 
 Param(
-    [Parameter(Mandatory=$true)] [string] $AzureFunctionsResourceGroupName,
-    [Parameter(Mandatory=$true)] [string] $AzureFunctionsName
 )
 
 $ErrorActionPreference = "Stop"
@@ -139,41 +131,7 @@ $logicAppVariable=@(
     }
 )
 
-Log "Getting master key from Azure Functions"
-$funcProperties=Invoke-AzureRmResourceAction -ResourceGroupName $AzureFunctionsResourceGroupName -ResourceType Microsoft.Web/sites/config -ResourceName "$AzureFunctionsName/publishingcredentials" -Action list -ApiVersion 2015-08-01 -Force
-$base64AuthInfo = [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(("{0}:{1}" -f $funcProperties.properties.publishingUserName,$funcProperties.properties.publishingPassword)))
-$masterKeyResponse=Invoke-RestMethod -Uri "https://$AzureFunctionsName.scm.azurewebsites.net/api/functions/admin/masterkey" -Headers @{Authorization=("Basic {0}" -f $base64AuthInfo)} -Method GET
-
-Log "Checking connection to $AzureFunctionsName"
-$checkCounter=1
-do 
-{
-    try
-    {
-        Log "Attempt number $checkCounter"
-        $respond=Invoke-WebRequest -Uri "https://$AzureFunctionsName.azurewebsites.net" -Method Get -TimeoutSec 15 -UseBasicParsing
-    }
-    catch
-    {
-        if ($checkCounter -eq 10)
-        {
-            Throw "Cannot connect after $checkCounter attempts"
-        }
-        $respond=$null
-        $checkCounter+=1
-        Start-Sleep 30
-    }
-}
-until ($respond -and ($respond.StatusCode -eq 200))
-
-Log "Retrieving functions' keys"
-foreach ($setting in $logicAppVariable){
-    Log "Function $($setting.name)"
-    $functionKeyResponse=Invoke-RestMethod -Uri "https://$AzureFunctionsName.azurewebsites.net/admin/functions/Transformation$($setting.name)/keys?code=$($masterKeyResponse.masterKey)" -Headers @{Authorization=("Basic {0}" -f $base64AuthInfo)} -Method GET
-    $setting | Add-Member @{"transformationFunctionUri" = "https://$AzureFunctionsName.azurewebsites.net/api/Transformation$($setting.name)?code=$($functionKeyResponse.keys[0].value)"}
-}
-
-$variableNames=@("name","listUri","listAcceptHeader","foreachObject","idObject","frequency","interval","triggerTime","transformationFunctionUri","queueReadBatchSize")
+$variableNames=@("name","listUri","listAcceptHeader","foreachObject","idObject","frequency","interval","triggerTime","queueReadBatchSize")
 
 Log "Setting variables to use during deployment"
 Log "Number of settings: $($logicAppVariable.Length)"

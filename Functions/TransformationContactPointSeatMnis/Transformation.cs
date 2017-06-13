@@ -10,7 +10,7 @@ using VDS.RDF.Query;
 
 namespace Functions.TransformationContactPointSeatMnis
 {
-    public class Transformation :BaseTransformation<Settings>
+    public class Transformation : BaseTransformation<Settings>
     {
         public override IGraph GenerateNewGraph(XDocument doc, IGraph oldGraph, Uri subjectUri, Settings settings)
         {
@@ -101,34 +101,21 @@ namespace Functions.TransformationContactPointSeatMnis
             Uri hasContactUri;
             IUriNode hasContactPredicateNode = graph.CreateUriNode("parl:incumbencyHasContactPoint");
 
-            telemetryClient.TrackTrace("Check contact", Microsoft.ApplicationInsights.DataContracts.SeverityLevel.Verbose);
-            IEnumerable<Triple> existingContacts = oldGraph.GetTriplesWithPredicate(hasContactPredicateNode);
-            if ((existingContacts != null) && (existingContacts.Any()))
+            XElement mnisId = doc.XPathSelectElement($"atom:entry/atom:content/m:properties/d:Member_Id", xmlNamespaceManager);
+            if ((mnisId == null) || (string.IsNullOrWhiteSpace(mnisId.Value) == true))
             {
-                foreach (Triple t in existingContacts)
-                {
-                    telemetryClient.TrackTrace($"Found contact ({t.Subject})", Microsoft.ApplicationInsights.DataContracts.SeverityLevel.Verbose);
-                    graph.Assert(t.Subject, hasContactPredicateNode, subject);
-                }
+                throw new Exception($"{subject.Uri}: No member info found");
+            }
+            SparqlParameterizedString hasContactSparql = new SparqlParameterizedString(hasContactCommand);
+            hasContactSparql.Namespaces.AddNamespace("parl", new Uri(schemaNamespace));
+            hasContactSparql.SetLiteral("personMnisId", mnisId.Value);
+            hasContactUri = IdRetrieval.GetSubject(hasContactSparql.ToString(), false, telemetryClient);
+            if (hasContactUri != null)
+            {
+                graph.Assert(graph.CreateUriNode(hasContactUri), hasContactPredicateNode, subject);
             }
             else
-            {
-                XElement mnisId = doc.XPathSelectElement($"atom:entry/atom:content/m:properties/d:Member_Id", xmlNamespaceManager);
-                if ((mnisId == null) || (string.IsNullOrWhiteSpace(mnisId.Value) == true))
-                {
-                    throw new Exception($"{subject.Uri}: No member info found");
-                }
-                SparqlParameterizedString hasContactSparql = new SparqlParameterizedString(hasContactCommand);
-                hasContactSparql.Namespaces.AddNamespace("parl", new Uri(schemaNamespace));
-                hasContactSparql.SetLiteral("personMnisId", mnisId.Value);
-                hasContactUri = IdRetrieval.GetSubject(hasContactSparql.ToString(), false, telemetryClient);
-                if (hasContactUri != null)
-                {
-                    graph.Assert(graph.CreateUriNode(hasContactUri), hasContactPredicateNode, subject);
-                }
-                else
-                    telemetryClient.TrackTrace("No contact found", Microsoft.ApplicationInsights.DataContracts.SeverityLevel.Verbose);
-            }
+                telemetryClient.TrackTrace("No contact found", Microsoft.ApplicationInsights.DataContracts.SeverityLevel.Verbose);
         }
     }
 }

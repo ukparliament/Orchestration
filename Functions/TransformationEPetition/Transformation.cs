@@ -28,6 +28,7 @@ namespace Functions.TransformationEPetition
             TripleGenerator.GenerateTriple(result, subject, "parl:additionalDetails", doc, "root/data/attributes/additional_details", settings.SourceXmlNamespaceManager);
             TripleGenerator.GenerateTriple(result, subject, "parl:closedAt", doc, "root/data/attributes/closed_at", settings.SourceXmlNamespaceManager, "xsd:dateTime");
             TripleGenerator.GenerateTriple(result, subject, "parl:action", doc, "root/data/attributes/action", settings.SourceXmlNamespaceManager);
+            TripleGenerator.GenerateTriple(result, subject, "parl:updatedAt", doc, "root/data/attributes/updated_at", settings.SourceXmlNamespaceManager, "xsd:dateTime");
             generateTripleGovernmentResponse(result, oldGraph, subject, doc, settings.SourceXmlNamespaceManager);
             generateTripleDebate(result, oldGraph, subject, doc, settings.SourceXmlNamespaceManager);
             generateTripleLocatedSignatureCount(result, oldGraph, subject, doc, settings.SourceXmlNamespaceManager);

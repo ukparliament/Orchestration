@@ -69,6 +69,7 @@ namespace Functions.TransformationEPetition
 	                parl:additionalDetails ?additionalDetails;
 	                parl:closedAt ?closedAt;
 	                parl:action ?action;
+	                parl:updatedAt ?updatedAt;
 	                parl:ePetitionHasGovernmentResponse ?governmentResponse;
                     parl:ePetitionHasDebate ?debate;
                     parl:ePetitionHasLocatedSignatureCount ?locatedSignatureCount;
@@ -107,7 +108,8 @@ namespace Functions.TransformationEPetition
 	            optional {?ePetition parl:additionalDetails ?additionalDetails}
 	            optional {?ePetition parl:closedAt ?closedAt}
 	            optional {?ePetition parl:action ?action}
-	            optional {
+                optional {?ePetition parl:updatedAt ?updatedAt}
+                optional {
 		            ?ePetition parl:ePetitionHasGovernmentResponse ?governmentResponse
 		            optional {?governmentResponse parl:governmentResponseCreatedAt ?governmentResponseCreatedAt}
 		            optional {?governmentResponse parl:governmentResponseUpdatedAt ?governmentResponseUpdatedAt}

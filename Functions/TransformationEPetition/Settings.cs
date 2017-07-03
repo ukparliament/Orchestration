@@ -166,7 +166,7 @@ namespace Functions.TransformationEPetition
 
         public string FullDataUrlParameterizedString(string dataUrl)
         {
-            return $"https://petition.parliament.uk/petitions/{dataUrl}.json";
+            return dataUrl;
         }
     }
 }

@@ -1,0 +1,182 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "serviceBusName": {
+            "type": "string",
+            "metadata": {
+                "description": "Name of the Service Bus."
+            }
+        },
+        "azureFunctionsName": {
+            "type": "string",
+            "metadata": {
+                "description": "Name of the Azure Functions."
+            }
+        },
+        "environment": {
+            "type": "string",
+            "metadata": {
+                "description": "Name of the environment that is being deployed to."
+            }
+        },
+        "releaseId": {
+            "type": "int",
+            "metadata": {
+                "description": "The identifier of the current release record."
+            }
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "comments": "Logic App that obtains list of territories from Government Register.",
+            "type": "Microsoft.Logic/workflows",
+            "name": "getlist-territory",
+            "apiVersion": "2016-06-01",
+            "location": "[resourceGroup().location]",
+            "tags": {
+                "34a4fc9c-8817-4c95-8e1b-76e27fbe2699": "f009d98d-028e-48bc-af57-944f3dd9a77c",
+                "Department": "Data & Search",
+                "Environment": "[parameters('environment')]",
+                "ReleaseId": "[parameters('releaseId')]",
+                "Type": "Logic App"
+            },
+            "properties": {
+                "state": "Enabled",
+                "definition": {
+                    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+                    "contentVersion": "1.0.0.0",
+                    "parameters": {
+                        "$connections": {
+                            "defaultValue": {},
+                            "type": "Object"
+                        }
+                    },
+                    "triggers": {
+                        "manual": {
+                            "inputs": {
+                                "schema": {}
+                            },
+                            "kind": "Http",
+                            "type": "Request"
+                        }
+                    },
+                    "actions": {
+                        "Response": {
+                            "inputs": {
+                                "headers": {
+                                    "batchId": "@{outputs('Get_BatchId')}"
+                                },
+                                "statusCode": 202
+                            },
+                            "runAfter": {
+                                "Get_BatchId": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Response"
+                        },
+                        "LogicAppsErrorMessageLog": {
+                            "inputs": {
+                                "body": {
+                                    "action": "@actions('Get_List')",
+                                    "workflow": "@workflow()",
+                                    "batchId": "@{outputs('Get_BatchId')}"
+                                },
+                                "function": {
+                                    "id": "[concat(subscription().id,'/resourceGroups/',resourceGroup().name,'/providers/Microsoft.Web/sites/',parameters('azureFunctionsName'),'/functions/LogicAppsErrorMessageLog')]"
+                                },
+                                "retryPolicy": {
+                                    "type": "None"
+                                }
+                            },
+                            "runAfter": {
+                                "Get_List": [
+                                    "Failed"
+                                ]
+                            },
+                            "type": "Function"
+                        },
+                        "For_each": {
+                            "foreach": "@body('Get_List')",
+                            "actions": {
+                                "Send_message": {
+                                    "runAfter": {},
+                                    "type": "ApiConnection",
+                                    "inputs": {
+                                        "body": {
+                                            "Properties": {
+                                                "url": "@{item()}",
+                                                "batchId": "@{outputs('Get_BatchId')}"
+                                            }
+                                        },
+                                        "host": {
+                                            "api": {
+                                                "runtimeUrl": "[concat('https://logic-apis-',resourceGroup().location,'.azure-apim.net/apim/servicebus')]"
+                                            },
+                                            "connection": {
+                                                "name": "@parameters('$connections')['servicebus']['connectionId']"
+                                            }
+                                        },
+                                        "method": "post",
+                                        "path": "/territory/messages",
+                                        "retryPolicy": {
+                                            "count": 2,
+                                            "interval": "PT20S",
+                                            "type": "Fixed"
+                                        }
+                                    }
+                                }
+                            },
+                            "runAfter": {
+                                "Get_List": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Foreach"
+                        },
+                        "Get_List": {
+                            "inputs": {
+                                "body": {
+                                    "url": "https://territory.register.gov.uk/records?page-size=1000&page-index=1"
+                                },
+                                "function": {
+                                    "id": "[concat(subscription().id,'/resourceGroups/',resourceGroup().name,'/providers/Microsoft.Web/sites/',parameters('azureFunctionsName'),'/functions/JsonKeyToArrayConverter')]"
+                                },
+                                "retryPolicy": {
+                                    "type": "None"
+                                }
+                            },
+                            "runAfter": {
+                                "Response": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Function"
+                        },
+                        "Get_BatchId": {
+                            "inputs": "@triggerOutputs()['headers']['x-ms-client-request-id']",
+                            "runAfter": {},
+                            "type": "Compose"
+                        }
+                    },
+                    "outputs": {}
+                },
+                "parameters": {
+                    "$connections": {
+                        "value": {
+                          "servicebus": {
+                            "connectionId": "[concat(subscription().id,'/resourceGroups/',resourceGroup().name,'/providers/Microsoft.Web/connections/',parameters('serviceBusName'),'connection')]",
+                            "connectionName": "[concat(parameters('serviceBusName'),'connection')]",
+                            "id": "[concat(subscription().id,'/providers/Microsoft.Web/locations/',resourceGroup().location,'/managedApis/servicebus')]"
+                          }
+                        }
+                    }
+                }
+            },
+            "resources": [],
+            "dependsOn": []
+        }
+    ]
+}

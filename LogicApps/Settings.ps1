@@ -129,6 +129,28 @@ $logicAppVariable=@(
         "triggerTime"="21:30";
         "queueReadBatchSize"=50;
     }
+	New-Object -TypeName PSObject -Property @{
+        "name"="territory";
+        "listUri"="";
+        "listAcceptHeader"="";
+        "foreachObject"="@json('')";
+        "idObject"="@json('')";
+        "frequency"="hour";
+        "interval"=24;
+        "triggerTime"="21:01:01";
+        "queueReadBatchSize"=50;
+    }
+	New-Object -TypeName PSObject -Property @{
+        "name"="country";
+        "listUri"="";
+        "listAcceptHeader"="";
+        "foreachObject"="@json('')";
+        "idObject"="@json('')";
+        "frequency"="hour";
+        "interval"=24;
+        "triggerTime"="21:02:01";
+        "queueReadBatchSize"=50;
+    }
 )
 
 $variableNames=@("name","listUri","listAcceptHeader","foreachObject","idObject","frequency","interval","triggerTime","queueReadBatchSize")

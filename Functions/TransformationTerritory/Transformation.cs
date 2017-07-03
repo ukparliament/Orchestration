@@ -3,7 +3,7 @@ using System.Xml.Linq;
 using VDS.RDF;
 using VDS.RDF.Parsing;
 
-namespace Functions.TransformationTerritoryGovRegister
+namespace Functions.TransformationTerritory
 {
     public class Transformation:BaseTransformation<Settings>
     {

@@ -6,11 +6,11 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Azure.WebJobs.Host;
 using Newtonsoft.Json;
 
-namespace Functions.TransformationCountryGovRegister
+namespace Functions.TransformationTerritory
 {
-    public static class TransformationCountryGovRegister
+    public static class TransformationTerritory
     {
-        [FunctionName("TransformationCountryGovRegister")]
+        [FunctionName("TransformationTerritory")]
         public static async Task<object> Run([HttpTrigger(WebHookType = "genericJson")]HttpRequestMessage req, TraceWriter log)
         {
             Transformation transformation = new Transformation();

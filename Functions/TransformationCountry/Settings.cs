@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Xml;
 
-namespace Functions.TransformationTerritoryGovRegister
+namespace Functions.TransformationCountry
 {
     public class Settings :ITransformationSettings
     {
@@ -9,7 +9,7 @@ namespace Functions.TransformationTerritoryGovRegister
         {
             get
             {
-                return "TransformationTerritoryGovRegister";
+                return "TransformationCountry";
             }
         }
 
@@ -36,11 +36,11 @@ namespace Functions.TransformationTerritoryGovRegister
             {
                 return @"
             construct{
-                ?s a parl:Territory.
+                ?s a parl:Country.
             }
             where{
-                ?s a parl:Territory; 
-                    parl:territoryGovRegisterId @territoryGovRegisterId.
+                ?s a parl:Country; 
+                    parl:countryGovRegisterId @countryGovRegisterId.
             }";
             }
         }
@@ -52,7 +52,7 @@ namespace Functions.TransformationTerritoryGovRegister
 			{
 				return new Dictionary<string, string>
 				{
-					{"territoryGovRegisterId","root/*/key" }
+					{"countryGovRegisterId","root/*/key" }
 				};
 			}
 		}
@@ -63,21 +63,23 @@ namespace Functions.TransformationTerritoryGovRegister
             {
                 return @"
         construct {
-        	?territory a parl:Territory;
-                parl:territoryName ?territoryName;
-                parl:territoryOfficialName ?territoryOfficialName;
-                parl:govRegisterTerritoryStartDate ?govRegisterTerritoryStartDate;
-                parl:govRegisterTerritoryEndDate ?govRegisterTerritoryEndDate;
-                parl:territoryGovRegisterId ?territoryGovRegisterId.
+        	?country a parl:Country;
+                parl:countryName ?countryName;
+                parl:countryOfficialName ?countryOfficialName;
+                parl:countryCitizenNames ?countryCitizenNames;
+                parl:govRegisterCountryStartDate ?govRegisterCountryStartDate;
+                parl:govRegisterCountryEndDate ?govRegisterCountryEndDate;
+                parl:countryGovRegisterId ?countryGovRegisterId.
         }
         where {
-            bind(@subject as ?territory)
-        	?territory a parl:Territory.
-            optional {?territory parl:territoryName ?territoryName}
-            optional {?territory parl:territoryOfficialName ?territoryOfficialName}
-            optional {?territory parl:govRegisterTerritoryStartDate ?govRegisterTerritoryStartDate}
-            optional {?territory parl:govRegisterTerritoryEndDate ?govRegisterTerritoryEndDate}
-            optional {?territory parl:territoryGovRegisterId ?territoryGovRegisterId}
+            bind(@subject as ?country)
+        	?country a parl:Country.
+            optional {?country parl:countryName ?countryName}
+            optional {?country parl:countryOfficialName ?countryOfficialName}
+            optional {?country parl:countryCitizenNames ?countryCitizenNames}
+            optional {?country parl:govRegisterCountryStartDate ?govRegisterCountryStartDate}
+            optional {?country parl:govRegisterCountryEndDate ?govRegisterCountryEndDate}
+            optional {?country parl:countryGovRegisterId ?countryGovRegisterId}
         }";
             }
         }
@@ -92,7 +94,7 @@ namespace Functions.TransformationTerritoryGovRegister
 
         public string FullDataUrlParameterizedString(string dataUrl)
         {
-            return $"https://territory.register.gov.uk/record/{dataUrl}";
+            return $"https://country.register.gov.uk/record/{dataUrl}";
         }
     }
 }

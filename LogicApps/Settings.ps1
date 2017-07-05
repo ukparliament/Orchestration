@@ -5,11 +5,19 @@ Sets task variable.
 .DESCRIPTION
 Sets task variable. Due to the limitation with ARM templates it is splited into series of array variables (converted to json).
 
+.PARAMETER APIResourceGroupName
+Name of the Resource Group where the API Management is.
+
+.PARAMETER APIManagementName
+Name of the API Management.
+
 .NOTES
 This script is for use as a part of deployment in VSTS only.
 #>
 
 Param(
+	[Parameter(Mandatory=$true)] [string] $APIResourceGroupName,
+    [Parameter(Mandatory=$true)] [string] $APIManagementName
 )
 
 $ErrorActionPreference = "Stop"
@@ -17,6 +25,13 @@ $ErrorActionPreference = "Stop"
 function Log([Parameter(Mandatory=$true)][string]$LogText){
     Write-Host ("{0} - {1}" -f (Get-Date -Format "HH:mm:ss.fff"), $LogText)
 }
+
+Log "Get API Management context"
+$management=New-AzureRmApiManagementContext -ResourceGroupName $APIResourceGroupName -ServiceName $APIManagementName
+Log "Retrives subscription"
+$apiProductOrchestration=Get-AzureRmApiManagementProduct -Context $management -Title "Parliament - Orchestration"
+$subscription=Get-AzureRmApiManagementSubscription -Context $management -ProductId $apiProductOrchestration.ProductId
+$subscriptionKey=$subscription.PrimaryKey
 
 $logicAppVariable=@(
     New-Object  -TypeName PSObject -Property @{
@@ -163,5 +178,6 @@ foreach ($key in $variableNames) {
     $json= ConvertTo-Json $arr -Compress
     Write-Host "##vso[task.setvariable variable=LogicAppsSetting_$key]$json"
 }
+Write-Host "##vso[task.setvariable variable=SubscriptionKeyOrchestration]$subscriptionKey"
 
 Log "Job well done!"

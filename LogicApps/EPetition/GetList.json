@@ -1,160 +1,191 @@
 {
-    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
-    "contentVersion": "1.0.0.0",
-    "parameters": {
-        "azureFunctionsName": {
-            "type": "string",
-            "metadata": {
-                "description": "Name of the Azure Functions."
-            }
-        },
-        "environment": {
-            "type": "string",
-            "metadata": {
-                "description": "Name of the environment that is being deployed to."
-            }
-        },
-        "releaseId": {
-            "type": "int",
-            "metadata": {
-                "description": "The identifier of the current release record."
-            }
-        }
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "apiManagementName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the API Managment."
+      }
     },
-    "variables": {
-        "logicAppsSetting_name": "epetition"
+    "subscriptionKey": {
+      "type": "string",
+      "metadata": {
+        "description": "Subscription key for API Management Graph Store endpoint."
+      }
     },
-    "resources": [
-        {
-            "comments": "Logic App that obtains list of constituencies from MNIS.",
-            "type": "Microsoft.Logic/workflows",
-            "name": "[concat('getlist-',variables('logicAppsSetting_name'))]",
-            "apiVersion": "2016-06-01",
-            "location": "[resourceGroup().location]",
-            "tags": {
-                "34a4fc9c-8817-4c95-8e1b-76e27fbe2699": "f009d98d-028e-48bc-af57-944f3dd9a77c",
-                "Department": "Data & Search",
-                "Environment": "[parameters('environment')]",
-                "ReleaseId": "[parameters('releaseId')]",
-                "Type": "Logic App"
-            },
-            "properties": {
-                "state": "Enabled",
-                "definition": {
-                    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
-                    "contentVersion": "1.0.0.0",
-                    "parameters": {
-                    },
-                    "triggers": {
-                        "manual": {
-                            "inputs": {
-                                "schema": {}
-                            },
-                            "kind": "Http",
-                            "type": "Request"
-                        }
-                    },
-                    "actions": {
-                        "Response": {
-                            "inputs": {
-                                "headers": {
-                                    "batchId": "@{outputs('Get_BatchId')}"
-                                },
-                                "statusCode": 202
-                            },
-                            "runAfter": {
-                                "Get_BatchId": [
-                                    "Succeeded"
-                                ]
-                            },
-                            "type": "Response"
-                        },
-                        "LogicAppsErrorMessageLog": {
-                            "inputs": {
-                                "body": {
-                                    "action": "@actions('Get_List')",
-                                    "workflow": "@workflow()",
-                                    "batchId": "@{outputs('Get_BatchId')}"
-                                },
-                              "function": {
-                                "id": "[concat(subscription().id,'/resourceGroups/',resourceGroup().name,'/providers/Microsoft.Web/sites/',parameters('azureFunctionsName'),'/functions/LogicAppsErrorMessageLog')]"
-                              },
-                                "retryPolicy": {
-                                    "type": "None"
-                                }
-                            },
-                            "runAfter": {
-                                "Get_List": [
-                                    "Failed"
-                                ]
-                            },
-                            "type": "Function"
-                        },
-                        "For_each": {
-                            "foreach": "@range(1,int(replace(body('Get_List').links.last,'https://petition.parliament.uk/petitions?page=','')))",
-                            "actions": {
-                                "Get_list_page": {
-                                    "inputs": {
-                                        "body": {
-                                            "batchId": "@{outputs('Get_BatchId')}",
-                                            "pageNo": "@item()"
-                                        },
-                                        "host": {
-                                            "triggerName": "manual",
-                                            "workflow": {
-                                                "id": "[resourceId('Microsoft.Logic/workflows/',concat('getlistpage-',variables('logicAppsSetting_name')))]"
-                                            }
-                                        },
-                                        "retryPolicy": {
-                                            "count": 2,
-                                            "interval": "PT20S",
-                                            "type": "Fixed"
-                                        }
-                                    },
-                                    "runAfter": {},
-                                    "type": "Workflow"
-                                }
-                            },
-                            "runAfter": {
-                                "Get_List": [
-                                    "Succeeded"
-                                ]
-                            },
-                            "type": "Foreach"
-                        },
-                        "Get_List": {
-                            "inputs": {
-                                "headers": {
-                                    "Accept": "application/json"
-                                },
-                                "method": "GET",
-                                "retryPolicy": {
-                                    "count": 2,
-                                    "interval": "PT20S",
-                                    "type": "Fixed"
-                                },
-                                "uri": "https://petition.parliament.uk/petitions"
-                            },
-                            "runAfter": {
-                                "Response": [
-                                    "Succeeded"
-                                ]
-                            },
-                            "type": "Http"
-                        },
-                        "Get_BatchId": {
-                            "inputs": "@triggerOutputs()['headers']['x-ms-client-request-id']",
-                            "runAfter": {},
-                            "type": "Compose"
-                        }
-                    },
-                    "outputs": {}
+    "azureFunctionsName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the Azure Functions."
+      }
+    },
+    "environment": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the environment that is being deployed to."
+      }
+    },
+    "releaseId": {
+      "type": "int",
+      "metadata": {
+        "description": "The identifier of the current release record."
+      }
+    }
+  },
+  "variables": {
+    "logicAppsSetting_name": "epetition"
+  },
+  "resources": [
+    {
+      "comments": "Logic App that obtains list of constituencies from MNIS.",
+      "type": "Microsoft.Logic/workflows",
+      "name": "[concat('getlist-',variables('logicAppsSetting_name'))]",
+      "apiVersion": "2016-06-01",
+      "location": "[resourceGroup().location]",
+      "tags": {
+        "34a4fc9c-8817-4c95-8e1b-76e27fbe2699": "f009d98d-028e-48bc-af57-944f3dd9a77c",
+        "Department": "Data & Search",
+        "Environment": "[parameters('environment')]",
+        "ReleaseId": "[parameters('releaseId')]",
+        "Type": "Logic App"
+      },
+      "properties": {
+        "state": "Enabled",
+        "definition": {
+          "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+          "contentVersion": "1.0.0.0",
+          "parameters": {
+          },
+          "triggers": {
+            "manual": {
+              "inputs": {
+                "schema": {}
+              },
+              "kind": "Http",
+              "type": "Request"
+            }
+          },
+          "actions": {
+            "Response": {
+              "inputs": {
+                "headers": {
+                  "batchId": "@{outputs('Get_BatchId')}"
                 },
-                "parameters": {
-                }
+                "statusCode": 202
+              },
+              "runAfter": {
+                "Get_BatchId": [
+                  "Succeeded"
+                ]
+              },
+              "type": "Response"
             },
-            "resources": [],
-            "dependsOn": []
+            "LogicAppsErrorMessageLog": {
+              "inputs": {
+                "body": {
+                  "action": "@actions('Get_List')",
+                  "workflow": "@workflow()",
+                  "batchId": "@{outputs('Get_BatchId')}"
+                },
+                "function": {
+                  "id": "[concat(subscription().id,'/resourceGroups/',resourceGroup().name,'/providers/Microsoft.Web/sites/',parameters('azureFunctionsName'),'/functions/LogicAppsErrorMessageLog')]"
+                },
+                "retryPolicy": {
+                  "type": "None"
+                }
+              },
+              "runAfter": {
+                "Get_List": [
+                  "Failed"
+                ]
+              },
+              "type": "Function"
+            },
+            "For_each": {
+              "foreach": "@range(1,int(replace(body('Get_List').links.last,'https://petition.parliament.uk/petitions?page=','')))",
+              "actions": {
+                "Get_list_page": {
+                  "inputs": {
+                    "body": {
+                      "batchId": "@{outputs('Get_BatchId')}",
+                      "maxUpdatedAt": "@body('GetMaxUpdatedAt')[0]['http://id.ukpds.org/schema/maxUpdatedAt'][0]['@value']",
+                      "pageNo": "@item()"
+                    },
+                    "host": {
+                      "triggerName": "manual",
+                      "workflow": {
+                        "id": "[resourceId('Microsoft.Logic/workflows/',concat('getlistpage-',variables('logicAppsSetting_name')))]"
+                      }
+                    },
+                    "retryPolicy": {
+                      "count": 2,
+                      "interval": "PT20S",
+                      "type": "Fixed"
+                    }
+                  },
+                  "runAfter": {},
+                  "type": "Workflow"
+                }
+              },
+              "runAfter": {
+                "GetMaxUpdatedAt": [
+                  "Succeeded"
+                ]
+              },
+              "type": "Foreach"
+            },
+            "GetMaxUpdatedAt": {
+              "inputs": {
+                "body": "construct{[] <http://id.ukpds.org/schema/maxUpdatedAt> ?date}where{{select (max(?updatedAt) as ?maxUpdatedAt) where{?s a <http://id.ukpds.org/schema/EPetition>;<http://id.ukpds.org/schema/updatedAt> ?updatedAt.}}bind(coalesce(?maxUpdatedAt,'1900-01-01T01:01:01Z') as ?date)} ",
+                "headers": {
+                  "Accept": "application/ld+json",
+                  "Content-Type": "application/sparql-query",
+                  "Ocp-Apim-Subscription-Key": "[parameters('subscriptionKey')]"
+                },
+                "method": "POST",
+                "uri": "[concat('https://',parameters('apiManagementName'),'.azure-api.net/graph-store/repositories/Master?infer=false')]"
+              },
+              "runAfter": {
+                "Get_List": [
+                  "Succeeded"
+                ]
+              },
+              "type": "Http"
+            },
+            "Get_List": {
+              "inputs": {
+                "headers": {
+                  "Accept": "application/json"
+                },
+                "method": "GET",
+                "retryPolicy": {
+                  "count": 2,
+                  "interval": "PT20S",
+                  "type": "Fixed"
+                },
+                "uri": "https://petition.parliament.uk/petitions"
+              },
+              "runAfter": {
+                "Response": [
+                  "Succeeded"
+                ]
+              },
+              "type": "Http"
+            },
+            "Get_BatchId": {
+              "inputs": "@triggerOutputs()['headers']['x-ms-client-request-id']",
+              "runAfter": {},
+              "type": "Compose"
+            }
+          },
+          "outputs": {}
+        },
+        "parameters": {
         }
-    ]
+      },
+      "resources": [],
+      "dependsOn": []
+    }
+  ]
 }

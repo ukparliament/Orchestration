@@ -16,7 +16,7 @@ namespace Functions.TransformationContactPointPersonMnis
             Graph result = new Graph();
             result.NamespaceMap.AddNamespace("parl", new Uri(schemaNamespace));
 
-            telemetryClient.TrackTrace("Generate triples", Microsoft.ApplicationInsights.DataContracts.SeverityLevel.Verbose);
+            logger.Verbose("Generate triples");
             IUriNode subject = result.CreateUriNode(subjectUri);
             IUriNode rdfTypeNode = result.CreateUriNode(new Uri(RdfSpecsHelper.RdfType));
             //Contact point
@@ -37,7 +37,7 @@ namespace Functions.TransformationContactPointPersonMnis
         {
             XElement address;
             bool isFound = false;
-            telemetryClient.TrackTrace("Generating address", Microsoft.ApplicationInsights.DataContracts.SeverityLevel.Verbose);
+            logger.Verbose("Generating address");
             IUriNode postalAddressNode = generateTriplePostalAddress(graph, oldGraph, subject);
             int j = 1;
             for (int i = 1; i <= 5; i++)
@@ -67,18 +67,18 @@ namespace Functions.TransformationContactPointPersonMnis
         {
             Uri postalAddressUri;
 
-            telemetryClient.TrackTrace("Check postal address", Microsoft.ApplicationInsights.DataContracts.SeverityLevel.Verbose);
+            logger.Verbose("Check postal address");
             IEnumerable<Triple> existingPostalAddress = oldGraph.GetTriplesWithPredicateObject(graph.CreateUriNode(new Uri(RdfSpecsHelper.RdfType)), graph.CreateUriNode("parl:PostalAddress"));
             if ((existingPostalAddress != null) && (existingPostalAddress.Any()))
             {
                 postalAddressUri = ((IUriNode)existingPostalAddress.SingleOrDefault().Subject).Uri;
-                telemetryClient.TrackTrace($"Found postal address {postalAddressUri}", Microsoft.ApplicationInsights.DataContracts.SeverityLevel.Verbose);
+                logger.Verbose($"Found postal address {postalAddressUri}");
             }
             else
             {
                 string postalAddressId = new IdGenerator.IdMaker().MakeId();
                 postalAddressUri = new Uri(postalAddressId);
-                telemetryClient.TrackTrace($"New postal address {postalAddressUri}", Microsoft.ApplicationInsights.DataContracts.SeverityLevel.Verbose);
+                logger.Verbose($"New postal address {postalAddressUri}");
             }
             IUriNode postalAddressNode = graph.CreateUriNode(postalAddressUri);
 
@@ -90,13 +90,13 @@ namespace Functions.TransformationContactPointPersonMnis
             Uri hasContactUri;
             IUriNode hasContactPredicateNode = graph.CreateUriNode("parl:personHasContactPoint");
 
-            telemetryClient.TrackTrace("Check contact", Microsoft.ApplicationInsights.DataContracts.SeverityLevel.Verbose);
+            logger.Verbose("Check contact");
             IEnumerable<Triple> existingContacts = oldGraph.GetTriplesWithPredicate(hasContactPredicateNode);
             if ((existingContacts != null) && (existingContacts.Any()))
             {
                 foreach (Triple t in existingContacts)
                 {
-                    telemetryClient.TrackTrace($"Found contact ({t.Subject})", Microsoft.ApplicationInsights.DataContracts.SeverityLevel.Verbose);
+                    logger.Verbose($"Found contact ({t.Subject})");
                     graph.Assert(t.Subject, hasContactPredicateNode, subject);
                 }
             }
@@ -107,13 +107,13 @@ namespace Functions.TransformationContactPointPersonMnis
                 {
                     throw new Exception($"{subject.Uri}: No member info found");
                 }
-                hasContactUri = IdRetrieval.GetSubject("Person", "personMnisId", mnisId.Value, false, telemetryClient);
+                hasContactUri = IdRetrieval.GetSubject("Person", "personMnisId", mnisId.Value, false, logger);
                 if (hasContactUri != null)
                 {
                     graph.Assert(graph.CreateUriNode(hasContactUri), hasContactPredicateNode, subject);
                 }
                 else
-                    telemetryClient.TrackTrace("No contact found", Microsoft.ApplicationInsights.DataContracts.SeverityLevel.Verbose);
+                    logger.Verbose("No contact found");
             }
         }
     }

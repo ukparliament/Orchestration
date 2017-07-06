@@ -17,7 +17,7 @@ namespace Functions.TransformationContactPointSeatMnis
             Graph result = new Graph();
             result.NamespaceMap.AddNamespace("parl", new Uri(schemaNamespace));
 
-            telemetryClient.TrackTrace("Generate triples", Microsoft.ApplicationInsights.DataContracts.SeverityLevel.Verbose);
+            logger.Verbose("Generate triples");
             IUriNode subject = result.CreateUriNode(subjectUri);
             IUriNode rdfTypeNode = result.CreateUriNode(new Uri(RdfSpecsHelper.RdfType));
             //Contact point
@@ -38,7 +38,7 @@ namespace Functions.TransformationContactPointSeatMnis
         {
             XElement address;
             bool isFound = false;
-            telemetryClient.TrackTrace("Generating address", Microsoft.ApplicationInsights.DataContracts.SeverityLevel.Verbose);
+            logger.Verbose("Generating address");
             IUriNode postalAddressNode = generateTriplePostalAddress(graph, oldGraph, subject);
             int j = 1;
             for (int i = 1; i <= 5; i++)
@@ -68,18 +68,18 @@ namespace Functions.TransformationContactPointSeatMnis
         {
             Uri postalAddressUri;
 
-            telemetryClient.TrackTrace("Check postal address", Microsoft.ApplicationInsights.DataContracts.SeverityLevel.Verbose);
+            logger.Verbose("Check postal address");
             IEnumerable<Triple> existingPostalAddress = oldGraph.GetTriplesWithPredicateObject(graph.CreateUriNode(new Uri(RdfSpecsHelper.RdfType)), graph.CreateUriNode("parl:PostalAddress"));
             if ((existingPostalAddress != null) && (existingPostalAddress.Any()))
             {
                 postalAddressUri = ((IUriNode)existingPostalAddress.SingleOrDefault().Subject).Uri;
-                telemetryClient.TrackTrace($"Found postal address {postalAddressUri}", Microsoft.ApplicationInsights.DataContracts.SeverityLevel.Verbose);
+                logger.Verbose($"Found postal address {postalAddressUri}");
             }
             else
             {
                 string postalAddressId = new IdGenerator.IdMaker().MakeId();
                 postalAddressUri = new Uri(postalAddressId);
-                telemetryClient.TrackTrace($"New postal address {postalAddressUri}", Microsoft.ApplicationInsights.DataContracts.SeverityLevel.Verbose);
+                logger.Verbose($"New postal address {postalAddressUri}");
             }
             IUriNode postalAddressNode = graph.CreateUriNode(postalAddressUri);
 
@@ -109,13 +109,13 @@ namespace Functions.TransformationContactPointSeatMnis
             SparqlParameterizedString hasContactSparql = new SparqlParameterizedString(hasContactCommand);
             hasContactSparql.Namespaces.AddNamespace("parl", new Uri(schemaNamespace));
             hasContactSparql.SetLiteral("personMnisId", mnisId.Value);
-            hasContactUri = IdRetrieval.GetSubject(hasContactSparql.ToString(), false, telemetryClient);
+            hasContactUri = IdRetrieval.GetSubject(hasContactSparql.ToString(), false, logger);
             if (hasContactUri != null)
             {
                 graph.Assert(graph.CreateUriNode(hasContactUri), hasContactPredicateNode, subject);
             }
             else
-                telemetryClient.TrackTrace("No contact found", Microsoft.ApplicationInsights.DataContracts.SeverityLevel.Verbose);
+                logger.Verbose("No contact found");
         }
     }
 }

@@ -8,14 +8,14 @@ namespace Functions
 {
     public static class GraphUpdate
     {
-        public static bool UpdateDifference(GraphDiffReport difference, TelemetryClient telemetryClient)
+        public static bool UpdateDifference(GraphDiffReport difference, Logger logger)
         {
             Stopwatch externalTimer = Stopwatch.StartNew();
             DateTime externalStartTime = DateTime.UtcNow;
             bool externalCallOk = true;
             try
             {
-                telemetryClient.TrackTrace("Updating graph", Microsoft.ApplicationInsights.DataContracts.SeverityLevel.Verbose);
+                logger.Verbose("Updating graph");
                 using (GraphDBConnector connector = new GraphDBConnector(string.Empty))
                 {
                     connector.Timeout = 180 * 1000;
@@ -26,12 +26,12 @@ namespace Functions
             catch (Exception e)
             {
                 externalCallOk = false;
-                telemetryClient.TrackException(e);
+                logger.Exception(e);
             }
             finally
             {
                 externalTimer.Stop();
-                telemetryClient.TrackDependency("GraphUpdate", $"+{difference.AddedTriples.Count()}/-{difference.RemovedTriples.Count()}", externalStartTime, externalTimer.Elapsed, externalCallOk);
+                logger.Dependency("GraphUpdate", $"+{difference.AddedTriples.Count()}/-{difference.RemovedTriples.Count()}", externalStartTime, externalTimer.Elapsed, externalCallOk);
             }
             return externalCallOk;
         }

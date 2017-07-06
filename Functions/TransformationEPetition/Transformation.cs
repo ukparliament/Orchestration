@@ -17,7 +17,7 @@ namespace Functions.TransformationEPetition
             Graph result = new Graph();
             result.NamespaceMap.AddNamespace("parl", new Uri(schemaNamespace));
 
-            telemetryClient.TrackTrace("Generate triples", Microsoft.ApplicationInsights.DataContracts.SeverityLevel.Verbose);
+            logger.Verbose("Generate triples");
             IUriNode subject = result.CreateUriNode(subjectUri);
             IUriNode rdfTypeNode = result.CreateUriNode(new Uri(RdfSpecsHelper.RdfType));
             //EPetition
@@ -69,7 +69,7 @@ namespace Functions.TransformationEPetition
         }
         private void generateTripleThresholdAttainment(IGraph graph, IGraph oldGraph, IUriNode subject, XDocument doc, XmlNamespaceManager xmlNamespaceManager)
         {
-            Dictionary<string, string> thresholds = IdRetrieval.GetSubjects("Threshold", "thresholdName", telemetryClient);
+            Dictionary<string, string> thresholds = IdRetrieval.GetSubjects("Threshold", "thresholdName", logger);
             foreach (KeyValuePair<string, string> threshold in thresholds)
             {
                 IUriNode thresholdAttainment = generateLinkedSubject(graph, oldGraph, graph.CreateUriNode("parl:thresholdAttainmentHasThreshold"), graph.CreateUriNode(threshold.Value));
@@ -93,7 +93,7 @@ namespace Functions.TransformationEPetition
         }
         private void generateTripleLocatedSignatureCount(IGraph graph, IGraph oldGraph, IUriNode subject, XDocument doc, XmlNamespaceManager xmlNamespaceManager)
         {
-            Dictionary<string, string> constituencies = IdRetrieval.GetSubjects("ConstituencyGroup", "constituencyGroupOnsCode", telemetryClient);
+            Dictionary<string, string> constituencies = IdRetrieval.GetSubjects("ConstituencyGroup", "constituencyGroupOnsCode", logger);
 
             foreach (XElement constituency in doc.XPathSelectElements("root/data/attributes/signatures_by_constituency"))
             {
@@ -138,8 +138,8 @@ namespace Functions.TransformationEPetition
                     }
                 }
             }
-            Dictionary<string, string> countries = IdRetrieval.GetSubjects("Country", "countryGovRegisterId", telemetryClient);
-            Dictionary<string, string> territories = IdRetrieval.GetSubjects("Territory", "territoryGovRegisterId", telemetryClient);
+            Dictionary<string, string> countries = IdRetrieval.GetSubjects("Country", "countryGovRegisterId", logger);
+            Dictionary<string, string> territories = IdRetrieval.GetSubjects("Territory", "territoryGovRegisterId", logger);
             Dictionary<string, string> internationalAreas = countries.Concat(territories).ToDictionary(kv => kv.Key, kv => kv.Value);
             foreach (XElement internationalArea in doc.XPathSelectElements("root/data/attributes/signatures_by_country"))
             {
@@ -177,19 +177,19 @@ namespace Functions.TransformationEPetition
                 graph.Assert(rejection, graph.CreateUriNode(new Uri(RdfSpecsHelper.RdfType)), graph.CreateUriNode("parl:Moderation"));
                 if ((rejectionCode != null) && (string.IsNullOrWhiteSpace(rejectionCode.Value) == false))
                 {
-                    Uri rejectionCodeUri = IdRetrieval.GetSubject("RejectionCode", "rejectionCodeName", rejectionCode.Value, false, telemetryClient);
+                    Uri rejectionCodeUri = IdRetrieval.GetSubject("RejectionCode", "rejectionCodeName", rejectionCode.Value, false, logger);
                     if (rejectionCodeUri != null)
                     {
                         graph.Assert(rejection, graph.CreateUriNode("parl:rejectionHasRejectionCode"), graph.CreateUriNode(rejectionCodeUri));
                     }
                     else
                     {
-                        telemetryClient.TrackTrace($"Found rejected petition with a rejection code not currently supported - {rejectionCode.Value}", Microsoft.ApplicationInsights.DataContracts.SeverityLevel.Warning);
+                        logger.Warning($"Found rejected petition with a rejection code not currently supported - {rejectionCode.Value}");
                     }
                 }
                 else
                 {
-                    telemetryClient.TrackTrace("Found rejected petition with no rejection code", Microsoft.ApplicationInsights.DataContracts.SeverityLevel.Warning);
+                    logger.Warning("Found rejected petition with no rejection code");
                 }
                 TripleGenerator.GenerateTriple((Graph)graph, rejection, "parl:rejectionDetails", doc, "root/data/attributes/rejection/details", xmlNamespaceManager);
             }
@@ -220,7 +220,7 @@ namespace Functions.TransformationEPetition
             {
                 string linkedPredicateId = new IdGenerator.IdMaker().MakeId();
                 linkedPredicateIdUri = new Uri(linkedPredicateId);
-                telemetryClient.TrackTrace($"New {linkedPredicateNode.Uri} {linkedPredicateIdUri}", Microsoft.ApplicationInsights.DataContracts.SeverityLevel.Verbose);
+                logger.Verbose($"New {linkedPredicateNode.Uri} {linkedPredicateIdUri}");
             }
             IUriNode linkedPredicateIdNode = graph.CreateUriNode(linkedPredicateIdUri);
             graph.Assert(subject, linkedPredicateNode, linkedPredicateIdNode);
@@ -239,7 +239,7 @@ namespace Functions.TransformationEPetition
             {
                 string linkedPredicateId = new IdGenerator.IdMaker().MakeId();
                 linkedPredicateIdUri = new Uri(linkedPredicateId);
-                telemetryClient.TrackTrace($"New {linkedPredicateNode.Uri} {linkedPredicateIdUri}", Microsoft.ApplicationInsights.DataContracts.SeverityLevel.Verbose);
+                logger.Verbose($"New {linkedPredicateNode.Uri} {linkedPredicateIdUri}");
             }
             IUriNode linkedPredicateIdNode = graph.CreateUriNode(linkedPredicateIdUri);
             graph.Assert(linkedPredicateIdNode, linkedPredicateNode, objectNode);

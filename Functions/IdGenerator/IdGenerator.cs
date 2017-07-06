@@ -10,16 +10,13 @@ namespace Functions.IdGenerator
 {
     public static class IdGenerator
     {
-        private static readonly TelemetryClient telemetryClient = new TelemetryClient()
-        {
-            InstrumentationKey = Environment.GetEnvironmentVariable("ApplicationInsightsInstrumentationKey", EnvironmentVariableTarget.Process)
-        };
+        private static Logger logger;
 
         [FunctionName("IdGenerator")]
         public static async Task<string> Run([HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = null)]HttpRequestMessage req, TraceWriter log)
         {
-            telemetryClient.Context.Operation.Name = "IdGenerator";
-            telemetryClient.TrackEvent("Triggered");
+            logger.SetOperationName("IdGenerator");
+            logger.Triggered();
             IdMaker generator = new IdMaker();
             string id = generator.MakeId();
 

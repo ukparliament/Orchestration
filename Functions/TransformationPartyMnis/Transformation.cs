@@ -12,7 +12,7 @@ namespace Functions.TransformationPartyMnis
             Graph result = new Graph();
             result.NamespaceMap.AddNamespace("parl", new Uri(schemaNamespace));
 
-            telemetryClient.TrackTrace("Generate triples", Microsoft.ApplicationInsights.DataContracts.SeverityLevel.Verbose);
+            logger.Verbose("Generate triples");
             IUriNode subject = result.CreateUriNode(subjectUri);
             IUriNode rdfTypeNode = result.CreateUriNode(new Uri(RdfSpecsHelper.RdfType));
             //Party

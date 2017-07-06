@@ -17,33 +17,27 @@ namespace Functions
 {
     public class BaseTransformation<T> where T: ITransformationSettings, new()
     {
-        protected readonly TelemetryClient telemetryClient = new TelemetryClient()
-        {
-            InstrumentationKey = Environment.GetEnvironmentVariable("ApplicationInsightsInstrumentationKey", EnvironmentVariableTarget.Process)
-        };
+        protected Logger logger;
+
         protected static readonly string schemaNamespace = Environment.GetEnvironmentVariable("SchemaNamespace", EnvironmentVariableTarget.Process);
-        private readonly Stopwatch timer = Stopwatch.StartNew();
 
         public async Task<object> Run(HttpRequestMessage req, T settings)
         {
-            telemetryClient.Context.Operation.Name = settings.OperationName;
-            telemetryClient.Context.Operation.Id = Guid.NewGuid().ToString();
-            
-            telemetryClient.TrackEvent("Triggered");
-
+            logger = new Logger();
+            logger.SetOperationName(settings.OperationName);
+            logger.Triggered();
             string jsonContent = await req.Content.ReadAsStringAsync();
             dynamic data = JsonConvert.DeserializeObject(jsonContent);
 
             if ((data.url == null) || (data.callbackUrl == null))
             {
-                timer.Stop();
-                telemetryClient.TrackTrace("Missing some value(s)", Microsoft.ApplicationInsights.DataContracts.SeverityLevel.Error);
-                telemetryClient.TrackEvent("Finished", metrics: new Dictionary<string, double>() { { "ProcessTime", timer.Elapsed.TotalMilliseconds } });
+                logger.Error("Missing some value(s)");
+                logger.Finished();
                 return req.CreateResponse(HttpStatusCode.BadRequest, "Missing some value(s)");
             }
-            telemetryClient.Context.Properties["DataUrl"] = data.url.ToString();
+            logger.SetDataUrl(data.url.ToString());
             if (data.batchId != null)
-                telemetryClient.Context.Properties["BatchId"] = data.batchId.ToString();
+                logger.SetBatchId(data.batchId.ToString());
             new Thread(() => startProcess(data.url.ToString(), data.callbackUrl.ToString(), settings)).Start();
 
             return req.CreateResponse();
@@ -53,10 +47,9 @@ namespace Functions
         {
             using (HttpClient client = new HttpClient())
             {
-                timer.Stop();
                 if (string.IsNullOrWhiteSpace(errorMessage)==false)
-                    telemetryClient.TrackTrace(errorMessage, Microsoft.ApplicationInsights.DataContracts.SeverityLevel.Error);
-                telemetryClient.TrackEvent("Finished", metrics: new Dictionary<string, double>() { { "ProcessTime", timer.Elapsed.TotalMilliseconds } });
+                    logger.Error(errorMessage);
+                logger.Finished();
                 return await client.PostAsync(callbackUrl, new StringContent(errorMessage ?? "OK"));
             }
         }
@@ -66,21 +59,21 @@ namespace Functions
             Uri subjectUri = null;
             try
             {
-                telemetryClient.TrackTrace("Getting key", Microsoft.ApplicationInsights.DataContracts.SeverityLevel.Verbose);
+                logger.Verbose("Getting key");
                 SparqlParameterizedString sparql = new SparqlParameterizedString(settings.SubjectRetrievalSparqlCommand);
                 sparql.Namespaces.AddNamespace("parl", new Uri(schemaNamespace));
                 foreach (KeyValuePair<string, string> nameXPathPair in settings.SubjectRetrievalParameters)
                 {
                     XElement key = doc.XPathSelectElement(nameXPathPair.Value, settings.SourceXmlNamespaceManager);
-                    telemetryClient.TrackTrace($"Key {nameXPathPair.Key}: {key.Value}", Microsoft.ApplicationInsights.DataContracts.SeverityLevel.Verbose);
+                    logger.Verbose($"Key {nameXPathPair.Key}: {key.Value}");
                     sparql.SetLiteral(nameXPathPair.Key, key.Value);
                 }
-                subjectUri = IdRetrieval.GetSubject(sparql.ToString(), true, telemetryClient);
-                telemetryClient.TrackTrace($"Subject: {subjectUri}", Microsoft.ApplicationInsights.DataContracts.SeverityLevel.Verbose);
+                subjectUri = IdRetrieval.GetSubject(sparql.ToString(), true, logger);
+                logger.Verbose($"Subject: {subjectUri}");
             }
             catch (Exception e)
             {
-                telemetryClient.TrackException(e);
+                logger.Exception(e);
                 return null;
             }
             return subjectUri;
@@ -102,14 +95,13 @@ namespace Functions
                     sparql.SetLiteral(nameXPathPair.Key, key.Value);
                 }
             sparql.Namespaces.AddNamespace("parl", new Uri(schemaNamespace));
-
-            telemetryClient.TrackTrace("Trying to get existing graph", Microsoft.ApplicationInsights.DataContracts.SeverityLevel.Verbose);
-            return GraphRetrieval.GetGraph(sparql.ToString(), telemetryClient);
+            logger.Verbose("Trying to get existing graph");
+            return GraphRetrieval.GetGraph(sparql.ToString(), logger);
         }
 
         private async Task<HttpResponseMessage> startProcess(string dataUrl, string callbackUrl, T settings)
         {
-            XDocument doc = await XmlDataRetrieval.GetXmlDataFromUrl(settings.FullDataUrlParameterizedString(dataUrl), settings.AcceptHeader, telemetryClient);
+            XDocument doc = await XmlDataRetrieval.GetXmlDataFromUrl(settings.FullDataUrlParameterizedString(dataUrl), settings.AcceptHeader, logger);
             if (doc == null)
                 return await communicateBack(callbackUrl, "Problem while getting source data");
 
@@ -126,15 +118,15 @@ namespace Functions
                 return await communicateBack(callbackUrl, $"Problem with retrieving new graph for {subjectUri}");
 
             GraphDiffReport difference = existingGraph.Difference(newGraph);
-            telemetryClient.TrackMetric("AddedTriples", difference.AddedTriples.Count());
-            telemetryClient.TrackMetric("RemovedTriples", difference.RemovedTriples.Count());
+            logger.Metric("AddedTriples", difference.AddedTriples.Count());
+            logger.Metric("RemovedTriples", difference.RemovedTriples.Count());
 
             if ((difference.AddedTriples.Any() == false) && (difference.RemovedTriples.Any() == false))
             {
-                telemetryClient.TrackTrace("No update required", Microsoft.ApplicationInsights.DataContracts.SeverityLevel.Verbose);
+                logger.Verbose("No update required");
                 return await communicateBack(callbackUrl);
             }
-            bool isGraphUpdated = GraphUpdate.UpdateDifference(difference, telemetryClient);
+            bool isGraphUpdated = GraphUpdate.UpdateDifference(difference, logger);
             if (isGraphUpdated == false)
                 return await communicateBack(callbackUrl, $"Problem when updating graph for {subjectUri}");
             return await communicateBack(callbackUrl);

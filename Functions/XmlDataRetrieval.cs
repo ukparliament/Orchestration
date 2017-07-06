@@ -10,7 +10,7 @@ namespace Functions
     public static class XmlDataRetrieval
     {
 
-        public static async Task<XDocument> GetXmlDataFromUrl(string url, string acceptHeader, TelemetryClient telemetryClient)
+        public static async Task<XDocument> GetXmlDataFromUrl(string url, string acceptHeader, Logger logger)
         {
             XDocument doc;
             string xml = null;
@@ -20,33 +20,33 @@ namespace Functions
 
             try
             {
-                telemetryClient.TrackTrace("Contacting source", Microsoft.ApplicationInsights.DataContracts.SeverityLevel.Verbose);
+                logger.Verbose("Contacting source");
                 xml = await getXmlText(url, acceptHeader);
             }
             catch (Exception e)
             {
                 externalCallOk = false;
-                telemetryClient.TrackException(e);
+                logger.Exception(e);
                 return null;
             }
             finally
             {
                 externalTimer.Stop();
-                telemetryClient.TrackDependency("XmlDataRetrieval", url, externalStartTime, externalTimer.Elapsed, externalCallOk);
+                logger.Dependency("XmlDataRetrieval", url, externalStartTime, externalTimer.Elapsed, externalCallOk);
             }
             if (string.IsNullOrWhiteSpace(xml))
             {
-                telemetryClient.TrackTrace("Empty response", Microsoft.ApplicationInsights.DataContracts.SeverityLevel.Error);
+                logger.Error("Empty response");
                 return null;
             }
             try
             {
-                telemetryClient.TrackTrace("Parsing response", Microsoft.ApplicationInsights.DataContracts.SeverityLevel.Verbose);
+                logger.Verbose("Parsing response");
                 doc = XDocument.Parse(xml);
             }
             catch (Exception e)
             {
-                telemetryClient.TrackException(e);
+                logger.Exception(e);
                 return null;
             }
             return doc;

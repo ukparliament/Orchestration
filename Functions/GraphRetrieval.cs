@@ -8,18 +8,18 @@ namespace Functions
 {
     public static class GraphRetrieval
     {
-        public static IGraph GetGraph(string constructQuery, TelemetryClient telemetryClient, string infer = "false")
+        public static IGraph GetGraph(string constructQuery, Logger logger, string infer = "false")
         {
-            IGraph graph = makeCall(constructQuery, telemetryClient, infer);
+            IGraph graph = makeCall(constructQuery, logger, infer);
             if (graph == null)
             {
-                telemetryClient.TrackTrace("Second attempt.", Microsoft.ApplicationInsights.DataContracts.SeverityLevel.Verbose);
-                graph = makeCall(constructQuery, telemetryClient, infer);
+                logger.Verbose("Second attempt.");
+                graph = makeCall(constructQuery, logger, infer);
             }
             return graph;
         }
 
-        private static IGraph makeCall(string constructQuery, TelemetryClient telemetryClient, string infer = "false")
+        private static IGraph makeCall(string constructQuery, Logger logger, string infer = "false")
         {
             IGraph graph = null;
             Stopwatch externalTimer = Stopwatch.StartNew();
@@ -32,12 +32,12 @@ namespace Functions
             catch (Exception e)
             {
                 externalCallOk = false;
-                telemetryClient.TrackException(e);
+                logger.Exception(e);
             }
             finally
             {
                 externalTimer.Stop();
-                telemetryClient.TrackDependency("ExecuteGraphQuery", constructQuery, externalStartTime, externalTimer.Elapsed, externalCallOk);
+                logger.Dependency("ExecuteGraphQuery", constructQuery, externalStartTime, externalTimer.Elapsed, externalCallOk);
             }
             return graph;
         }

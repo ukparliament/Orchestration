@@ -16,7 +16,7 @@ namespace Functions.TransformationConstituencyMnis
             Graph result = new Graph();
             result.NamespaceMap.AddNamespace("parl", new Uri(schemaNamespace));
 
-            telemetryClient.TrackTrace("Generate triples", Microsoft.ApplicationInsights.DataContracts.SeverityLevel.Verbose);
+            logger.Verbose("Generate triples");
             IUriNode subject = result.CreateUriNode(subjectUri);
             IUriNode rdfTypeNode = result.CreateUriNode(new Uri(RdfSpecsHelper.RdfType));
             //Constituency
@@ -38,18 +38,18 @@ namespace Functions.TransformationConstituencyMnis
             IUriNode seatTypeNode = graph.CreateUriNode("parl:HouseSeat");
             IUriNode rdfTypeNode = graph.CreateUriNode(new Uri(RdfSpecsHelper.RdfType));
 
-            telemetryClient.TrackTrace("Check seat", Microsoft.ApplicationInsights.DataContracts.SeverityLevel.Verbose);
+            logger.Verbose("Check seat");
             IEnumerable<Triple> existingSeat = oldGraph.GetTriplesWithPredicateObject(rdfTypeNode, seatTypeNode);
             if ((existingSeat != null) && (existingSeat.Any()))
             {
                 seatUri = ((IUriNode)existingSeat.SingleOrDefault().Subject).Uri;
-                telemetryClient.TrackTrace($"Found seat ({seatUri})", Microsoft.ApplicationInsights.DataContracts.SeverityLevel.Verbose);
+                logger.Verbose($"Found seat ({seatUri})");
             }
             else
             {
                 string seatId = new IdGenerator.IdMaker().MakeId();
                 seatUri = new Uri(seatId);
-                telemetryClient.TrackTrace($"New seat ({seatUri})", Microsoft.ApplicationInsights.DataContracts.SeverityLevel.Verbose);
+                logger.Verbose($"New seat ({seatUri})");
             }
             IUriNode seatNode = graph.CreateUriNode(seatUri);
 
@@ -73,11 +73,11 @@ namespace Functions.TransformationConstituencyMnis
             if ((existingHouse != null) && (existingHouse.Any()))
             {
                 houseUri = ((IUriNode)existingHouse.SingleOrDefault().Object).Uri;
-                telemetryClient.TrackTrace($"Found house ({houseUri})", Microsoft.ApplicationInsights.DataContracts.SeverityLevel.Verbose);
+                logger.Verbose($"Found house ({houseUri})");
             }
             else
             {
-                houseUri = IdRetrieval.GetSubject("House", "houseName", houseName, false, telemetryClient);
+                houseUri = IdRetrieval.GetSubject("House", "houseName", houseName, false, logger);
                 if (houseUri == null)
                 {
                     throw new Exception($"Could not found house ({houseName})");

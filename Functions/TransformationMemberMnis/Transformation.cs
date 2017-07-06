@@ -18,7 +18,7 @@ namespace Functions.TransformationMemberMnis
             result.NamespaceMap.AddNamespace("parl", new Uri(schemaNamespace));
             result.NamespaceMap.AddNamespace("ex", new Uri("http://example.com/"));
 
-            telemetryClient.TrackTrace("Generate triples", Microsoft.ApplicationInsights.DataContracts.SeverityLevel.Verbose);
+            logger.Verbose("Generate triples");
             IUriNode subject = result.CreateUriNode(subjectUri);
             IUriNode rdfTypeNode = result.CreateUriNode(new Uri(RdfSpecsHelper.RdfType));
             //Person
@@ -57,18 +57,18 @@ namespace Functions.TransformationMemberMnis
             IUriNode genderIdenitytTypeNode = graph.CreateUriNode("parl:GenderIdentity");
             IUriNode rdfTypeNode = graph.CreateUriNode(new Uri(RdfSpecsHelper.RdfType));
 
-            telemetryClient.TrackTrace("Check gender identity", Microsoft.ApplicationInsights.DataContracts.SeverityLevel.Verbose);
+            logger.Verbose("Check gender identity");
             IEnumerable<Triple> existingGenderIdentity = oldGraph.GetTriplesWithPredicateObject(rdfTypeNode, genderIdenitytTypeNode);
             if ((existingGenderIdentity != null) && (existingGenderIdentity.Any()))
             {
                 genderIdentityUri = ((IUriNode)existingGenderIdentity.SingleOrDefault().Subject).Uri;
-                telemetryClient.TrackTrace($"Found gender identity {genderIdentityUri}", Microsoft.ApplicationInsights.DataContracts.SeverityLevel.Verbose);
+                logger.Verbose($"Found gender identity {genderIdentityUri}");
             }
             else
             {
                 string genderIdentityId = new IdGenerator.IdMaker().MakeId();
                 genderIdentityUri = new Uri(genderIdentityId);
-                telemetryClient.TrackTrace($"New gender identity {genderIdentityUri}", Microsoft.ApplicationInsights.DataContracts.SeverityLevel.Verbose);
+                logger.Verbose($"New gender identity {genderIdentityUri}");
             }
             IUriNode genderIdentityNode = graph.CreateUriNode(genderIdentityUri);
 
@@ -82,16 +82,16 @@ namespace Functions.TransformationMemberMnis
             Uri genderUri;
             IUriNode genderPredicateNode = graph.CreateUriNode("parl:genderIdentityHasGender");
 
-            telemetryClient.TrackTrace($"Check gender", Microsoft.ApplicationInsights.DataContracts.SeverityLevel.Verbose);
+            logger.Verbose($"Check gender");
             IEnumerable<Triple> existingGender = oldGraph.GetTriplesWithSubjectPredicate(subject, genderPredicateNode);
             if ((existingGender != null) && (existingGender.Any()))
             {
                 genderUri = ((IUriNode)existingGender.SingleOrDefault().Object).Uri;
-                telemetryClient.TrackTrace($"Found gender {genderUri}", Microsoft.ApplicationInsights.DataContracts.SeverityLevel.Verbose);
+                logger.Verbose($"Found gender {genderUri}");
             }
             else
             {
-                genderUri = IdRetrieval.GetSubject("Gender", "genderMnisId", genderMnisId, false, telemetryClient);
+                genderUri = IdRetrieval.GetSubject("Gender", "genderMnisId", genderMnisId, false, logger);
                 if (genderUri == null)
                 {
                     throw new Exception($"{subject.Uri}: Could not found gender for {genderMnisId}");
@@ -131,14 +131,14 @@ namespace Functions.TransformationMemberMnis
                     endDateElement = element.XPathSelectElement("atom:content/m:properties/d:EndDate", xmlNamespaceManager);
                     if (dates.Contains(startDateElement.Value) == true)
                     {
-                        telemetryClient.TrackTrace($"Duplicate incumbency ({startDateElement.Value})", Microsoft.ApplicationInsights.DataContracts.SeverityLevel.Verbose);
+                        logger.Verbose($"Duplicate incumbency ({startDateElement.Value})");
                         continue;
                     }
                     dates.Add(startDateElement.Value);
                     if ((string.IsNullOrWhiteSpace(endDateElement.Value)) ||
                         (Convert.ToDateTime(startDateElement.Value) <= Convert.ToDateTime(endDateElement.Value)))
                     {
-                        telemetryClient.TrackTrace($"House incumbency ({startDateElement.Value})", Microsoft.ApplicationInsights.DataContracts.SeverityLevel.Verbose);
+                        logger.Verbose($"House incumbency ({startDateElement.Value})");
                         incumbencyNode = generateIncumbency(graph, oldGraph, subject, startDateElement, endDateElement);
                         IEnumerable<Triple> existingHouses = oldGraph.GetTriplesWithSubjectPredicate(incumbencyNode, housePredicateNode);
                         Uri houseUri = null;
@@ -148,7 +148,7 @@ namespace Functions.TransformationMemberMnis
                         }
                         else
                         {
-                            houseUri = IdRetrieval.GetSubject("House", "houseName", "House of Lords", false, telemetryClient);
+                            houseUri = IdRetrieval.GetSubject("House", "houseName", "House of Lords", false, logger);
                         }
                         IEnumerable<Triple> existingTypes = oldGraph.GetTriplesWithSubjectPredicate(incumbencyNode, incumbencyTypePredicateNode);
                         Uri incumbencyTypeUri = null;
@@ -158,7 +158,7 @@ namespace Functions.TransformationMemberMnis
                         }
                         else
                         {
-                            incumbencyTypeUri = IdRetrieval.GetSubject("HouseIncumbencyType", "houseIncumbencyTypeMnisId", lordsType.Value, false, telemetryClient);
+                            incumbencyTypeUri = IdRetrieval.GetSubject("HouseIncumbencyType", "houseIncumbencyTypeMnisId", lordsType.Value, false, logger);
                         }
                         graph.Assert(incumbencyNode, housePredicateNode, graph.CreateUriNode(houseUri));
                         graph.Assert(incumbencyNode, incumbencyTypePredicateNode, graph.CreateUriNode(incumbencyTypeUri));
@@ -169,12 +169,12 @@ namespace Functions.TransformationMemberMnis
             foreach (XElement element in doc.XPathSelectElements("atom:entry/atom:link[@title='MemberConstituencies']/m:inline/atom:feed/atom:entry", xmlNamespaceManager))
             {
                 startDateElement = element.XPathSelectElement("atom:content/m:properties/d:StartDate", xmlNamespaceManager);
-                telemetryClient.TrackTrace($"Seat incumbency ({startDateElement.Value})", Microsoft.ApplicationInsights.DataContracts.SeverityLevel.Verbose);
+                logger.Verbose($"Seat incumbency ({startDateElement.Value})");
                 endDateElement = element.XPathSelectElement("atom:content/m:properties/d:EndDate", xmlNamespaceManager);
                 incumbencyNode = generateIncumbency(graph, oldGraph, subject, startDateElement, endDateElement);
                 bool hasEndDate = (endDateElement != null && string.IsNullOrWhiteSpace(endDateElement.Value) == false);
                 generateSeatIncumbencyParliamentPeriod(graph, incumbencyNode, startDateElement, endDateElement);
-                telemetryClient.TrackTrace($"Check seat ({startDateElement.Value})", Microsoft.ApplicationInsights.DataContracts.SeverityLevel.Verbose);
+                logger.Verbose($"Check seat ({startDateElement.Value})");
                 Uri houseSeatUri;
                 XElement constituencyElement = element.XPathSelectElement("atom:link[@title='Constituency']/m:inline/atom:entry/atom:content/m:properties", xmlNamespaceManager);
                 if (constituencyElement != null)
@@ -183,10 +183,10 @@ namespace Functions.TransformationMemberMnis
                     SparqlParameterizedString seatSparql = new SparqlParameterizedString(seatCommand);
                     seatSparql.Namespaces.AddNamespace("parl", new Uri(schemaNamespace));
                     seatSparql.SetLiteral("constituencyGroupMnisId", constituencyId);
-                    houseSeatUri = IdRetrieval.GetSubject(seatSparql.ToString(), false, telemetryClient);
+                    houseSeatUri = IdRetrieval.GetSubject(seatSparql.ToString(), false, logger);
                     if (houseSeatUri != null)
                     {
-                        telemetryClient.TrackTrace($"House seat ({startDateElement.Value})", Microsoft.ApplicationInsights.DataContracts.SeverityLevel.Verbose);
+                        logger.Verbose($"House seat ({startDateElement.Value})");
                         graph.Assert(incumbencyNode, graph.CreateUriNode("parl:seatIncumbencyHasHouseSeat"), graph.CreateUriNode(houseSeatUri));
                     }
                 }
@@ -207,13 +207,13 @@ namespace Functions.TransformationMemberMnis
             if ((existingIncumbencies != null) && (existingIncumbencies.Any()))
             {
                 incumbencyUri = ((IUriNode)existingIncumbencies.SingleOrDefault().Subject).Uri;
-                telemetryClient.TrackTrace($"Found incumbency {incumbencyUri} ({startDateElement.Value})", Microsoft.ApplicationInsights.DataContracts.SeverityLevel.Verbose);
+                logger.Verbose($"Found incumbency {incumbencyUri} ({startDateElement.Value})");
             }
             else
             {
                 string incumbencyId = new IdGenerator.IdMaker().MakeId();
                 incumbencyUri = new Uri(incumbencyId);
-                telemetryClient.TrackTrace($"New incumbency {incumbencyUri} ({startDateElement.Value})", Microsoft.ApplicationInsights.DataContracts.SeverityLevel.Verbose);
+                logger.Verbose($"New incumbency {incumbencyUri} ({startDateElement.Value})");
             }
             IUriNode incumbencyNode = graph.CreateUriNode(incumbencyUri);
             graph.Assert(incumbencyNode, rdfTypeNode, graph.CreateUriNode("parl:Incumbency"));
@@ -247,10 +247,10 @@ namespace Functions.TransformationMemberMnis
             sparql.SetLiteral("startDate", startDate, dataTypeNode.Uri);
             sparql.SetLiteral("endDate", endDate??string.Empty, dataTypeNode.Uri);
             sparql.SetLiteral("hasEndDate", string.IsNullOrWhiteSpace(endDate)==false);
-            Uri parliamentPeriodUri = IdRetrieval.GetSubject(sparql.ToString(), false, telemetryClient);
+            Uri parliamentPeriodUri = IdRetrieval.GetSubject(sparql.ToString(), false, logger);
             if (parliamentPeriodUri != null)
             {
-                telemetryClient.TrackTrace($"Parliament period seat ({startDate})", Microsoft.ApplicationInsights.DataContracts.SeverityLevel.Verbose);
+                logger.Verbose($"Parliament period seat ({startDate})");
                 graph.Assert(seatIncumbency, graph.CreateUriNode("parl:seatIncumbencyHasParliamentPeriod"), graph.CreateUriNode(parliamentPeriodUri));
             }
         }
@@ -277,7 +277,7 @@ namespace Functions.TransformationMemberMnis
             foreach (XElement element in doc.XPathSelectElements("atom:entry/atom:link[@title='MemberParties']/m:inline/atom:feed/atom:entry", namespaceManager))
             {
                 XElement partyElement = element.XPathSelectElement("atom:content/m:properties/d:Party_Id", namespaceManager);
-                telemetryClient.TrackTrace($"Party membership ({partyElement.Value})", Microsoft.ApplicationInsights.DataContracts.SeverityLevel.Verbose);
+                logger.Verbose($"Party membership ({partyElement.Value})");
                 XElement startDateElement = element.XPathSelectElement("atom:content/m:properties/d:StartDate", namespaceManager);
                 XElement endDateElement = element.XPathSelectElement("atom:content/m:properties/d:EndDate", namespaceManager);
 
@@ -286,10 +286,10 @@ namespace Functions.TransformationMemberMnis
                 string endDate = giveMeDatePart(endDateElement);
                 IUriNode dataTypeUri = graph.CreateUriNode("xsd:date");
 
-                partyUri = IdRetrieval.GetSubject("Party", "partyMnisId", partyElement.Value, false, telemetryClient);
+                partyUri = IdRetrieval.GetSubject("Party", "partyMnisId", partyElement.Value, false, logger);
                 if (partyUri == null)
                 {
-                    telemetryClient.TrackTrace($"Party not found ({partyElement.Value})", Microsoft.ApplicationInsights.DataContracts.SeverityLevel.Verbose);
+                    logger.Verbose($"Party not found ({partyElement.Value})");
                     continue;
                 }
                 INode startDateNode = graph.CreateLiteralNode(startDate, dataTypeUri.Uri);
@@ -310,10 +310,10 @@ namespace Functions.TransformationMemberMnis
                 {
                     string partyMembershipId = new IdGenerator.IdMaker().MakeId();
                     partyMembershipNode = graph.CreateUriNode(new Uri(partyMembershipId));
-                    telemetryClient.TrackTrace($"New party membership {partyMembershipNode.Uri} ({partyElement.Value})", Microsoft.ApplicationInsights.DataContracts.SeverityLevel.Verbose);
+                    logger.Verbose($"New party membership {partyMembershipNode.Uri} ({partyElement.Value})");
                 }
                 else
-                    telemetryClient.TrackTrace($"Found existing party membership {partyMembershipNode.Uri} ({partyElement.Value})", Microsoft.ApplicationInsights.DataContracts.SeverityLevel.Verbose);
+                    logger.Verbose($"Found existing party membership {partyMembershipNode.Uri} ({partyElement.Value})");
                 graph.Assert(partyMembershipNode, rdfTypeNode, graph.CreateUriNode("parl:PartyMembership"));
                 graph.Assert(partyMembershipNode, graph.CreateUriNode("parl:partyMembershipHasPartyMember"), subject);
                 graph.Assert(partyMembershipNode, graph.CreateUriNode("parl:partyMembershipHasParty"), graph.CreateUriNode(partyUri));

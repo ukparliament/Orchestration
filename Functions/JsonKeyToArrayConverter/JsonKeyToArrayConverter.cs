@@ -16,10 +16,8 @@ namespace Functions.JsonKeyToArrayConverter
 {
     public class JsonKeyToArrayConverter
     {
-        protected static readonly TelemetryClient telemetryClient = new TelemetryClient()
-        {
-            InstrumentationKey = Environment.GetEnvironmentVariable("ApplicationInsightsInstrumentationKey", EnvironmentVariableTarget.Process)
-        };
+        private static Logger logger;
+
         [FunctionName("JsonKeyToArrayConverter")]
 
         public static async Task<object> Run([HttpTrigger(WebHookType = "genericJson")]HttpRequestMessage req, TraceWriter log)
@@ -29,7 +27,7 @@ namespace Functions.JsonKeyToArrayConverter
 
             if (data.url == null)
             {
-                telemetryClient.TrackTrace("Missing some value(s)", Microsoft.ApplicationInsights.DataContracts.SeverityLevel.Error);
+                logger.Error("Missing some value(s)");
                 return req.CreateResponse(HttpStatusCode.BadRequest, "Missing some value(s)");
             }
             string jsonText = await getData(data.url.ToString());

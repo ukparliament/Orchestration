@@ -11,7 +11,7 @@ namespace Functions
     {
         private static readonly string schemaNamespace = Environment.GetEnvironmentVariable("SchemaNamespace", EnvironmentVariableTarget.Process);
 
-        public static Uri GetSubject(string subjectType, string predicate, string objectValue, bool canCreateNewId, TelemetryClient telemetryClient)
+        public static Uri GetSubject(string subjectType, string predicate, string objectValue, bool canCreateNewId, Logger logger)
         {
             string command = @"
                 construct{
@@ -26,13 +26,13 @@ namespace Functions
             sparql.SetUri("predicate", new Uri($"{schemaNamespace}{predicate}"));
             sparql.SetLiteral("objectValue", objectValue);
 
-            return getValue(sparql.ToString(), canCreateNewId, telemetryClient);
+            return getValue(sparql.ToString(), canCreateNewId, logger);
         }
-        public static Uri GetSubject(string sparql, bool canCreateNewId, TelemetryClient telemetryClient)
+        public static Uri GetSubject(string sparql, bool canCreateNewId, Logger logger)
         {
-            return getValue(sparql, canCreateNewId, telemetryClient);
+            return getValue(sparql, canCreateNewId, logger);
         }
-        public static Dictionary<string, string> GetSubjects(string subjectType, string predicate, TelemetryClient telemetryClient)
+        public static Dictionary<string, string> GetSubjects(string subjectType, string predicate, Logger logger)
         {
            string command = @"
                 construct{
@@ -46,7 +46,7 @@ namespace Functions
             sparql.SetUri("subjectType", new Uri($"{schemaNamespace}{subjectType}"));
             sparql.SetUri("predicate", new Uri($"{schemaNamespace}{predicate}"));
             Dictionary<string, string> result = new Dictionary<string, string>();
-            IGraph graph = GraphRetrieval.GetGraph(sparql.ToString(), telemetryClient, "false");
+            IGraph graph = GraphRetrieval.GetGraph(sparql.ToString(), logger, "false");
             foreach (Triple triple in graph.Triples)
             {
                 result.Add(triple.Object.ToString(), triple.Subject.ToString());
@@ -54,27 +54,27 @@ namespace Functions
             return result;
         }
 
-        private static Uri getValue(string sparql, bool canCreateNewId, TelemetryClient telemetryClient)
+        private static Uri getValue(string sparql, bool canCreateNewId, Logger logger)
         {
-            IGraph graph = GraphRetrieval.GetGraph(sparql, telemetryClient, "false");
+            IGraph graph = GraphRetrieval.GetGraph(sparql, logger, "false");
             if (graph.IsEmpty)
             {
                 if (canCreateNewId == true)
                 {
                     string id = new IdGenerator.IdMaker().MakeId();
-                    telemetryClient.TrackTrace($"Created new id ({id})", Microsoft.ApplicationInsights.DataContracts.SeverityLevel.Verbose);
+                    logger.Verbose($"Created new id ({id})");
                     return new Uri(id);
                 }
                 else
                 {
-                    telemetryClient.TrackTrace("Not found", Microsoft.ApplicationInsights.DataContracts.SeverityLevel.Verbose);
+                    logger.Verbose("Not found");
                     return null;
                 }
             }
             else
             {
                 Uri result = ((IUriNode)graph.Triples.SubjectNodes.SingleOrDefault()).Uri;
-                telemetryClient.TrackTrace($"Found existing ({result})", Microsoft.ApplicationInsights.DataContracts.SeverityLevel.Verbose);
+                logger.Verbose($"Found existing ({result})");
                 return result;
             }
         }

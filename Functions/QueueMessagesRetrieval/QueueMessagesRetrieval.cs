@@ -14,20 +14,15 @@ namespace Functions.QueueMessagesRetrieval
 {
     public static class QueueMessagesRetrieval
     {
-        private static readonly TelemetryClient telemetryClient = new TelemetryClient()
-        {
-            InstrumentationKey = Environment.GetEnvironmentVariable("ApplicationInsightsInstrumentationKey", EnvironmentVariableTarget.Process)
-        };
+        private static Logger logger;
+
         private static readonly string serviceBusEndpoint = System.Environment.GetEnvironmentVariable("CUSTOMCONNSTR_ServiceBus", EnvironmentVariableTarget.Process);
 
         [FunctionName("QueueMessagesRetrieval")]
         public static async Task<object> Run([HttpTrigger(WebHookType = "genericJson")]HttpRequestMessage req, TraceWriter log)
         {
-            telemetryClient.Context.Operation.Name = "QueueMessagesRetrieval";
-            telemetryClient.Context.Operation.Id = Guid.NewGuid().ToString();
-
-            telemetryClient.TrackEvent("Triggered");
-            Stopwatch timer = Stopwatch.StartNew();
+            logger.SetOperationName("QueueMessagesRetrieval");
+            logger.Triggered();
 
             string queue = req.GetQueryNameValuePairs()
                 .FirstOrDefault(q => string.Compare(q.Key, "queue", true) == 0)
@@ -46,47 +41,44 @@ namespace Functions.QueueMessagesRetrieval
 
             if ((string.IsNullOrEmpty(queue)) || (batchSize <= 0))
             {
-                timer.Stop();
-                telemetryClient.TrackTrace("Missing some value(s)", Microsoft.ApplicationInsights.DataContracts.SeverityLevel.Error);
-                telemetryClient.TrackEvent("Finished", new Dictionary<string, string>(), new Dictionary<string, double>() { { "ProcessTime", timer.Elapsed.TotalMilliseconds } });
+                logger.Error("Missing some value(s)");
+                logger.Finished();
                 return req.CreateResponse(HttpStatusCode.BadRequest, "Missing some value(s)");
             }
-            telemetryClient.Context.Properties["QueueName"] = queue.ToString();
-
-            telemetryClient.TrackTrace($"Queue: {queue}, Batch size: {batchSize}", Microsoft.ApplicationInsights.DataContracts.SeverityLevel.Verbose);
+            logger.SetQueueName(queue.ToString());
+            logger.Verbose($"Queue: {queue}, Batch size: {batchSize}");
             int totalNumber = 0;
             try
             {
-                telemetryClient.TrackTrace("Getting number", Microsoft.ApplicationInsights.DataContracts.SeverityLevel.Verbose);
+                logger.Verbose("Getting number");
                 NamespaceManager manager = NamespaceManager.CreateFromConnectionString(serviceBusEndpoint);
                 totalNumber = (int)manager.GetQueue(queue.ToString()).MessageCount;
-                telemetryClient.TrackMetric("RemainingMessageCount", totalNumber);
+                logger.Metric("RemainingMessageCount", totalNumber);
             }
             catch (Exception e)
             {
-                telemetryClient.TrackException(e);
-                timer.Stop();
-                telemetryClient.TrackEvent("Problem with getting number", new Dictionary<string, string>(), new Dictionary<string, double>() { { "ProcessTime", timer.Elapsed.TotalMilliseconds } });
+                logger.Exception(e);
+                logger.Error("Problem with getting number");
+                logger.Finished();
                 return req.CreateResponse(HttpStatusCode.InternalServerError, "Problem with getting number");
             }
             if (totalNumber == 0)
             {
-                telemetryClient.TrackTrace("No messages", Microsoft.ApplicationInsights.DataContracts.SeverityLevel.Verbose);
-                timer.Stop();
-                telemetryClient.TrackEvent("Finished", new Dictionary<string, string>(), new Dictionary<string, double>() { { "ProcessTime", timer.Elapsed.TotalMilliseconds } });
+                logger.Verbose("No messages");
+                logger.Finished();
                 return req.CreateResponse(HttpStatusCode.NoContent);
             }
             Microsoft.ServiceBus.Messaging.QueueClient client = null;
             try
             {
-                telemetryClient.TrackTrace("Connecting", Microsoft.ApplicationInsights.DataContracts.SeverityLevel.Verbose);
+                logger.Verbose("Connecting");
                 client = getQueue(serviceBusEndpoint, queue);
             }
             catch (Exception e)
             {
-                telemetryClient.TrackException(e);
-                timer.Stop();
-                telemetryClient.TrackEvent("Problem with connection", new Dictionary<string, string>(), new Dictionary<string, double>() { { "ProcessTime", timer.Elapsed.TotalMilliseconds } });
+                logger.Exception(e);
+                logger.Error("Problem with connection");
+                logger.Finished();
                 return req.CreateResponse(HttpStatusCode.InternalServerError, "Problem with connection");
             }
 
@@ -99,9 +91,9 @@ namespace Functions.QueueMessagesRetrieval
             }
             catch (Exception e)
             {
-                telemetryClient.TrackException(e);
-                timer.Stop();
-                telemetryClient.TrackEvent("Problem with messages", new Dictionary<string, string>(), new Dictionary<string, double>() { { "ProcessTime", timer.Elapsed.TotalMilliseconds } });
+                logger.Exception(e);
+                logger.Error("Problem with messages");
+                logger.Finished();
                 return req.CreateResponse(HttpStatusCode.InternalServerError, "Problem with messages");
             }
             while ((result.Count() < batchSize) && (messages.Any()))
@@ -113,8 +105,8 @@ namespace Functions.QueueMessagesRetrieval
                 }
                 catch (Exception e)
                 {
-                    telemetryClient.TrackException(e);
-                    telemetryClient.TrackTrace($"Problem with messages ({batchSize}/{result.Count()})", Microsoft.ApplicationInsights.DataContracts.SeverityLevel.Error);
+                    logger.Exception(e);
+                    logger.Error($"Problem with messages ({batchSize}/{result.Count()})");
                     if (result.Any())
                     {
                         break;
@@ -125,8 +117,8 @@ namespace Functions.QueueMessagesRetrieval
                     }
                 }
             }
-            timer.Stop();
-            telemetryClient.TrackEvent("Finished", new Dictionary<string, string>(), new Dictionary<string, double>() { { "ProcessTime", timer.Elapsed.TotalMilliseconds }, { "OriginalMessageCount", totalNumber }, { "RetrievedMessageCount", result.Count() } });
+            logger.Finished();
+            logger.MessageCount(totalNumber, result.Count());
 
             return req.CreateResponse<MessageItem[]>(HttpStatusCode.OK, result.ToArray());
         }
@@ -134,7 +126,7 @@ namespace Functions.QueueMessagesRetrieval
         private static async Task<IEnumerable<MessageItem>> getMessages(Microsoft.ServiceBus.Messaging.QueueClient client, int batchSize)
         {
             IEnumerable<Microsoft.ServiceBus.Messaging.BrokeredMessage> messages = await client.ReceiveBatchAsync(batchSize);
-            telemetryClient.TrackMetric("FetchedMessageCount", messages.Count());
+            logger.Metric("FetchedMessageCount", messages.Count());
 
             return messages.Select(m => new MessageItem().ConvertMe(m));
         }

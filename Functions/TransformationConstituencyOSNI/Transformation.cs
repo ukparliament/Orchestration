@@ -15,7 +15,7 @@ namespace Functions.TransformationConstituencyOSNI
             Graph result = new Graph();
             result.NamespaceMap.AddNamespace("parl", new Uri(schemaNamespace));
 
-            telemetryClient.TrackTrace("Generate triples", Microsoft.ApplicationInsights.DataContracts.SeverityLevel.Verbose);
+            logger.Verbose("Generate triples");
             IUriNode subject = result.CreateUriNode(subjectUri);
             IUriNode rdfTypeNode = result.CreateUriNode(new Uri(RdfSpecsHelper.RdfType));
             //Constituency
@@ -33,18 +33,18 @@ namespace Functions.TransformationConstituencyOSNI
             IUriNode constituencyAreaTypeNode = graph.CreateUriNode("parl:ConstituencyArea");
             IUriNode rdfTypeNode = graph.CreateUriNode(new Uri(RdfSpecsHelper.RdfType));
 
-            telemetryClient.TrackTrace("Check constituency area", Microsoft.ApplicationInsights.DataContracts.SeverityLevel.Verbose);
+            logger.Verbose("Check constituency area");
             IEnumerable<Triple> existingConstituencyArea = oldGraph.GetTriplesWithPredicateObject(rdfTypeNode, constituencyAreaTypeNode);
             if ((existingConstituencyArea != null) && (existingConstituencyArea.Any()))
             {
                 constituencyAreaUri = ((IUriNode)existingConstituencyArea.SingleOrDefault().Subject).Uri;
-                telemetryClient.TrackTrace($"Found constituency area {constituencyAreaUri}", Microsoft.ApplicationInsights.DataContracts.SeverityLevel.Verbose);
+                logger.Verbose($"Found constituency area {constituencyAreaUri}");
             }
             else
             {
                 string constituencyAreaId = new IdGenerator.IdMaker().MakeId();
                 constituencyAreaUri = new Uri(constituencyAreaId);
-                telemetryClient.TrackTrace($"New constituency area {constituencyAreaUri}", Microsoft.ApplicationInsights.DataContracts.SeverityLevel.Verbose);
+                logger.Verbose($"New constituency area {constituencyAreaUri}");
             }
             IUriNode constituencyAreaNode = graph.CreateUriNode(constituencyAreaUri);
 

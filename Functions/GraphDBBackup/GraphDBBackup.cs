@@ -16,35 +16,27 @@ namespace Functions.GraphDBBackup
 {
     public static class GraphDBBackup
     {
-        private static readonly TelemetryClient telemetryClient = new TelemetryClient()
-        {
-            InstrumentationKey = Environment.GetEnvironmentVariable("ApplicationInsightsInstrumentationKey", EnvironmentVariableTarget.Process)
-        };
+        private static Logger logger;
+
         private static readonly string releaseId = Environment.GetEnvironmentVariable("ReleaseId", EnvironmentVariableTarget.Process);
         private static readonly string storageAccountConnectionString = Environment.GetEnvironmentVariable("CUSTOMCONNSTR_BackupStorage", EnvironmentVariableTarget.Process);
         private static readonly string dataAPI = Environment.GetEnvironmentVariable("CUSTOMCONNSTR_Data", EnvironmentVariableTarget.Process);
         private static readonly string subscriptionKey = Environment.GetEnvironmentVariable("SubscriptionKey", EnvironmentVariableTarget.Process);
-        private static Stopwatch timer = null;
 
         [FunctionName("GraphDBBackup")]
         public static async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = null)]HttpRequestMessage req, TraceWriter log)
         {
-            telemetryClient.Context.Operation.Name = "GraphDBBackup";
-            telemetryClient.Context.Operation.Id = Guid.NewGuid().ToString();
-
-            telemetryClient.TrackEvent("Triggered");
-            timer = Stopwatch.StartNew();
+            logger.SetOperationName("GraphDBBackup");
+            logger.Triggered();
             new Thread(() => createBackup()).Start();
             return req.CreateResponse(HttpStatusCode.Accepted);
         }
 
         private static void finishTelemetry(string errorMessage)
         {
-            timer.Stop();
-            if (string.IsNullOrWhiteSpace(errorMessage))
-                telemetryClient.TrackEvent("Finished", new Dictionary<string, string>(), new Dictionary<string, double>() { { "ProcessTime", timer.Elapsed.TotalMilliseconds } });
-            else
-                telemetryClient.TrackEvent(errorMessage, new Dictionary<string, string>(), new Dictionary<string, double>() { { "ProcessTime", timer.Elapsed.TotalMilliseconds } });
+            if (string.IsNullOrWhiteSpace(errorMessage) == false)
+                logger.Error(errorMessage);
+            logger.Finished();
         }
 
         private static async Task createBackup()
@@ -60,13 +52,13 @@ namespace Functions.GraphDBBackup
             catch (Exception e)
             {
                 externalCallOk = false;
-                telemetryClient.TrackException(e);
+                logger.Exception(e);
                 finishTelemetry(e.Message);
             }
             finally
             {
                 externalTimer.Stop();
-                telemetryClient.TrackDependency("GraphDBBackupStorageConnection", storageAccountConnectionString, externalStartTime, externalTimer.Elapsed, externalCallOk);
+                logger.Dependency("GraphDBBackupStorageConnection", storageAccountConnectionString, externalStartTime, externalTimer.Elapsed, externalCallOk);
             }
             if (externalCallOk == true)
             {
@@ -79,13 +71,13 @@ namespace Functions.GraphDBBackup
                 catch (Exception e)
                 {
                     externalCallOk = false;
-                    telemetryClient.TrackException(e);
+                    logger.Exception(e);
                     finishTelemetry(e.Message);
                 }
                 finally
                 {
                     externalTimer.Stop();
-                    telemetryClient.TrackDependency("GraphDBBackupStream", dataAPI, externalStartTime, externalTimer.Elapsed, externalCallOk);
+                    logger.Dependency("GraphDBBackupStream", dataAPI, externalStartTime, externalTimer.Elapsed, externalCallOk);
                 }
                 finishTelemetry(null);
             }
@@ -94,14 +86,14 @@ namespace Functions.GraphDBBackup
         private static async Task<CloudBlockBlob> establishBlobConnection()
         {
             //https://feedback.azure.com/forums/217298-storage/suggestions/2474308-provide-time-to-live-feature-for-blobs - pending
-            telemetryClient.TrackTrace("Connecting to storage", Microsoft.ApplicationInsights.DataContracts.SeverityLevel.Verbose);
+            logger.Verbose("Connecting to storage");
             CloudStorageAccount storageAccount = CloudStorageAccount.Parse(storageAccountConnectionString);
             CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
             CloudBlobContainer blobContainer = blobClient.GetContainerReference($"r{releaseId}graphdb-backup");
-            telemetryClient.TrackTrace("Ensuring container", Microsoft.ApplicationInsights.DataContracts.SeverityLevel.Verbose);
+            logger.Verbose("Ensuring container");
             await blobContainer.CreateIfNotExistsAsync();
             await blobContainer.SetPermissionsAsync(new BlobContainerPermissions { PublicAccess = BlobContainerPublicAccessType.Off });
-            telemetryClient.TrackTrace("Ensuring blob", Microsoft.ApplicationInsights.DataContracts.SeverityLevel.Verbose);
+            logger.Verbose("Ensuring blob");
             return blobContainer.GetBlockBlobReference($"{DateTime.UtcNow.ToString("yyyyMMddHHmmssfff")}.trig");
         }
 

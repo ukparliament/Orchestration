@@ -38,6 +38,12 @@
         "description": "Uri (namespace) for ids."
       }
     },
+    "lowestLoggingLevel": {
+      "type": "string",
+      "metadata": {
+        "description": "Lowest SeverityLevel that gets logged with application insights."
+      }
+    },
     "apiManagementName": {
       "type": "string",
       "metadata": {
@@ -156,7 +162,8 @@
             "SchemaNamespace": "[parameters('schemaNamespace')]",
             "ApplicationInsightsInstrumentationKey": "[reference(resourceId(subscription().subscriptionId,parameters('operationsResourceGroupName'),'Microsoft.Insights/Components',parameters('applicationInsightsName')),'2014-04-01').InstrumentationKey]",
             "ReleaseId": "[parameters('releaseId')]",
-            "SubscriptionKey": ""
+            "SubscriptionKey": "",
+            "LowestLoggingLevel":  "[parameters('lowestLoggingLevel')]"
           }
         },
         {

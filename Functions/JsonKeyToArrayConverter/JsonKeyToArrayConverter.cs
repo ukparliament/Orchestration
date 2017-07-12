@@ -1,22 +1,19 @@
+using Microsoft.Azure.WebJobs;
+using Microsoft.Azure.WebJobs.Host;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.Http;
-using Microsoft.Azure.WebJobs.Host;
-using Newtonsoft.Json;
-using System.Threading.Tasks;
-using Microsoft.ApplicationInsights;
-using System;
 using System.Net.Http.Headers;
-using System.Collections.Generic;
-using Newtonsoft.Json.Linq;
+using System.Threading.Tasks;
 
 namespace Functions.JsonKeyToArrayConverter
 {
     public class JsonKeyToArrayConverter
     {
-        private static Logger logger;
+        private static Logger logger = new Logger();
 
         [FunctionName("JsonKeyToArrayConverter")]
 

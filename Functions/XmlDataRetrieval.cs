@@ -1,5 +1,4 @@
-﻿using Microsoft.ApplicationInsights;
-using System;
+﻿using System;
 using System.Diagnostics;
 using System.Net.Http;
 using System.Threading.Tasks;

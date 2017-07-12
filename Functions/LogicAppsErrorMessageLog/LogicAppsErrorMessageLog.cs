@@ -1,19 +1,16 @@
-using System;
-using System.Net;
-using System.Net.Http;
-using System.Threading.Tasks;
-using Microsoft.ApplicationInsights;
 using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Azure.WebJobs.Host;
 using Newtonsoft.Json;
 using System.Collections.Generic;
+using System.Net;
+using System.Net.Http;
+using System.Threading.Tasks;
 
 namespace Functions.LogicAppsErrorMessageLog
 {
     public static class LogicAppsErrorMessageLog
     {
-        private static Logger logger;
+        private static Logger logger = new Logger();
 
         [FunctionName("LogicAppsErrorMessageLog")]
         public static async Task<object> Run([HttpTrigger(WebHookType = "genericJson")]HttpRequestMessage req, TraceWriter log)

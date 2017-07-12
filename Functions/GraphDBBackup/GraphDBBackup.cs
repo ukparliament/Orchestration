@@ -1,11 +1,9 @@
-using Microsoft.ApplicationInsights;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Azure.WebJobs.Host;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net;
 using System.Net.Http;
@@ -16,7 +14,7 @@ namespace Functions.GraphDBBackup
 {
     public static class GraphDBBackup
     {
-        private static Logger logger;
+        private static Logger logger = new Logger();
 
         private static readonly string releaseId = Environment.GetEnvironmentVariable("ReleaseId", EnvironmentVariableTarget.Process);
         private static readonly string storageAccountConnectionString = Environment.GetEnvironmentVariable("CUSTOMCONNSTR_BackupStorage", EnvironmentVariableTarget.Process);

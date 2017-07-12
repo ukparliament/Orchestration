@@ -1,25 +1,29 @@
 ﻿using Microsoft.ApplicationInsights;
+using Microsoft.ApplicationInsights.DataContracts;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using VDS.RDF;
-using VDS.RDF.Query;
 
 namespace Functions
 {
     public class Logger
     {
+        private readonly SeverityLevel lowestLoggingLevel;
         public Logger()
         {
+            string lowestLoggingLevelString = Environment.GetEnvironmentVariable("LowestLoggingLevel", EnvironmentVariableTarget.Process);
+            if (Enum.TryParse(lowestLoggingLevelString, true, out lowestLoggingLevel) == false)
+                lowestLoggingLevel = SeverityLevel.Information;
             setOperationId();
         }
+
         private TelemetryClient telemetryClient = new TelemetryClient()
         {
             InstrumentationKey = Environment.GetEnvironmentVariable("ApplicationInsightsInstrumentationKey", EnvironmentVariableTarget.Process)
         };
+
+        
+
 
         private Stopwatch timer;
         public void Triggered()
@@ -35,25 +39,26 @@ namespace Functions
         public void MessageCount(int OriginalMessageCount, int RetrievedMessageCount)
         {
             telemetryClient.TrackEvent("Message count", new Dictionary<string, string>(), new Dictionary<string, double>() { { "OriginalMessageCount", OriginalMessageCount }, { "RetrievedMessageCount", RetrievedMessageCount } });
-
-        }
-        public void Error(string message)
-        {
-            telemetryClient.TrackTrace(message, Microsoft.ApplicationInsights.DataContracts.SeverityLevel.Error);
-        }
-        public void Error(string message, Dictionary<string, string> properties)
-        {
-            telemetryClient.TrackTrace(message, Microsoft.ApplicationInsights.DataContracts.SeverityLevel.Error, properties);
         }
         public void Verbose(string message)
         {
-            telemetryClient.TrackTrace(message, Microsoft.ApplicationInsights.DataContracts.SeverityLevel.Verbose);
+            TrackTrace(message, SeverityLevel.Verbose);
         }
         public void Warning(string message)
         {
-            telemetryClient.TrackTrace(message, Microsoft.ApplicationInsights.DataContracts.SeverityLevel.Warning);
+            TrackTrace(message, SeverityLevel.Warning);
         }
 
+        public void Error(string message, Dictionary<string, string> properties = null)
+        {
+            TrackTrace(message, SeverityLevel.Error);
+        }
+
+        private void TrackTrace(string message, SeverityLevel severityLevel, Dictionary<string, string> properties = null)
+        {
+            if ((int)severityLevel >= (int)lowestLoggingLevel)
+                telemetryClient.TrackTrace(message, severityLevel, properties);
+        }
         private void setOperationId()
         {
             telemetryClient.Context.Operation.Id = Guid.NewGuid().ToString();

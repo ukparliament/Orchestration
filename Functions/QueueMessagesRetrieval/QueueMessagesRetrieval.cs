@@ -1,10 +1,8 @@
-using Microsoft.ApplicationInsights;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Host;
 using Microsoft.ServiceBus;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -14,7 +12,7 @@ namespace Functions.QueueMessagesRetrieval
 {
     public static class QueueMessagesRetrieval
     {
-        private static Logger logger;
+        private static Logger logger = new Logger();
 
         private static readonly string serviceBusEndpoint = System.Environment.GetEnvironmentVariable("CUSTOMCONNSTR_ServiceBus", EnvironmentVariableTarget.Process);
 

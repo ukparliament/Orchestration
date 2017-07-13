@@ -45,7 +45,6 @@ namespace Functions.TransformationConstituencyOSNI
             }
         }
 
-        private Dictionary<string, string> subjectRetrievalParameters;
         public Dictionary<string, string> SubjectRetrievalParameters
         {
             get

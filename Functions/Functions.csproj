@@ -15,16 +15,13 @@
   <ItemGroup>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="Parliament.Ontology.Base">
-      <HintPath>..\..\..\Users\stawiarskiw\Source\Repos\Ontology.Utility\Parliament.Ontology.Mapper.Compiler\bin\Debug\Parliament.Ontology.Base.dll</HintPath>
-      <Private></Private>
+      <HintPath>aaaaa\Parliament.Ontology.Base.dll</HintPath>
     </Reference>
     <Reference Include="Parliament.Ontology.Code">
-      <HintPath>..\..\..\Users\stawiarskiw\Source\Repos\Ontology.Utility\Parliament.Ontology.Mapper.Compiler\bin\Debug\Parliament.Ontology.Code.dll</HintPath>
-      <Private></Private>
+      <HintPath>aaaaa\Parliament.Ontology.Code.dll</HintPath>
     </Reference>
     <Reference Include="Parliament.Ontology.Serializer">
-      <HintPath>..\..\..\Users\stawiarskiw\Source\Repos\Ontology.Utility\Parliament.Ontology.Serializer\bin\Debug\Parliament.Ontology.Serializer.dll</HintPath>
-      <Private></Private>
+      <HintPath>aaaaa\Parliament.Ontology.Serializer.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

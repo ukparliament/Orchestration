@@ -17,7 +17,8 @@ This script is for use as a part of deployment in VSTS only.
 
 Param(
 	[Parameter(Mandatory=$true)] [string] $APIResourceGroupName,
-    [Parameter(Mandatory=$true)] [string] $APIManagementName
+    [Parameter(Mandatory=$true)] [string] $APIManagementName,
+	[Parameter(Mandatory=$true)] [string] $APIPrefix
 )
 
 $ErrorActionPreference = "Stop"
@@ -29,7 +30,7 @@ function Log([Parameter(Mandatory=$true)][string]$LogText){
 Log "Get API Management context"
 $management=New-AzureRmApiManagementContext -ResourceGroupName $APIResourceGroupName -ServiceName $APIManagementName
 Log "Retrives subscription"
-$apiProductOrchestration=Get-AzureRmApiManagementProduct -Context $management -Title "Parliament - Orchestration"
+$apiProductOrchestration=Get-AzureRmApiManagementProduct -Context $management -Title "$($APIPrefix)Parliament - Orchestration"
 $subscription=Get-AzureRmApiManagementSubscription -Context $management -ProductId $apiProductOrchestration.ProductId
 $subscriptionKey=$subscription.PrimaryKey
 

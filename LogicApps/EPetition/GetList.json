@@ -8,6 +8,12 @@
         "description": "Name of the API Managment."
       }
     },
+    "apiPrefixUrl": {
+      "type": "string",
+      "metadata": {
+        "description": "Url segment of API for additional deployments."
+      }
+    },
     "subscriptionKey": {
       "type": "string",
       "metadata": {
@@ -144,7 +150,7 @@
                   "Ocp-Apim-Subscription-Key": "[parameters('subscriptionKey')]"
                 },
                 "method": "POST",
-                "uri": "[concat('https://',parameters('apiManagementName'),'.azure-api.net/graph-store/repositories/Master?infer=false')]"
+                "uri": "[concat('https://',parameters('apiManagementName'),'.azure-api.net/',parameters('apiPrefixUrl'),'graph-store/repositories/Master?infer=false')]"
               },
               "runAfter": {
                 "Get_List": [

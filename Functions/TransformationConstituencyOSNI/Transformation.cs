@@ -49,7 +49,7 @@ namespace Functions.TransformationConstituencyOSNI
         {
             IConstituencyArea constituencyArea = new ConstituencyArea();
             constituencyArea.SubjectUri = GenerateNewId();
-            constituencyArea.ConstituencyAreaExtent = generateConstituencyAreaExtent(rings)[0];
+            constituencyArea.ConstituencyAreaExtent = generateConstituencyAreaExtent(rings);
             return constituencyArea;
         }
 

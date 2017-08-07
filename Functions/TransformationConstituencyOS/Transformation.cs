@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Xml.Linq;
 using System.Xml.Serialization;
 
 namespace Functions.TransformationConstituencyOS
@@ -61,15 +62,11 @@ namespace Functions.TransformationConstituencyOS
             if ((description.asGML != null) && (string.IsNullOrWhiteSpace(description.asGML.Value) == false))
             {
                 string xmlPolygon = description.asGML.Value.ToString().Replace("gml:", string.Empty);
-                Polygon polygon = null;
-                using (StringReader reader = new StringReader(xmlPolygon))
-                {
-                    XmlSerializer serializer = new XmlSerializer(typeof(Polygon));
-                    polygon = (Polygon)serializer.Deserialize(reader);
-                }
-                if ((polygon!=null) && (polygon.outerBoundaryIs!=null) && 
-                    (polygon.outerBoundaryIs.LinearRing!=null) && (polygon.outerBoundaryIs.LinearRing.Any()))
-                constituencyArea.ConstituencyAreaExtent = generateConstituencyAreaExtent(polygon.outerBoundaryIs.LinearRing)[0];
+                string[] polygons = XDocument.Parse(xmlPolygon)
+                    .Descendants("coordinates")
+                    .Select(c => c.Value)
+                    .ToArray();
+                constituencyArea.ConstituencyAreaExtent = generateConstituencyAreaExtent(polygons);                
             }
             return constituencyArea;
         }

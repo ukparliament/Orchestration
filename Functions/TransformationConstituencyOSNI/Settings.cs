@@ -46,7 +46,7 @@
         }
         where {
             bind(@subject as ?constituencyGroup)
-            ?constituencyGroup parl:constituencyGroupOnsCode ?constituencyGroupOnsCode;
+            ?constituencyGroup parl:constituencyGroupOnsCode ?constituencyGroupOnsCode.
             optional {
                 ?constituencyGroup parl:constituencyGroupHasConstituencyArea ?constituencyArea
                 optional {?constituencyArea parl:constituencyAreaExtent ?constituencyAreaExtent}

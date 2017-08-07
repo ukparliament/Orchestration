@@ -44,12 +44,12 @@
         		parl:personOtherNames ?personOtherNames;
         		parl:personFamilyName ?personFamilyName;
         		parl:personDateOfDeath ?personDateOfDeath;
-                <http://example.com/F31CBD81AD8343898B49DC65743F0BDF> ?personNameDisplayAs;
-                <http://example.com/A5EE13ABE03C4D3A8F1A274F57097B6C> ?personNameListAs;
-                <http://example.com/D79B0BAC513C4A9A87C9D5AFF1FC632F> ?personNameFullTitle;
         		parl:personMnisId ?personMnisId;
                 parl:personPimsId ?personPimsId;
                 parl:personDodsId ?personDodsId;
+                <http://example.com/F31CBD81AD8343898B49DC65743F0BDF> ?personNameDisplayAs;
+                <http://example.com/A5EE13ABE03C4D3A8F1A274F57097B6C> ?personNameListAs;
+                <http://example.com/D79B0BAC513C4A9A87C9D5AFF1FC632F> ?personNameFullTitle;
                 parl:personHasGenderIdentity ?genderIdentity;
                 parl:memberHasIncumbency ?incumbency;
                 parl:partyMemberHasPartyMembership ?partyMembership.
@@ -80,13 +80,15 @@
             optional {?person <http://example.com/F31CBD81AD8343898B49DC65743F0BDF> ?personNameDisplayAs}
             optional {?person <http://example.com/A5EE13ABE03C4D3A8F1A274F57097B6C> ?personNameListAs}
             optional {?person <http://example.com/D79B0BAC513C4A9A87C9D5AFF1FC632F> ?personNameFullTitle}
-            optional {
-                bind(@gender as ?gender)
-                ?genderIdentity parl:genderIdentityHasGender ?gender;
-                    parl:genderIdentityHasPerson ?person.
+            optional {                
+                ?person parl:personHasGenderIdentity ?genderIdentity.
+                optional {
+                    bind(@gender as ?gender)
+                    ?genderIdentity parl:genderIdentityHasGender ?gender.
+                }
             }
             optional {
-                ?incumbency parl:incumbencyHasMember ?person.
+                ?person parl:memberHasIncumbency ?incumbency.
                 optional {?incumbency parl:incumbencyStartDate ?incumbencyStartDate}
                 optional {?incumbency parl:incumbencyEndDate ?incumbencyEndDate}
                 optional {?incumbency parl:seatIncumbencyHasHouseSeat ?seatIncumbencyHasHouseSeat}
@@ -98,9 +100,9 @@
                 }
             }
             optional {
-                ?partyMembership parl:partyMembershipStartDate ?partyMembershipStartDate;
-                    parl:partyMembershipHasParty ?partyMembershipHasParty;
-                    parl:partyMembershipHasPartyMember ?person.
+                ?person parl:partyMemberHasPartyMembership ?partyMembership.
+                optional {?partyMembership parl:partyMembershipStartDate ?partyMembershipStartDate}
+                optional {?partyMembership parl:partyMembershipHasParty ?partyMembershipHasParty}                
                 optional {?partyMembership parl:partyMembershipEndDate ?partyMembershipEndDate}
             }
         }";
@@ -109,7 +111,7 @@
 
         public string FullDataUrlParameterizedString(string dataUrl)
         {
-            return $"{dataUrl}?$select=Surname,MiddleNames,Forename,NameDisplayAs,NameListAs,NameFullTitle,DateOfBirth,DateOfDeath,Gender,Member_Id,House,StartDate,EndDate,Dods_Id,Pims_Id,MemberConstituencies/StartDate,MemberConstituencies/EndDate,MemberConstituencies/EndDate,MemberConstituencies/Constituency/Constituency_Id,MemberConstituencies/Constituency/StartDate,MemberConstituencies/Constituency/EndDate,MemberParties/Party_Id,MemberParties/StartDate,MemberParties/EndDate,MemberLordsMembershipTypes/StartDate,MemberLordsMembershipTypes/EndDate,MemberLordsMembershipTypes/LordsMembershipType_Id&$expand=MemberConstituencies,MemberConstituencies/Constituency,MemberParties,MemberLordsMembershipTypes";
+            return $"{dataUrl}?$select=Surname,MiddleNames,Forename,DateOfBirth,DateOfDeath,Gender,Member_Id,House,StartDate,EndDate,Dods_Id,Pims_Id,NameDisplayAs,NameListAs,NameFullTitle,MemberConstituencies/StartDate,MemberConstituencies/EndDate,MemberConstituencies/EndDate,MemberConstituencies/Constituency/Constituency_Id,MemberConstituencies/Constituency/StartDate,MemberConstituencies/Constituency/EndDate,MemberParties/Party_Id,MemberParties/StartDate,MemberParties/EndDate,MemberLordsMembershipTypes/StartDate,MemberLordsMembershipTypes/EndDate,MemberLordsMembershipTypes/LordsMembershipType_Id&$expand=MemberConstituencies,MemberConstituencies/Constituency,MemberParties,MemberLordsMembershipTypes";
         }
     }
 }

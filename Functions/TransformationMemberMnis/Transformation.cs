@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
+using VDS.RDF;
 using VDS.RDF.Query;
 
 namespace Functions.TransformationMemberMnis
@@ -22,9 +23,6 @@ namespace Functions.TransformationMemberMnis
                 .Element(atom + "content")
                 .Element(m + "properties");
 
-            //TripleGenerator.GenerateTriple(result, subject, "ex:F31CBD81AD8343898B49DC65743F0BDF", doc, "atom:entry/atom:content/m:properties/d:NameDisplayAs", settings.SourceXmlNamespaceManager);
-            //TripleGenerator.GenerateTriple(result, subject, "ex:A5EE13ABE03C4D3A8F1A274F57097B6C", doc, "atom:entry/atom:content/m:properties/d:NameListAs", settings.SourceXmlNamespaceManager);
-            //TripleGenerator.GenerateTriple(result, subject, "ex:D79B0BAC513C4A9A87C9D5AFF1FC632F", doc, "atom:entry/atom:content/m:properties/d:NameFullTitle", settings.SourceXmlNamespaceManager);
             member.PersonDateOfBirth = personElement.Element(d + "DateOfBirth").GetDate();
             member.PersonGivenName = personElement.Element(d + "Forename").GetText();
             member.PersonOtherNames = personElement.Element(d + "MiddleNames").GetText();
@@ -54,7 +52,7 @@ namespace Functions.TransformationMemberMnis
             incumbencies.AddRange(generateSeatIncumbencies(doc));
             member.MemberHasIncumbency = incumbencies.ToArray();
 
-            return new IBaseOntology[] { member, mnisPerson, dodsPerson, pimsPerson, partyMember };
+            return new IBaseOntology[] { member, mnisPerson, dodsPerson, pimsPerson, deceasedPerson, partyMember };
         }
 
         public override Dictionary<string, object> GetKeysFromSource(IBaseOntology[] deserializedSource)
@@ -126,6 +124,26 @@ namespace Functions.TransformationMemberMnis
             foreach (IPerson person in source.OfType<IPerson>())
                 person.SubjectUri = subjectUri;
             return source.OfType<IPerson>().ToArray();
+        }
+
+        public override IGraph AlterNewGraph(IGraph newGraph, Uri subjectUri, string response)
+        {
+            XDocument doc = XDocument.Parse(response);
+            XElement personElement = doc.Element(atom + "entry")
+                .Element(atom + "content")
+                .Element(m + "properties");
+
+            string value = personElement.Element(d + "NameDisplayAs").GetText();
+            if (string.IsNullOrWhiteSpace(value)==false)
+                newGraph.Assert(newGraph.CreateUriNode(subjectUri), newGraph.CreateUriNode(new Uri("http://example.com/F31CBD81AD8343898B49DC65743F0BDF")), newGraph.CreateLiteralNode(value));
+            value = personElement.Element(d + "NameListAs").GetText();
+            if (string.IsNullOrWhiteSpace(value) == false)
+                newGraph.Assert(newGraph.CreateUriNode(subjectUri), newGraph.CreateUriNode(new Uri("http://example.com/A5EE13ABE03C4D3A8F1A274F57097B6C")), newGraph.CreateLiteralNode(value));
+            value = personElement.Element(d + "NameFullTitle").GetText();
+            if (string.IsNullOrWhiteSpace(value) == false)
+                newGraph.Assert(newGraph.CreateUriNode(subjectUri), newGraph.CreateUriNode(new Uri("http://example.com/D79B0BAC513C4A9A87C9D5AFF1FC632F")), newGraph.CreateLiteralNode(value));
+
+            return newGraph;
         }
 
         private IEnumerable<IIncumbency> generateSeatIncumbencies(XDocument doc)

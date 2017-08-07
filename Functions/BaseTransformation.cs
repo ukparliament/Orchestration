@@ -68,6 +68,11 @@ namespace Functions
             throw new NotImplementedException();
         }
 
+        public virtual IGraph AlterNewGraph(IGraph newGraph, Uri subjectUri, string response)
+        {
+            return newGraph;
+        }
+
         protected Uri GenerateNewId()
         {
             string id = new IdGenerator.IdMaker().MakeId();
@@ -140,32 +145,32 @@ namespace Functions
                 sparql.SetLiteral(predicateValue.Key, string.Empty);
             else
                 if (value is Uri)
-                    sparql.SetUri(predicateValue.Key, (Uri)value);
-                else
-                    switch (Type.GetTypeCode(value.GetType().BaseType))
-                    {
-                        case TypeCode.Boolean:
-                            sparql.SetLiteral(predicateValue.Key, (bool)value);
-                            break;
-                        case TypeCode.DateTime:
-                            sparql.SetLiteral(predicateValue.Key, (DateTime)value);
-                            break;
-                        case TypeCode.Decimal:
-                            sparql.SetLiteral(predicateValue.Key, (decimal)value);
-                            break;
-                        case TypeCode.Double:
-                            sparql.SetLiteral(predicateValue.Key, (double)value);
-                            break;
-                        case TypeCode.Int32:
-                            sparql.SetLiteral(predicateValue.Key, (int)value);
-                            break;
-                        case TypeCode.String:
-                            sparql.SetLiteral(predicateValue.Key, value.ToString());
-                            break;
-                        default:
-                            sparql.SetLiteral(predicateValue.Key, value.ToString());
-                            break;
-                    }
+                sparql.SetUri(predicateValue.Key, (Uri)value);
+            else
+                switch (Type.GetTypeCode(value.GetType().BaseType))
+                {
+                    case TypeCode.Boolean:
+                        sparql.SetLiteral(predicateValue.Key, (bool)value);
+                        break;
+                    case TypeCode.DateTime:
+                        sparql.SetLiteral(predicateValue.Key, (DateTime)value);
+                        break;
+                    case TypeCode.Decimal:
+                        sparql.SetLiteral(predicateValue.Key, (decimal)value);
+                        break;
+                    case TypeCode.Double:
+                        sparql.SetLiteral(predicateValue.Key, (double)value);
+                        break;
+                    case TypeCode.Int32:
+                        sparql.SetLiteral(predicateValue.Key, (int)value);
+                        break;
+                    case TypeCode.String:
+                        sparql.SetLiteral(predicateValue.Key, value.ToString());
+                        break;
+                    default:
+                        sparql.SetLiteral(predicateValue.Key, value.ToString());
+                        break;
+                }
         }
 
         private IEnumerable<IBaseOntology> deserializeTarget(IGraph target)
@@ -243,6 +248,16 @@ namespace Functions
             IGraph newGraph = serializeSource(deserializedSourceWithIds);
             if (newGraph == null)
                 return await communicateBack(callbackUrl, $"Problem with retrieving new graph for {subjectUri}");
+
+            try
+            {
+                newGraph = AlterNewGraph(newGraph, subjectUri, response);
+            }
+            catch (Exception e)
+            {
+                logger.Exception(e);
+                return await communicateBack(callbackUrl, "Problem while altering new graph");
+            }
 
             IGraph existingGraphsWithoutTypes = new Graph();
             foreach (Triple t in existingGraph.Triples.Where(t => ((IUriNode)t.Predicate).Uri.ToString() != RdfSpecsHelper.RdfType))

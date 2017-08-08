@@ -180,8 +180,7 @@ namespace Functions.TransformationMemberMnis
         	?id a parl:HouseSeat.
         }
         where {
-        	?id a parl:HouseSeat;
-        		parl:houseSeatHasConstituencyGroup ?houseSeatHasConstituencyGroup.
+        	?id parl:houseSeatHasConstituencyGroup ?houseSeatHasConstituencyGroup.
         	?houseSeatHasConstituencyGroup parl:constituencyGroupMnisId @constituencyGroupMnisId.
         }";
                 if ((constituencyElement != null) && (string.IsNullOrWhiteSpace(constituencyElement.Value) == false))
@@ -204,7 +203,7 @@ namespace Functions.TransformationMemberMnis
         private IEnumerable<IIncumbency> generateHouseIncumbencies(XDocument doc)
         {
             HashSet<DateTimeOffset> dates = new HashSet<DateTimeOffset>();
-            Uri houseUri = IdRetrieval.GetSubject("House", "houseName", "House of Lords", false, logger);
+            Uri houseUri = IdRetrieval.GetSubject("houseName", "House of Lords", false, logger);
             IEnumerable<XElement> lordsIncumbenciesElements = doc.Element(atom + "entry")
                     .Elements(atom + "link")
                     .Where(e => e.Attribute("title").Value == "MemberLordsMembershipTypes")
@@ -212,7 +211,7 @@ namespace Functions.TransformationMemberMnis
                     .Element(m + "inline")
                     .Element(atom + "feed")
                     .Elements(atom + "entry");
-            Dictionary<string, string> incumbencyTypes = IdRetrieval.GetSubjects("HouseIncumbencyType", "houseIncumbencyTypeMnisId", logger);
+            Dictionary<string, string> incumbencyTypes = IdRetrieval.GetSubjectsDictionary("houseIncumbencyTypeMnisId", logger);
             foreach (XElement element in lordsIncumbenciesElements)
             {
                 XElement lordIncumbencyElement = element.Element(atom + "content").Element(m + "properties");
@@ -243,7 +242,7 @@ namespace Functions.TransformationMemberMnis
             IGenderIdentity genderIdentity = new GenderIdentity();
             IGender gender = new Gender();
             genderIdentity.SubjectUri = GenerateNewId();
-            gender.SubjectUri = IdRetrieval.GetSubject("Gender", "genderMnisId", currentGenderText, false, logger);
+            gender.SubjectUri = IdRetrieval.GetSubject("genderMnisId", currentGenderText, false, logger);
             genderIdentity.GenderIdentityHasGender = gender;
             return genderIdentity;
         }
@@ -301,7 +300,7 @@ namespace Functions.TransformationMemberMnis
                     };
                 else
                 {
-                    Uri partyUri = IdRetrieval.GetSubject("Party", "partyMnisId", partyId, false, logger);
+                    Uri partyUri = IdRetrieval.GetSubject("partyMnisId", partyId, false, logger);
                     if (partyUri == null)
                         continue;
                     partyMembership.PartyMembershipHasParty = new Party()

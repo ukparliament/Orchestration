@@ -149,7 +149,7 @@ namespace Functions.TransformationEPetition
                 rejection.RejectionDetails = DeserializerHelper.GiveMeSingleTextValue(sourceRejection.details);
                 if (string.IsNullOrWhiteSpace(sourceRejection.code) == false)
                 {
-                    Uri rejectionCodeUri = IdRetrieval.GetSubject("RejectionCode", "rejectionCodeName", sourceRejection.code, false, logger);
+                    Uri rejectionCodeUri = IdRetrieval.GetSubject("rejectionCodeName", sourceRejection.code, false, logger);
                     if (rejectionCodeUri != null)
                         rejection.RejectionHasRejectionCode = new RejectionCode()
                         {
@@ -180,7 +180,7 @@ namespace Functions.TransformationEPetition
         private IThresholdAttainment[] generateThresholdAttainments(DateTime? moderatedAt, DateTime? respondedAt, DateTime? debatedAt)
         {
             List<IThresholdAttainment> thresholdAttainments = new List<IThresholdAttainment>();
-            Dictionary<string, string> thresholds = IdRetrieval.GetSubjects("Threshold", "thresholdName", logger);
+            Dictionary<string, string> thresholds = IdRetrieval.GetSubjectsDictionary("thresholdName", logger);
             foreach (KeyValuePair<string, string> threshold in thresholds)
             {
                 DateTime? timestamp = null;
@@ -214,8 +214,8 @@ namespace Functions.TransformationEPetition
         private ILocatedSignatureCount[] generateInternationalAreasSignatures(Signatures_By_Country[] signaturesByCountry, DateTime petitionRetrievalTimestamp)
         {
             List<ILocatedSignatureCount> signatures = new List<ILocatedSignatureCount>();
-            Dictionary<string, string> countries = IdRetrieval.GetSubjects("Country", "countryGovRegisterId", logger);
-            Dictionary<string, string> territories = IdRetrieval.GetSubjects("Territory", "territoryGovRegisterId", logger);
+            Dictionary<string, string> countries = IdRetrieval.GetSubjectsDictionary("countryGovRegisterId", logger);
+            Dictionary<string, string> territories = IdRetrieval.GetSubjectsDictionary("territoryGovRegisterId", logger);
             foreach (Signatures_By_Country country in signaturesByCountry)
             {
                 ILocatedSignatureCount locatedSignatureCount = new LocatedSignatureCount();
@@ -248,7 +248,7 @@ namespace Functions.TransformationEPetition
         private ILocatedSignatureCount[] generateConstituencySignatures(Signatures_By_Constituency[] signaturesByConstituency, DateTime petitionRetrievalTimestamp)
         {
             List<ILocatedSignatureCount> signatures = new List<ILocatedSignatureCount>();
-            Dictionary<string, string> constituencies = IdRetrieval.GetSubjects("ConstituencyGroup", "constituencyGroupOnsCode", logger);
+            Dictionary<string, string> constituencies = IdRetrieval.GetSubjectsDictionary("constituencyGroupOnsCode", logger);
             foreach (Signatures_By_Constituency constituency in signaturesByConstituency)
             {
                 ILocatedSignatureCount locatedSignatureCount = new LocatedSignatureCount();

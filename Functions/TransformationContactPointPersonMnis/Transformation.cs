@@ -36,7 +36,7 @@ namespace Functions.TransformationContactPointPersonMnis
                 logger.Warning("No member info found");
                 return null;
             }
-            Uri personUri = IdRetrieval.GetSubject("Person", "personMnisId", mnisId, false, logger);
+            Uri personUri = IdRetrieval.GetSubject("personMnisId", mnisId, false, logger);
             if (personUri != null)
                 person = new Person()
                 {

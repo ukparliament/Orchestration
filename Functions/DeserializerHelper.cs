@@ -27,7 +27,7 @@ namespace Functions
         public static DateTimeOffset? GetDate(this XElement value)
         {
             if ((value != null) && (value.Value != null) && (string.IsNullOrWhiteSpace(value.Value) == false) &&
-                (DateTimeOffset.TryParse(value.Value.ToString(), out DateTimeOffset dt)))
+                (DateTimeOffset.TryParse(value.Value.ToString(), null as IFormatProvider, System.Globalization.DateTimeStyles.AssumeUniversal, out DateTimeOffset dt)))
                 return dt;
             else
                 return null;
@@ -37,7 +37,7 @@ namespace Functions
         {
             if ((value != null) && (value.Type == JTokenType.Date) &&
                 (value.Value != null) && (string.IsNullOrWhiteSpace(value.Value.ToString()) == false) &&
-                (DateTimeOffset.TryParse(value.Value.ToString(), out DateTimeOffset dt)))
+                (DateTimeOffset.TryParse(value.Value.ToString(), null as IFormatProvider, System.Globalization.DateTimeStyles.AssumeUniversal, out DateTimeOffset dt)))
                 return dt;
             else
                 return null;

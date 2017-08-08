@@ -68,7 +68,7 @@ namespace Functions.TransformationConstituencyMnis
         {
             IHouseSeat houseSeat = new HouseSeat();
             houseSeat.SubjectUri = GenerateNewId();
-            Uri houseUri = IdRetrieval.GetSubject("House", "houseName", "House of Commons", false, logger);
+            Uri houseUri = IdRetrieval.GetSubject("houseName", "House of Commons", false, logger);
             if (houseUri == null)
                 logger.Warning("No house found");
             else

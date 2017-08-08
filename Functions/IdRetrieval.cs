@@ -10,39 +10,37 @@ namespace Functions
     {
         private static readonly string schemaNamespace = Environment.GetEnvironmentVariable("SchemaNamespace", EnvironmentVariableTarget.Process);
 
-        public static Uri GetSubject(string subjectType, string predicate, string objectValue, bool canCreateNewId, Logger logger)
+        public static Uri GetSubject(string predicate, string objectValue, bool canCreateNewId, Logger logger)
         {
             string command = @"
                 construct{
-                    ?s a @subjectType.
+                    ?s @predicate @objectValue.
                 }
                 where{
-                    ?s a @subjectType; 
-                        @predicate @objectValue.
+                    ?s @predicate @objectValue.
                 }";
             SparqlParameterizedString sparql = new SparqlParameterizedString(command);
-            sparql.SetUri("subjectType", new Uri($"{schemaNamespace}{subjectType}"));
             sparql.SetUri("predicate", new Uri($"{schemaNamespace}{predicate}"));
             sparql.SetLiteral("objectValue", objectValue);
 
             return getValue(sparql.ToString(), canCreateNewId, logger);
         }
+
         public static Uri GetSubject(string sparql, bool canCreateNewId, Logger logger)
         {
             return getValue(sparql, canCreateNewId, logger);
         }
-        public static Dictionary<string, string> GetSubjects(string subjectType, string predicate, Logger logger)
+
+        public static Dictionary<string, string> GetSubjectsDictionary(string predicate, Logger logger)
         {
            string command = @"
                 construct{
                     ?s @predicate ?objectValue.
                 }
                 where{
-                    ?s a @subjectType; 
-                        @predicate ?objectValue.
+                    ?s @predicate ?objectValue.
                 }";
             SparqlParameterizedString sparql = new SparqlParameterizedString(command);
-            sparql.SetUri("subjectType", new Uri($"{schemaNamespace}{subjectType}"));
             sparql.SetUri("predicate", new Uri($"{schemaNamespace}{predicate}"));
             Dictionary<string, string> result = new Dictionary<string, string>();
             IGraph graph = GraphRetrieval.GetGraph(sparql.ToString(), logger, "false");

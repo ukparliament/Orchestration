@@ -162,10 +162,11 @@ namespace Functions.TransformationMemberMnis
                 incumbency.SubjectUri = GenerateNewId();
                 incumbency.IncumbencyStartDate = seatIncumbencyElement.Element(d + "StartDate").GetDate();
                 incumbency.IncumbencyEndDate = seatIncumbencyElement.Element(d + "EndDate").GetDate();
-                ISeatIncumbency seatIncumbency = new SeatIncumbency();
-                IParliamentPeriod parliamentPeriod = generateSeatIncumbencyParliamentPeriod(incumbency.IncumbencyStartDate.Value, incumbency.IncumbencyEndDate);
+                ISeatIncumbency seatIncumbency = new SeatIncumbency();                
                 seatIncumbency.SubjectUri = incumbency.SubjectUri;
-                seatIncumbency.SeatIncumbencyHasParliamentPeriod = new IParliamentPeriod[] { parliamentPeriod };
+                IParliamentPeriod parliamentPeriod = generateSeatIncumbencyParliamentPeriod(incumbency.IncumbencyStartDate.Value, incumbency.IncumbencyEndDate);
+                if (parliamentPeriod != null)
+                    seatIncumbency.SeatIncumbencyHasParliamentPeriod = new IParliamentPeriod[] { parliamentPeriod };
 
                 XElement constituencyElement = element.Elements(atom + "link")
                     .Where(e => e.Attribute("title").Value == "Constituency")
@@ -222,6 +223,7 @@ namespace Functions.TransformationMemberMnis
                 if (((incumbency.IncumbencyEndDate.HasValue == false) || (incumbency.IncumbencyStartDate <= incumbency.IncumbencyEndDate)) &&
                     (dates.Contains(incumbency.IncumbencyStartDate.Value) == false))
                 {
+                    dates.Add(incumbency.IncumbencyStartDate.Value);
                     string houseIncumbencyTypeMnisId = lordIncumbencyElement.Element(d + "LordsMembershipType_Id").GetText();
                     IHouseIncumbency houseIncumbency = new HouseIncumbency();
                     houseIncumbency.SubjectUri = incumbency.SubjectUri;
@@ -265,7 +267,18 @@ namespace Functions.TransformationMemberMnis
             sparql.SetLiteral("startDate", startDate.ToString("yyyy-MM-dd"), new Uri("http://www.w3.org/2001/XMLSchema#date"));
             sparql.SetLiteral("endDate", endDate.HasValue ? endDate.Value.ToString("yyyy-MM-dd") : string.Empty, new Uri("http://www.w3.org/2001/XMLSchema#date"));
             sparql.SetLiteral("hasEndDate", endDate.HasValue);
-            Uri parliamentPeriodUri = IdRetrieval.GetSubject(sparql.ToString(), false, logger);
+            Uri parliamentPeriodUri = null;
+            try
+            {
+                parliamentPeriodUri = IdRetrieval.GetSubject(sparql.ToString(), false, logger);
+            }
+            catch (InvalidOperationException e)
+            {
+                if (e.Message == "Sequence contains more than one element")
+                    logger.Warning($"More than one parliamentary period found for incumbency {startDate}-{endDate}");
+                else
+                    logger.Exception(e);
+            }
             if (parliamentPeriodUri != null)
             {
                 return new ParliamentPeriod()

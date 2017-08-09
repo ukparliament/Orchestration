@@ -163,18 +163,6 @@ namespace Functions.TransformationEPetition
                 moderations.Add(rejection);
             }
             return moderations.ToArray();
-            /*
-
-            IEnumerable<Triple> moderations = oldGraph.GetTriplesWithObject(graph.CreateUriNode("parl:Moderation"));
-            foreach (Triple moderation in moderations)
-            {
-                graph.Assert(moderation);
-                graph.Assert(subject, graph.CreateUriNode("parl:ePetitionHasModeration"), moderation.Subject);
-                foreach (Triple triple in oldGraph.GetTriplesWithSubject(moderation.Subject))
-                {
-                    graph.Assert(triple);
-                }
-            }*/
         }
 
         private IThresholdAttainment[] generateThresholdAttainments(DateTime? moderatedAt, DateTime? respondedAt, DateTime? debatedAt)
@@ -240,7 +228,7 @@ namespace Functions.TransformationEPetition
                     signatures.Add(locatedSignatureCount);
                 }
                 else
-                    logger.Warning($"Found signature on petition without matching country code - {country.code}");
+                    logger.Warning($"Found signature on petition without matching international area code - {country.code}");
             }
             return signatures.ToArray();
         }

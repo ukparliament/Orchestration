@@ -62,24 +62,38 @@ namespace Functions.TransformationConstituencyOS
             if ((description.asGML != null) && (string.IsNullOrWhiteSpace(description.asGML.Value) == false))
             {
                 string xmlPolygon = description.asGML.Value.ToString().Replace("gml:", string.Empty);
-                string[] polygons = XDocument.Parse(xmlPolygon)
+                XElement[] polygons = XDocument.Parse(xmlPolygon)
                     .Descendants("coordinates")
-                    .Select(c => c.Value)
                     .ToArray();
-                constituencyArea.ConstituencyAreaExtent = generateConstituencyAreaExtent(polygons);                
+                int i = 0;
+                List<string> areas = new List<string>();
+                while (i < polygons.Length)
+                {
+                    if (polygons[i].Parent.Parent.Name.LocalName == "outerBoundaryIs")
+                    {
+                        string polygon = generatePolygon(polygons[i].Value);
+                        if ((i < polygons.Length - 1) && (polygons[i+1].Parent.Parent.Name.LocalName == "innerBoundaryIs"))
+                        {
+                            i++;
+                            while ((i < polygons.Length) && (polygons[i].Parent.Parent.Name.LocalName == "innerBoundaryIs"))
+                            {
+                                polygon = $"{polygon},{generatePolygon(polygons[i].Value)}";
+                                i++;
+                            }
+                        }
+                        areas.Add($"Polygon({polygon})");
+                    }
+                    i++;
+                }
+                constituencyArea.ConstituencyAreaExtent = areas;
             }
             return constituencyArea;
         }
 
-        private string[] generateConstituencyAreaExtent(string[] rings)
+        private string generatePolygon(string ring)
         {
-            List<string> areas = new List<string>();
-            foreach (string ring in rings)
-            {
-                string polygon = string.Join(",", ring.Split(' ').Select(ne => convertNEtoLongLat(ne)));
-                areas.Add($"Polygon(({polygon}))");
-            }
-            return areas.ToArray();
+            string result = string.Join(",", ring.Split(' ').Select(ne => convertNEtoLongLat(ne)));
+            return $"({result})";
         }
 
         private string convertNEtoLongLat(string nePair)

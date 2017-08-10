@@ -56,9 +56,9 @@ namespace Functions.TransformationConstituencyOS
             IConstituencyArea constituencyArea = new ConstituencyArea();
             constituencyArea.SubjectUri = GenerateNewId();
             if (description.lat != null)
-                constituencyArea.ConstituencyAreaLatitude = description.lat.Value.ToString();
+                constituencyArea.ConstituencyAreaLatitude = description.lat.Value;
             if (description.@long != null)
-                constituencyArea.ConstituencyAreaLongitude = description.@long.Value.ToString();
+                constituencyArea.ConstituencyAreaLongitude = description.@long.Value;
             if ((description.asGML != null) && (string.IsNullOrWhiteSpace(description.asGML.Value) == false))
             {
                 string xmlPolygon = description.asGML.Value.ToString().Replace("gml:", string.Empty);

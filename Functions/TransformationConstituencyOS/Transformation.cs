@@ -92,16 +92,16 @@ namespace Functions.TransformationConstituencyOS
 
         private string generatePolygon(string ring)
         {
-            string result = string.Join(",", ring.Split(' ').Select(ne => convertNEtoLongLat(ne)));
+            string result = string.Join(",", ring.Split(' ').Select(ne => convertEastingNorthingtoLongLat(ne)));
             return $"({result})";
         }
 
-        private string convertNEtoLongLat(string nePair)
+        private string convertEastingNorthingtoLongLat(string eastingNorthingPair)
         {
-            string[] arr = nePair.Split(',');
+            string[] arr = eastingNorthingPair.Split(',');
+            double easting = Convert.ToDouble(arr[0]);        
             double northing = Convert.ToDouble(arr[1]);
-            double easting = Convert.ToDouble(arr[0]);
-            return NEtoLatLongConversion.GetLongitudeLatitude(northing, easting);
+            return EastingNorthingtoLatLongConversion.GetLongitudeLatitude(northing, easting);
         }
     }
 }

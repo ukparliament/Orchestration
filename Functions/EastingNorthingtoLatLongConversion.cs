@@ -2,13 +2,13 @@
 
 namespace Functions
 {
-    public static class NEtoLatLongConversion
+    public static class EastingNorthingtoLatLongConversion
     {
         private readonly static double n0 = -100000.0;
         private readonly static double e0 = 400000.0;
         private readonly static double a = 6377563.396;
         private readonly static double f0 = 0.9996012717;
-        private readonly static double phi0 = 0.855211333;
+        private readonly static double phi0 = (49.0 * Math.PI) / 180.0;
         private readonly static double b = 6356256.909;
         private readonly static double lambda0 = (-2.0 * Math.PI) / 180.0;
 
@@ -17,14 +17,6 @@ namespace Functions
             double[] latLong = getLatLong(northing, easting);
 
             string result = string.Join(" ", string.Format("{0:0.00000000000}", latLong[1]), string.Format("{0:0.00000000000}", latLong[0]));
-            return result;
-        }
-
-        public static string GetLatitudeLongitude(double northing, double easting)
-        {
-            double[] latLong = getLatLong(northing, easting);
-
-            string result = string.Join(" ", string.Format("{0:0.00000000000}", latLong[0]), string.Format("{0:0.00000000000}", latLong[1]));
             return result;
         }
 

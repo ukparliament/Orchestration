@@ -167,6 +167,28 @@ $logicAppVariable=@(
         "triggerTime"="21:02:01";
         "queueReadBatchSize"=50;
     }
+	New-Object -TypeName PSObject -Property @{
+        "name"="committeemnis";
+        "listUri"="http://data.parliament.uk/membersdataplatform/open/OData.svc/Committees?`$select=Committee_Id";
+        "listAcceptHeader"="application/atom+xml";
+        "foreachObject"="@json(body('Get_List')).feed.entry";
+        "idObject"="@{item().id}";
+        "frequency"="hour";
+        "interval"=24;
+        "triggerTime"="21:05";
+        "queueReadBatchSize"=50;
+    }
+	New-Object -TypeName PSObject -Property @{
+        "name"="membercommitteemnis";
+        "listUri"="http://data.parliament.uk/membersdataplatform/open/OData.svc/MemberCommittees?`$select=MemberCommittee_Id";
+        "listAcceptHeader"="application/atom+xml";
+        "foreachObject"="@json(body('Get_List')).feed.entry";
+        "idObject"="@{item().id}";
+        "frequency"="hour";
+        "interval"=24;
+        "triggerTime"="21:25";
+        "queueReadBatchSize"=50;
+    }
 )
 
 $variableNames=@("name","listUri","listAcceptHeader","foreachObject","idObject","frequency","interval","triggerTime","queueReadBatchSize")

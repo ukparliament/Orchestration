@@ -43,6 +43,15 @@ namespace Functions
                 return null;
         }
 
+        public static bool? GetBoolean(this XElement value)
+        {
+            if ((value != null) && (value.Value != null) && (string.IsNullOrWhiteSpace(value.Value) == false) &&
+                (bool.TryParse(value.Value.ToString(), out bool bl)))
+                return bl;
+            else
+                return null;
+        }
+
         public static IEnumerable<string> GiveMeSingleTextValue(string value)
         {
             if (string.IsNullOrWhiteSpace(value))

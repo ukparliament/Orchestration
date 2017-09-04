@@ -73,9 +73,11 @@ namespace Functions.TransformationEPetition
                 IModeration foundModeration = null;
                 if (moderation is IApproval)
                     foundModeration = ePetition.EPetitionHasModeration
+                        .Where(m=>m is IApproval)
                         .SingleOrDefault(m => ((IApproval)m).ApprovedAt == ((IApproval)moderation).ApprovedAt);
                 if (moderation is IRejection)
                     foundModeration = ePetition.EPetitionHasModeration
+                        .Where(m=>m is IRejection)
                         .SingleOrDefault(m => ((IRejection)m).RejectedAt == ((IRejection)moderation).RejectedAt);
                 if (foundModeration != null)
                     foundModeration.SubjectUri = moderation.SubjectUri;

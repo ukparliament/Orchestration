@@ -21,18 +21,6 @@ namespace Functions.TransformationContactPointElectoralMnis
             }
         }
 
-        public XmlNamespaceManager SourceXmlNamespaceManager
-        {
-            get
-            {
-                XmlNamespaceManager sourceXmlNamespaceManager = new XmlNamespaceManager(new NameTable());
-                sourceXmlNamespaceManager.AddNamespace("atom", "http://www.w3.org/2005/Atom");
-                sourceXmlNamespaceManager.AddNamespace("m", "http://schemas.microsoft.com/ado/2007/08/dataservices/metadata");
-                sourceXmlNamespaceManager.AddNamespace("d", "http://schemas.microsoft.com/ado/2007/08/dataservices");
-                return sourceXmlNamespaceManager;
-            }
-        }
-
         public string SubjectRetrievalSparqlCommand
         {
             get
@@ -42,20 +30,8 @@ namespace Functions.TransformationContactPointElectoralMnis
                 ?s a parl:ContactPoint.
             }
             where{
-                ?s a parl:ContactPoint; 
-                    parl:contactPointMnisId @contactPointMnisId.
+                ?s parl:contactPointMnisId @contactPointMnisId.
             }";
-            }
-        }
-
-        public Dictionary<string, string> SubjectRetrievalParameters
-        {
-            get
-            {
-                return new Dictionary<string, string>
-                {
-                    { "contactPointMnisId","atom:entry/atom:content/m:properties/d:MemberAddress_Id"}
-                };
             }
         }
 
@@ -70,7 +46,9 @@ namespace Functions.TransformationContactPointElectoralMnis
                 parl:email ?email;
                 parl:faxNumber ?faxNumber;
                 parl:phoneNumber ?phoneNumber;
-                parl:contactPointHasPostalAddress ?postalAddress.
+                parl:contactPointHasPostalAddress ?postalAddress;
+                parl:contactPointHasElectoralIncumbency ?incumbency.
+            ?incumbency a parl:ElectoralIncumbency.
             ?postalAddress a parl:PostalAddress;
                 parl:addressLine1 ?addressLine1;
                 parl:addressLine2 ?addressLine2;
@@ -78,12 +56,10 @@ namespace Functions.TransformationContactPointElectoralMnis
                 parl:addressLine4 ?addressLine4;
                 parl:addressLine5 ?addressLine5;
                 parl:postCode ?postCode.
-            ?incumbency parl:electoralIncumbencyHasContactPoint ?contactPoint.
         }
         where {
             bind(@subject as ?contactPoint)
-            ?contactPoint a parl:ContactPoint;
-                parl:contactPointMnisId ?contactPointMnisId.
+            ?contactPoint parl:contactPointMnisId ?contactPointMnisId.
             optional {?contactPoint parl:email ?email}
             optional {?contactPoint parl:faxNumber ?faxNumber}
             optional {?contactPoint parl:phoneNumber ?phoneNumber}
@@ -96,7 +72,7 @@ namespace Functions.TransformationContactPointElectoralMnis
                 optional {?postalAddress parl:addressLine5 ?addressLine5}
                 optional {?postalAddress parl:postCode ?postCode}
             }
-            optional {?incumbency parl:electoralIncumbencyHasContactPoint ?contactPoint}
+            optional {?contactPoint parl:contactPointHasElectoralIncumbency ?incumbency}
         }";
             }
         }

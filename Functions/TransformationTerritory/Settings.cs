@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Xml;
-
-namespace Functions.TransformationTerritory
+﻿namespace Functions.TransformationTerritory
 {
     public class Settings :ITransformationSettings
     {
@@ -21,15 +18,6 @@ namespace Functions.TransformationTerritory
             }
         }
 
-		public XmlNamespaceManager SourceXmlNamespaceManager
-		{
-			get
-			{
-				XmlNamespaceManager sourceXmlNamespaceManager = new XmlNamespaceManager(new NameTable());
-				return sourceXmlNamespaceManager;
-			}
-		}
-
 		public string SubjectRetrievalSparqlCommand
         {
             get
@@ -39,22 +27,10 @@ namespace Functions.TransformationTerritory
                 ?s a parl:Territory.
             }
             where{
-                ?s a parl:Territory; 
-                    parl:territoryGovRegisterId @territoryGovRegisterId.
+                ?s parl:territoryGovRegisterId @territoryGovRegisterId.
             }";
             }
         }
-
-		public Dictionary<string, string> SubjectRetrievalParameters
-		{
-			get
-			{
-				return new Dictionary<string, string>
-				{
-					{"territoryGovRegisterId","root/*/key" }
-				};
-			}
-		}
 
 		public string ExistingGraphSparqlCommand
         {
@@ -62,8 +38,7 @@ namespace Functions.TransformationTerritory
             {
                 return @"
         construct {
-        	?territory a parl:Territory;
-                parl:territoryName ?territoryName;
+        	?territory parl:territoryName ?territoryName;
                 parl:territoryOfficialName ?territoryOfficialName;
                 parl:govRegisterTerritoryStartDate ?govRegisterTerritoryStartDate;
                 parl:govRegisterTerritoryEndDate ?govRegisterTerritoryEndDate;
@@ -71,21 +46,12 @@ namespace Functions.TransformationTerritory
         }
         where {
             bind(@subject as ?territory)
-        	?territory a parl:Territory.
+            ?territory parl:territoryGovRegisterId ?territoryGovRegisterId.
             optional {?territory parl:territoryName ?territoryName}
             optional {?territory parl:territoryOfficialName ?territoryOfficialName}
             optional {?territory parl:govRegisterTerritoryStartDate ?govRegisterTerritoryStartDate}
             optional {?territory parl:govRegisterTerritoryEndDate ?govRegisterTerritoryEndDate}
-            optional {?territory parl:territoryGovRegisterId ?territoryGovRegisterId}
         }";
-            }
-        }
-
-        public Dictionary<string, string> ExistingGraphSparqlParameters
-        {
-            get
-            {
-                return null;
             }
         }
 

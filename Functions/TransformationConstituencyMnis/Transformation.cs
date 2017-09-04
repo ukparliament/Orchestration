@@ -1,89 +1,82 @@
 ﻿using Functions.Transformation;
+using Parliament.Ontology.Base;
+using Parliament.Ontology.Code;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
-using VDS.RDF;
-using VDS.RDF.Parsing;
 
 namespace Functions.TransformationConstituencyMnis
 {
-    public class Transformation: BaseTransformation<Settings>
+    public class Transformation : BaseTransformation<Settings>
     {
+        protected XNamespace atom = "http://www.w3.org/2005/Atom";
+        protected XNamespace d = "http://schemas.microsoft.com/ado/2007/08/dataservices";
+        protected XNamespace m = "http://schemas.microsoft.com/ado/2007/08/dataservices/metadata";
 
-        public override IGraph GenerateNewGraph(XDocument doc, IGraph oldGraph, Uri subjectUri, Settings settings)
+        public override IBaseOntology[] TransformSource(string response)
         {
-            Graph result = new Graph();
-            result.NamespaceMap.AddNamespace("parl", new Uri(schemaNamespace));
+            IMnisConstituencyGroup mnisConstituency = new MnisConstituencyGroup();
+            XDocument doc = XDocument.Parse(response);
+            XElement constituencyElement = doc.Element(atom + "entry")
+                .Element(atom + "content")
+                .Element(m + "properties");
 
-            logger.Verbose("Generate triples");
-            IUriNode subject = result.CreateUriNode(subjectUri);
-            IUriNode rdfTypeNode = result.CreateUriNode(new Uri(RdfSpecsHelper.RdfType));
-            //Constituency
-            result.Assert(subject, rdfTypeNode, result.CreateUriNode("parl:ConstituencyGroup"));
-            TripleGenerator.GenerateTriple(result, subject, "parl:constituencyGroupMnisId", doc, "atom:entry/atom:content/m:properties/d:Constituency_Id", settings.SourceXmlNamespaceManager);
-            TripleGenerator.GenerateTriple(result, subject, "parl:constituencyGroupName", doc, "atom:entry/atom:content/m:properties/d:Name", settings.SourceXmlNamespaceManager);
-            TripleGenerator.GenerateTriple(result, subject, "parl:constituencyGroupOnsCode", doc, "atom:entry/atom:content/m:properties/d:ONSCode", settings.SourceXmlNamespaceManager);
-            TripleGenerator.GenerateTriple(result, subject, "parl:constituencyGroupStartDate", doc, "atom:entry/atom:content/m:properties/d:StartDate", settings.SourceXmlNamespaceManager, "xsd:date");
-            TripleGenerator.GenerateTriple(result, subject, "parl:constituencyGroupEndDate", doc, "atom:entry/atom:content/m:properties/d:EndDate", settings.SourceXmlNamespaceManager, "xsd:date");
-            //House Seat
-            generateTripleSeat(result, oldGraph, subject);
+            mnisConstituency.ConstituencyGroupMnisId = constituencyElement.Element(d + "Constituency_Id").GetText();
+            mnisConstituency.ConstituencyGroupName = constituencyElement.Element(d + "Name").GetText();
+            mnisConstituency.ConstituencyGroupStartDate = constituencyElement.Element(d + "StartDate").GetDate();
+            IHouseSeat houseSeat = generateHouseSeat();
+            mnisConstituency.ConstituencyGroupHasHouseSeat = new IHouseSeat[] { houseSeat };
+            IOnsConstituencyGroup onsConstituencyGroup = new OnsConstituencyGroup();
+            onsConstituencyGroup.ConstituencyGroupOnsCode = constituencyElement.Element(d + "ONSCode").GetText();
+            IPastConstituencyGroup pastConstituencyGroup = new PastConstituencyGroup();
+            pastConstituencyGroup.ConstituencyGroupEndDate = constituencyElement.Element(d + "EndDate").GetDate();
 
-            return result;
+            return new IBaseOntology[] { mnisConstituency, onsConstituencyGroup, pastConstituencyGroup };
         }
 
-        private void generateTripleSeat(IGraph graph, IGraph oldGraph, IUriNode subject)
+        public override Dictionary<string, object> GetKeysFromSource(IBaseOntology[] deserializedSource)
         {
-            Uri seatUri;
-            IUriNode seatTypeNode = graph.CreateUriNode("parl:HouseSeat");
-            IUriNode rdfTypeNode = graph.CreateUriNode(new Uri(RdfSpecsHelper.RdfType));
-
-            logger.Verbose("Check seat");
-            IEnumerable<Triple> existingSeat = oldGraph.GetTriplesWithPredicateObject(rdfTypeNode, seatTypeNode);
-            if ((existingSeat != null) && (existingSeat.Any()))
+            string constituencyGroupMnisId = deserializedSource.OfType<IMnisConstituencyGroup>()
+                .SingleOrDefault()
+                .ConstituencyGroupMnisId;
+            string constituencyGroupOnsCode = deserializedSource.OfType<IOnsConstituencyGroup>()
+                .SingleOrDefault()
+                .ConstituencyGroupOnsCode;
+            return new Dictionary<string, object>()
             {
-                seatUri = ((IUriNode)existingSeat.SingleOrDefault().Subject).Uri;
-                logger.Verbose($"Found seat ({seatUri})");
-            }
-            else
-            {
-                string seatId = new IdGenerator.IdMaker().MakeId();
-                seatUri = new Uri(seatId);
-                logger.Verbose($"New seat ({seatUri})");
-            }
-            IUriNode seatNode = graph.CreateUriNode(seatUri);
-
-            graph.Assert(seatNode, rdfTypeNode, seatTypeNode);
-            graph.Assert(seatNode, graph.CreateUriNode("parl:houseSeatHasConstituencyGroup"), subject);
-            /*IEnumerable<Triple> createdEndDate = graph.GetTriplesWithSubjectPredicate(subject, graph.CreateUriNode("parl:constituencyGroupEndDate"));
-            if ((createdEndDate != null) && (createdEndDate.Any()))
-            {
-                graph.Assert(seatNode, graph.CreateUriNode("parl:houseSeatEndDate"), createdEndDate.SingleOrDefault().Object);
-                log.Info($"{subject.Uri}: Past house ({seatNode.Uri})");
-            }*/
-            generateTripleHouse(graph, oldGraph, seatNode);
+                { "constituencyGroupMnisId", constituencyGroupMnisId },
+                {"constituencyGroupOnsCode", constituencyGroupOnsCode }
+            };
         }
 
-        private void generateTripleHouse(IGraph graph, IGraph oldGraph, IUriNode subject)
+        public override IBaseOntology[] SynchronizeIds(IBaseOntology[] source, Uri subjectUri, IBaseOntology[] target)
         {
-            Uri houseUri;
-            string houseName = "House of Commons";
-            IUriNode housePredicateNode = graph.CreateUriNode("parl:houseSeatHasHouse");
-            IEnumerable<Triple> existingHouse = oldGraph.GetTriplesWithSubjectPredicate(subject, housePredicateNode);
-            if ((existingHouse != null) && (existingHouse.Any()))
-            {
-                houseUri = ((IUriNode)existingHouse.SingleOrDefault().Object).Uri;
-                logger.Verbose($"Found house ({houseUri})");
-            }
+            IMnisConstituencyGroup constituency = source.OfType<IMnisConstituencyGroup>().SingleOrDefault();
+            IHouseSeat houseSeat= target.OfType<IHouseSeat>().SingleOrDefault();
+            if ((constituency.ConstituencyGroupHasHouseSeat != null) && (constituency.ConstituencyGroupHasHouseSeat.Any()) &&
+                (houseSeat != null))
+                constituency.ConstituencyGroupHasHouseSeat.SingleOrDefault().SubjectUri = houseSeat.SubjectUri;
+            
+            foreach (IConstituencyGroup constituencyGroup in source.OfType<IConstituencyGroup>())
+                constituencyGroup.SubjectUri = subjectUri;
+            return source.OfType<IConstituencyGroup>().ToArray();
+        }
+
+
+        private IHouseSeat generateHouseSeat()
+        {
+            IHouseSeat houseSeat = new HouseSeat();
+            houseSeat.SubjectUri = GenerateNewId();
+            Uri houseUri = IdRetrieval.GetSubject("houseName", "House of Commons", false, logger);
+            if (houseUri == null)
+                logger.Warning("No house found");
             else
-            {
-                houseUri = IdRetrieval.GetSubject("House", "houseName", houseName, false, logger);
-                if (houseUri == null)
+                houseSeat.HouseSeatHasHouse = new House()
                 {
-                    throw new Exception($"Could not found house ({houseName})");
-                }
-            }
-            graph.Assert(subject, housePredicateNode, graph.CreateUriNode(houseUri));
+                    SubjectUri = houseUri
+                };
+            return houseSeat;
         }
     }
 }

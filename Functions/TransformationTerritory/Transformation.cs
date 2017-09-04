@@ -1,29 +1,52 @@
-﻿using System;
-using System.Xml.Linq;
-using VDS.RDF;
-using VDS.RDF.Parsing;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using Parliament.Ontology.Base;
+using Parliament.Ontology.Code;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Functions.TransformationTerritory
 {
-    public class Transformation:BaseTransformation<Settings>
+    public class Transformation : BaseTransformation<Settings>
     {
-        public override IGraph GenerateNewGraph(XDocument doc, IGraph oldGraph, Uri subjectUri, Settings settings)
+
+        public override IBaseOntology[] TransformSource(string response)
         {
-            Graph result = new Graph();
-            result.NamespaceMap.AddNamespace("parl", new Uri(schemaNamespace));
+            IGovRegisterTerritory territory = new GovRegisterTerritory();
+            JObject jsonResponse = (JObject)JsonConvert.DeserializeObject(response);
 
-            logger.Verbose("Generate triples");
-            IUriNode subject = result.CreateUriNode(subjectUri);
-            IUriNode rdfTypeNode = result.CreateUriNode(new Uri(RdfSpecsHelper.RdfType));
-            //Territory
-            result.Assert(subject, rdfTypeNode, result.CreateUriNode("parl:Territory"));
-            TripleGenerator.GenerateTriple(result, subject, "parl:territoryGovRegisterId", doc, "root/*/key", settings.SourceXmlNamespaceManager);
-            TripleGenerator.GenerateTriple(result, subject, "parl:territoryName", doc, "root/*/item/name", settings.SourceXmlNamespaceManager);
-            TripleGenerator.GenerateTriple(result, subject, "parl:territoryOfficialName", doc, "root/*/item/official-name", settings.SourceXmlNamespaceManager);
-            TripleGenerator.GenerateTriple(result, subject, "parl:govRegisterTerritoryStartDate", doc, "root/*/item/start-date", settings.SourceXmlNamespaceManager,"xsd:date");
-            TripleGenerator.GenerateTriple(result, subject, "parl:govRegisterTerritoryEndDate", doc, "root/*/item/end-date", settings.SourceXmlNamespaceManager, "xsd:date");
+            JValue jValue = (JValue)jsonResponse.First.First.SelectToken("key");
+            territory.TerritoryGovRegisterId = jValue.GetText();
+            jValue = (JValue)jsonResponse.First.First.SelectToken("item[0].name");
+            territory.TerritoryName = DeserializerHelper.GiveMeSingleTextValue(jValue.GetText());
+            jValue = (JValue)jsonResponse.First.First.SelectToken("item[0].official-name");
+            territory.TerritoryOfficialName = DeserializerHelper.GiveMeSingleTextValue(jValue.GetText());
+            jValue = (JValue)jsonResponse.First.First.SelectToken("item[0].start-date");
+            territory.GovRegisterTerritoryStartDate = DeserializerHelper.GiveMeSingleDateValue(jValue.GetDate());
+            jValue = (JValue)jsonResponse.First.First.SelectToken("item[0].end-date");
+            territory.GovRegisterTerritoryEndDate = DeserializerHelper.GiveMeSingleDateValue(jValue.GetDate());
 
-            return result;
+            return new IBaseOntology[] { territory };
+        }
+
+        public override Dictionary<string, object> GetKeysFromSource(IBaseOntology[] deserializedSource)
+        {
+            string territoryGovRegisterId = deserializedSource.OfType<IGovRegisterTerritory>()
+                .SingleOrDefault()
+                .TerritoryGovRegisterId;
+            return new Dictionary<string, object>()
+            {
+                { "territoryGovRegisterId", territoryGovRegisterId }
+            };
+        }
+
+        public override IBaseOntology[] SynchronizeIds(IBaseOntology[] source, Uri subjectUri, IBaseOntology[] target)
+        {
+            IGovRegisterTerritory territory = source.OfType<IGovRegisterTerritory>().SingleOrDefault();
+            territory.SubjectUri = subjectUri;
+
+            return new IBaseOntology[] { territory };
         }
     }
 }

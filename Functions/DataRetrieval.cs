@@ -2,17 +2,15 @@
 using System.Diagnostics;
 using System.Net.Http;
 using System.Threading.Tasks;
-using System.Xml.Linq;
 
 namespace Functions
 {
-    public static class XmlDataRetrieval
+    public static class DataRetrieval
     {
 
-        public static async Task<XDocument> GetXmlDataFromUrl(string url, string acceptHeader, Logger logger)
+        public static async Task<string> DataFromUrl(string url, string acceptHeader, Logger logger)
         {
-            XDocument doc;
-            string xml = null;
+            string result = null;
             Stopwatch externalTimer = Stopwatch.StartNew();
             DateTime externalStartTime = DateTime.UtcNow;
             bool externalCallOk = true;
@@ -20,7 +18,7 @@ namespace Functions
             try
             {
                 logger.Verbose("Contacting source");
-                xml = await getXmlText(url, acceptHeader);
+                result = await getText(url, acceptHeader);
             }
             catch (Exception e)
             {
@@ -31,29 +29,19 @@ namespace Functions
             finally
             {
                 externalTimer.Stop();
-                logger.Dependency("XmlDataRetrieval", url, externalStartTime, externalTimer.Elapsed, externalCallOk);
+                logger.Dependency("DataRetrieval", url, externalStartTime, externalTimer.Elapsed, externalCallOk);
             }
-            if (string.IsNullOrWhiteSpace(xml))
+            if (string.IsNullOrWhiteSpace(result))
             {
                 logger.Error("Empty response");
                 return null;
             }
-            try
-            {
-                logger.Verbose("Parsing response");
-                doc = XDocument.Parse(xml);
-            }
-            catch (Exception e)
-            {
-                logger.Exception(e);
-                return null;
-            }
-            return doc;
+            return result;
         }
 
-        private static async Task<string> getXmlText(string url, string acceptHeader)
+        private static async Task<string> getText(string url, string acceptHeader)
         {
-            string xml = null;
+            string result = null;
             using (HttpClient client = new HttpClient())
             {
                 client.Timeout = TimeSpan.FromSeconds(180);
@@ -64,20 +52,12 @@ namespace Functions
                     using (HttpResponseMessage response = await client.SendAsync(request))
                     {
                         if (response.IsSuccessStatusCode == true)
-                        {
-                            if ((acceptHeader != null) && (acceptHeader.Contains("json")))
-                            {
-                                string json = await response.Content.ReadAsStringAsync();
-                                xml = Newtonsoft.Json.JsonConvert.DeserializeXmlNode(json, "root").InnerXml;
-                            }
-                            else
-                                xml = await response.Content.ReadAsStringAsync();
-                        }
+                            result = await response.Content.ReadAsStringAsync();
                     }
                 }
             }
 
-            return xml;
+            return result;
         }
 
     }

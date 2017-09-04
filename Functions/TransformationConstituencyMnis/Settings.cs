@@ -21,18 +21,6 @@ namespace Functions.Transformation
             }
         }
 
-        public XmlNamespaceManager SourceXmlNamespaceManager
-        {
-            get
-            {
-                XmlNamespaceManager sourceXmlNamespaceManager = new XmlNamespaceManager(new NameTable());
-                sourceXmlNamespaceManager.AddNamespace("atom", "http://www.w3.org/2005/Atom");
-                sourceXmlNamespaceManager.AddNamespace("m", "http://schemas.microsoft.com/ado/2007/08/dataservices/metadata");
-                sourceXmlNamespaceManager.AddNamespace("d", "http://schemas.microsoft.com/ado/2007/08/dataservices");
-                return sourceXmlNamespaceManager;
-            }
-        }
-
         public string SubjectRetrievalSparqlCommand
         {
             get
@@ -56,18 +44,6 @@ namespace Functions.Transformation
             }
         }
 
-        public Dictionary<string, string> SubjectRetrievalParameters
-        {
-            get
-            {
-                return new Dictionary<string, string>()
-                {
-                    {"constituencyGroupMnisId", "atom:entry/atom:content/m:properties/d:Constituency_Id" },
-                    {"constituencyGroupOnsCode", "atom:entry/atom:content/m:properties/d:ONSCode" }
-                };
-            }
-        }
-
         public string ExistingGraphSparqlCommand
         {
             get
@@ -79,32 +55,26 @@ namespace Functions.Transformation
                     parl:constituencyGroupOnsCode ?constituencyGroupOnsCode;
                     parl:constituencyGroupName ?constituencyGroupName;
                     parl:constituencyGroupStartDate ?constituencyGroupStartDate;
-                    parl:constituencyGroupEndDate ?constituencyGroupEndDate.
+                    parl:constituencyGroupEndDate ?constituencyGroupEndDate;
+                    parl:constituencyGroupHasHouseSeat ?seat.
                 ?seat a parl:HouseSeat;
-                    parl:houseSeatHasHouse ?house;
-                    parl:houseSeatHasConstituencyGroup ?constituencyGroup.
+                    parl:houseSeatHasHouse ?house.
             }
             where {
                 bind(@subject as ?constituencyGroup)
-                ?constituencyGroup a parl:ConstituencyGroup;
-                    parl:constituencyGroupMnisId ?constituencyGroupMnisId.
-                optional { ?constituencyGroup parl:constituencyGroupOnsCode ?constituencyGroupOnsCode.}
+                ?constituencyGroup parl:constituencyGroupMnisId ?constituencyGroupMnisId.
+                optional {?constituencyGroup parl:constituencyGroupOnsCode ?constituencyGroupOnsCode}
                 optional {?constituencyGroup parl:constituencyGroupName ?constituencyGroupName}
                 optional {?constituencyGroup parl:constituencyGroupStartDate ?constituencyGroupStartDate}
                 optional {?constituencyGroup parl:constituencyGroupEndDate ?constituencyGroupEndDate}
-                ?seat a parl:HouseSeat;
-                    parl:houseSeatHasHouse ?house;
-                    parl:houseSeatHasConstituencyGroup ?constituencyGroup.
-                ?house parl:houseName ""House of Commons"".
+                optional {
+                    ?constituencyGroup parl:constituencyGroupHasHouseSeat ?seat.
+                    optional {
+                        ?seat parl:houseSeatHasHouse ?house.
+                        ?house parl:houseName ""House of Commons"".
+                    }
+                }
             }";
-            }
-        }
-
-        public Dictionary<string, string> ExistingGraphSparqlParameters
-        {
-            get
-            {
-                return null;
             }
         }
 

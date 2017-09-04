@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Xml;
-
-namespace Functions.TransformationCountry
+﻿namespace Functions.TransformationCountry
 {
     public class Settings :ITransformationSettings
     {
@@ -21,15 +18,6 @@ namespace Functions.TransformationCountry
             }
         }
 
-		public XmlNamespaceManager SourceXmlNamespaceManager
-		{
-			get
-			{
-				XmlNamespaceManager sourceXmlNamespaceManager = new XmlNamespaceManager(new NameTable());
-				return sourceXmlNamespaceManager;
-			}
-		}
-
 		public string SubjectRetrievalSparqlCommand
         {
             get
@@ -39,22 +27,10 @@ namespace Functions.TransformationCountry
                 ?s a parl:Country.
             }
             where{
-                ?s a parl:Country; 
-                    parl:countryGovRegisterId @countryGovRegisterId.
+                ?s parl:countryGovRegisterId @countryGovRegisterId.
             }";
             }
         }
-
-		public Dictionary<string, string> SubjectRetrievalParameters
-		{
-			get
-			{
-				return new Dictionary<string, string>
-				{
-					{"countryGovRegisterId","root/*/key" }
-				};
-			}
-		}
 
 		public string ExistingGraphSparqlCommand
         {
@@ -72,22 +48,13 @@ namespace Functions.TransformationCountry
         }
         where {
             bind(@subject as ?country)
-        	?country a parl:Country.
+        	?country parl:countryGovRegisterId ?countryGovRegisterId.
             optional {?country parl:countryName ?countryName}
             optional {?country parl:countryOfficialName ?countryOfficialName}
             optional {?country parl:countryCitizenNames ?countryCitizenNames}
             optional {?country parl:govRegisterCountryStartDate ?govRegisterCountryStartDate}
             optional {?country parl:govRegisterCountryEndDate ?govRegisterCountryEndDate}
-            optional {?country parl:countryGovRegisterId ?countryGovRegisterId}
         }";
-            }
-        }
-
-        public Dictionary<string, string> ExistingGraphSparqlParameters
-        {
-            get
-            {
-                return null;
             }
         }
 

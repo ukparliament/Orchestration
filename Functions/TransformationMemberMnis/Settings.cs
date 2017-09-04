@@ -1,9 +1,6 @@
-﻿using System.Collections.Generic;
-using System.Xml;
-
-namespace Functions.TransformationMemberMnis
+﻿namespace Functions.TransformationMemberMnis
 {
-    public class Settings :ITransformationSettings
+    public class Settings : ITransformationSettings
     {
         public string OperationName
         {
@@ -21,18 +18,6 @@ namespace Functions.TransformationMemberMnis
             }
         }
 
-        public XmlNamespaceManager SourceXmlNamespaceManager
-        {
-            get
-            {
-                XmlNamespaceManager sourceXmlNamespaceManager = new XmlNamespaceManager(new NameTable());
-                sourceXmlNamespaceManager.AddNamespace("atom", "http://www.w3.org/2005/Atom");
-                sourceXmlNamespaceManager.AddNamespace("m", "http://schemas.microsoft.com/ado/2007/08/dataservices/metadata");
-                sourceXmlNamespaceManager.AddNamespace("d", "http://schemas.microsoft.com/ado/2007/08/dataservices");
-                return sourceXmlNamespaceManager;
-            }
-        }
-
         public string SubjectRetrievalSparqlCommand
         {
             get
@@ -42,20 +27,8 @@ namespace Functions.TransformationMemberMnis
                 ?s a parl:Person.
             }
             where{
-                ?s a parl:Person; 
-                    parl:personMnisId @personMnisId.
+                ?s parl:personMnisId @personMnisId.
             }";
-            }
-        }
-
-        public Dictionary<string, string> SubjectRetrievalParameters
-        {
-            get
-            {
-                return new Dictionary<string, string>
-                {
-                    {"personMnisId","atom:entry/atom:content/m:properties/d:Member_Id" }
-                };
             }
         }
 
@@ -66,22 +39,23 @@ namespace Functions.TransformationMemberMnis
                 return @"
         construct {
         	?person a parl:Person;
-        		parl:personDateOfBirth ?personDateOfBirth;
+                parl:personDateOfBirth ?personDateOfBirth;
         		parl:personGivenName ?personGivenName;
         		parl:personOtherNames ?personOtherNames;
         		parl:personFamilyName ?personFamilyName;
         		parl:personDateOfDeath ?personDateOfDeath;
+        		parl:personMnisId ?personMnisId;
+                parl:personPimsId ?personPimsId;
+                parl:personDodsId ?personDodsId;
                 <http://example.com/F31CBD81AD8343898B49DC65743F0BDF> ?personNameDisplayAs;
                 <http://example.com/A5EE13ABE03C4D3A8F1A274F57097B6C> ?personNameListAs;
                 <http://example.com/D79B0BAC513C4A9A87C9D5AFF1FC632F> ?personNameFullTitle;
-        		parl:personMnisId ?personMnisId;
-                parl:personPimsId ?personPimsId;
-                parl:personDodsId ?personDodsId.
+                parl:personHasGenderIdentity ?genderIdentity;
+                parl:memberHasIncumbency ?incumbency;
+                parl:partyMemberHasPartyMembership ?partyMembership.
             ?genderIdentity a parl:GenderIdentity;
-                parl:genderIdentityHasGender ?gender;
-                parl:genderIdentityHasPerson ?person.
+                parl:genderIdentityHasGender ?gender.
             ?incumbency a parl:Incumbency;
-        		parl:incumbencyHasMember ?person;
                 parl:seatIncumbencyHasHouseSeat ?seatIncumbencyHasHouseSeat;
                 parl:seatIncumbencyHasParliamentPeriod ?seatIncumbencyHasParliamentPeriod;
         		parl:incumbencyStartDate ?incumbencyStartDate;
@@ -89,15 +63,13 @@ namespace Functions.TransformationMemberMnis
                 parl:houseIncumbencyHasHouse ?houseIncumbencyHasHouse;
                 parl:houseIncumbencyHasHouseIncumbencyType ?houseIncumbencyHasHouseIncumbencyType.
             ?partyMembership a parl:PartyMembership;
-        		parl:partyMembershipStartDate ?partyMembershipStartDate;
+                parl:partyMembershipStartDate ?partyMembershipStartDate;
                 parl:partyMembershipEndDate ?partyMembershipEndDate;
-        		parl:partyMembershipHasParty ?partyMembershipHasParty;
-        		parl:partyMembershipHasPartyMember ?person.
+        		parl:partyMembershipHasParty ?partyMembershipHasParty.
         }
         where {
             bind(@subject as ?person)
-            ?person a parl:Person;
-                parl:personMnisId ?personMnisId.
+            ?person parl:personMnisId ?personMnisId.
             optional {?person parl:personPimsId ?personPimsId}
             optional {?person parl:personDodsId ?personDodsId}
             optional {?person parl:personDateOfBirth ?personDateOfBirth}
@@ -108,15 +80,15 @@ namespace Functions.TransformationMemberMnis
             optional {?person <http://example.com/F31CBD81AD8343898B49DC65743F0BDF> ?personNameDisplayAs}
             optional {?person <http://example.com/A5EE13ABE03C4D3A8F1A274F57097B6C> ?personNameListAs}
             optional {?person <http://example.com/D79B0BAC513C4A9A87C9D5AFF1FC632F> ?personNameFullTitle}
-            optional {
-                ?genderIdentity a parl:GenderIdentity;
-                    parl:genderIdentityHasGender ?gender;
-                    parl:genderIdentityHasPerson ?person.
-                ?gender parl:genderMnisId @genderMnisId.
+            optional {                
+                ?person parl:personHasGenderIdentity ?genderIdentity.
+                optional {
+                    bind(@gender as ?gender)
+                    ?genderIdentity parl:genderIdentityHasGender ?gender.
+                }
             }
             optional {
-                ?incumbency a parl:Incumbency;
-                    parl:incumbencyHasMember ?person.
+                ?person parl:memberHasIncumbency ?incumbency.
                 optional {?incumbency parl:incumbencyStartDate ?incumbencyStartDate}
                 optional {?incumbency parl:incumbencyEndDate ?incumbencyEndDate}
                 optional {?incumbency parl:seatIncumbencyHasHouseSeat ?seatIncumbencyHasHouseSeat}
@@ -128,30 +100,18 @@ namespace Functions.TransformationMemberMnis
                 }
             }
             optional {
-                ?partyMembership a parl:PartyMembership;
-                    parl:partyMembershipStartDate ?partyMembershipStartDate;
-                    parl:partyMembershipHasParty ?partyMembershipHasParty;
-                    parl:partyMembershipHasPartyMember ?person.
+                ?person parl:partyMemberHasPartyMembership ?partyMembership.
+                optional {?partyMembership parl:partyMembershipStartDate ?partyMembershipStartDate}
+                optional {?partyMembership parl:partyMembershipHasParty ?partyMembershipHasParty}                
                 optional {?partyMembership parl:partyMembershipEndDate ?partyMembershipEndDate}
             }
         }";
             }
         }
 
-        public Dictionary<string, string> ExistingGraphSparqlParameters
-        {
-            get
-            {
-                return new Dictionary<string, string>
-                {
-                    {"genderMnisId","atom:entry/atom:content/m:properties/d:Gender" }
-                };
-            }
-        }
-
         public string FullDataUrlParameterizedString(string dataUrl)
         {
-            return $"{dataUrl}?$select=Surname,MiddleNames,Forename,NameDisplayAs,NameListAs,NameFullTitle,DateOfBirth,DateOfDeath,Gender,Member_Id,House,StartDate,EndDate,Dods_Id,Pims_Id,MemberConstituencies/StartDate,MemberConstituencies/EndDate,MemberConstituencies/EndDate,MemberConstituencies/Constituency/Constituency_Id,MemberConstituencies/Constituency/StartDate,MemberConstituencies/Constituency/EndDate,MemberParties/Party_Id,MemberParties/StartDate,MemberParties/EndDate,MemberLordsMembershipTypes/StartDate,MemberLordsMembershipTypes/EndDate,MemberLordsMembershipTypes/LordsMembershipType_Id&$expand=MemberConstituencies,MemberConstituencies/Constituency,MemberParties,MemberLordsMembershipTypes";
+            return $"{dataUrl}?$select=Surname,MiddleNames,Forename,DateOfBirth,DateOfDeath,Gender,Member_Id,House,StartDate,EndDate,Dods_Id,Pims_Id,NameDisplayAs,NameListAs,NameFullTitle,MemberConstituencies/StartDate,MemberConstituencies/EndDate,MemberConstituencies/EndDate,MemberConstituencies/Constituency/Constituency_Id,MemberConstituencies/Constituency/StartDate,MemberConstituencies/Constituency/EndDate,MemberParties/Party_Id,MemberParties/StartDate,MemberParties/EndDate,MemberLordsMembershipTypes/StartDate,MemberLordsMembershipTypes/EndDate,MemberLordsMembershipTypes/LordsMembershipType_Id&$expand=MemberConstituencies,MemberConstituencies/Constituency,MemberParties,MemberLordsMembershipTypes";
         }
     }
 }

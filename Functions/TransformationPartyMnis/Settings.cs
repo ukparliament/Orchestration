@@ -1,9 +1,6 @@
-﻿using System.Collections.Generic;
-using System.Xml;
-
-namespace Functions.TransformationPartyMnis
+﻿namespace Functions.TransformationPartyMnis
 {
-    public class Settings :ITransformationSettings
+    public class Settings : ITransformationSettings
     {
         public string OperationName
         {
@@ -21,18 +18,6 @@ namespace Functions.TransformationPartyMnis
             }
         }
 
-        public XmlNamespaceManager SourceXmlNamespaceManager
-        {
-            get
-            {
-                XmlNamespaceManager sourceXmlNamespaceManager = new XmlNamespaceManager(new NameTable());
-                sourceXmlNamespaceManager.AddNamespace("atom", "http://www.w3.org/2005/Atom");
-                sourceXmlNamespaceManager.AddNamespace("m", "http://schemas.microsoft.com/ado/2007/08/dataservices/metadata");
-                sourceXmlNamespaceManager.AddNamespace("d", "http://schemas.microsoft.com/ado/2007/08/dataservices");
-                return sourceXmlNamespaceManager;
-            }
-        }
-
         public string SubjectRetrievalSparqlCommand
         {
             get
@@ -42,20 +27,8 @@ namespace Functions.TransformationPartyMnis
                 ?s a parl:Party.
             }
             where{
-                ?s a parl:Party; 
-                    parl:partyMnisId @partyMnisId.
+                ?s parl:partyMnisId @partyMnisId.
             }";
-            }
-        }
-
-        public Dictionary<string, string> SubjectRetrievalParameters
-        {
-            get
-            {
-                return new Dictionary<string, string>
-                {
-                    { "partyMnisId","atom:entry/atom:content/m:properties/d:Party_Id"}
-                };
             }
         }
 
@@ -65,24 +38,14 @@ namespace Functions.TransformationPartyMnis
             {
                 return @"
         construct {
-        	?party a parl:Party;
-                parl:partyMnisId ?partyMnisId;
+        	?party parl:partyMnisId ?partyMnisId;
                 parl:partyName ?partyName.
         }
         where {
             bind(@subject as ?party)
-        	?party a parl:Party.
-            optional {?party parl:partyMnisId ?partyMnisId}
+            ?party parl:partyMnisId ?partyMnisId.
             optional {?party parl:partyName ?partyName}
         }";
-            }
-        }
-
-        public Dictionary<string, string> ExistingGraphSparqlParameters
-        {
-            get
-            {
-                return null;
             }
         }
 

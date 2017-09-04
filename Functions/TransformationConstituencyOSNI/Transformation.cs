@@ -1,67 +1,68 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using Parliament.Ontology.Base;
+using Parliament.Ontology.Code;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Xml.Linq;
-using System.Xml.XPath;
-using VDS.RDF;
-using VDS.RDF.Parsing;
 
 namespace Functions.TransformationConstituencyOSNI
 {
     public class Transformation : BaseTransformation<Settings>
     {
-        public override IGraph GenerateNewGraph(XDocument doc, IGraph oldGraph, Uri subjectUri, Settings settings)
+        public override IBaseOntology[] TransformSource(string response)
         {
-            Graph result = new Graph();
-            result.NamespaceMap.AddNamespace("parl", new Uri(schemaNamespace));
-
-            logger.Verbose("Generate triples");
-            IUriNode subject = result.CreateUriNode(subjectUri);
-            IUriNode rdfTypeNode = result.CreateUriNode(new Uri(RdfSpecsHelper.RdfType));
-            //Constituency
-            result.Assert(subject, rdfTypeNode, result.CreateUriNode("parl:ConstituencyGroup"));
-            TripleGenerator.GenerateTriple(result, subject, "parl:constituencyGroupOnsCode", doc, "root/features/attributes/PC_ID", null);
-            //Constituency Area
-            generateConstituencyArea(result, oldGraph, subject, doc);
-
-            return result;
+            Rootobject sourceConstituency = JsonConvert.DeserializeObject<Rootobject>(response);
+            IOnsConstituencyGroup constituency = new OnsConstituencyGroup();
+            if ((sourceConstituency != null) && (sourceConstituency.features != null) && (sourceConstituency.features.Any()) && (sourceConstituency.features.SingleOrDefault().attributes != null))
+            {
+                Feature feature = sourceConstituency.features.SingleOrDefault();
+                constituency.ConstituencyGroupOnsCode = feature.attributes.PC_ID;
+                if ((feature.geometry != null) && (feature.geometry.rings != null) && (feature.geometry.rings.Any()))
+                    constituency.ConstituencyGroupHasConstituencyArea = generateConstituencyArea(feature.geometry.rings);
+            }
+            return new IBaseOntology[] { constituency };
         }
 
-        private void generateConstituencyArea(IGraph graph, IGraph oldGraph, IUriNode subject, XDocument doc)
+        public override Dictionary<string, object> GetKeysFromSource(IBaseOntology[] deserializedSource)
         {
-            Uri constituencyAreaUri;
-            IUriNode constituencyAreaTypeNode = graph.CreateUriNode("parl:ConstituencyArea");
-            IUriNode rdfTypeNode = graph.CreateUriNode(new Uri(RdfSpecsHelper.RdfType));
-
-            logger.Verbose("Check constituency area");
-            IEnumerable<Triple> existingConstituencyArea = oldGraph.GetTriplesWithPredicateObject(rdfTypeNode, constituencyAreaTypeNode);
-            if ((existingConstituencyArea != null) && (existingConstituencyArea.Any()))
+            string constituencyGroupOnsCode = deserializedSource.OfType<IOnsConstituencyGroup>()
+                .SingleOrDefault()
+                .ConstituencyGroupOnsCode;
+            return new Dictionary<string, object>()
             {
-                constituencyAreaUri = ((IUriNode)existingConstituencyArea.SingleOrDefault().Subject).Uri;
-                logger.Verbose($"Found constituency area {constituencyAreaUri}");
-            }
-            else
-            {
-                string constituencyAreaId = new IdGenerator.IdMaker().MakeId();
-                constituencyAreaUri = new Uri(constituencyAreaId);
-                logger.Verbose($"New constituency area {constituencyAreaUri}");
-            }
-            IUriNode constituencyAreaNode = graph.CreateUriNode(constituencyAreaUri);
-
-            graph.Assert(constituencyAreaNode, rdfTypeNode, constituencyAreaTypeNode);
-            generateTriplePolygon(graph, constituencyAreaNode, doc);
-            graph.Assert(subject, graph.CreateUriNode("parl:constituencyGroupHasConstituencyArea"), constituencyAreaNode);
+                { "constituencyGroupOnsCode", constituencyGroupOnsCode }
+            };
         }
 
-        private void generateTriplePolygon(IGraph graph, IUriNode subject, XDocument doc)
+        public override IBaseOntology[] SynchronizeIds(IBaseOntology[] source, Uri subjectUri, IBaseOntology[] target)
         {
-            Uri dataTypeUri = new Uri("http://www.opengis.net/ont/geosparql#wktLiteral");
-            foreach (XElement polygon in doc.XPathSelectElements("root/features/geometry/rings"))
-            {
-                string longLat = string.Join(",", polygon.Elements("rings").Select(p => string.Join(" ", p.Elements("rings").Select(e => e.Value))));
-                INode objectNode = graph.CreateLiteralNode($"Polygon(({longLat}))", dataTypeUri);
-                graph.Assert(subject, graph.CreateUriNode("parl:constituencyAreaExtent"), objectNode);
-            }
+            IOnsConstituencyGroup constituency = source.OfType<IOnsConstituencyGroup>().SingleOrDefault();
+            constituency.SubjectUri = subjectUri;
+            IConstituencyArea constituencyArea = target.OfType<IConstituencyArea>().SingleOrDefault();
+            if ((constituencyArea != null) && (constituency.ConstituencyGroupHasConstituencyArea != null))
+                constituency.ConstituencyGroupHasConstituencyArea.SubjectUri = constituencyArea.SubjectUri;
+
+            return new IBaseOntology[] { constituency };
         }
+
+        private IConstituencyArea generateConstituencyArea(decimal[][][] rings)
+        {
+            IConstituencyArea constituencyArea = new ConstituencyArea();
+            constituencyArea.SubjectUri = GenerateNewId();
+            constituencyArea.ConstituencyAreaExtent = generateConstituencyAreaExtent(rings);
+            return constituencyArea;
+        }
+
+        private string[] generateConstituencyAreaExtent(decimal[][][] rings)
+        {
+            List<string> areas = new List<string>();
+            foreach (decimal[][] ring in rings)
+            {
+                string polygon = string.Join(",", ring.Select(longLat => $"{longLat[0]} {longLat[1]}"));
+                areas.Add($"Polygon(({polygon}))");
+            }
+            return areas.ToArray();
+        }
+
     }
 }

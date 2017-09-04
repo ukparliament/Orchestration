@@ -1,25 +1,45 @@
-﻿using System;
+﻿using Parliament.Ontology.Base;
+using Parliament.Ontology.Code;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Xml.Linq;
-using VDS.RDF;
-using VDS.RDF.Parsing;
 
 namespace Functions.TransformationPartyMnis
 {
     public class Transformation : BaseTransformation<Settings>
     {
-        public override IGraph GenerateNewGraph(XDocument doc, IGraph oldGraph, Uri subjectUri, Settings settings)
+        public override IBaseOntology[] TransformSource(string response)
         {
-            Graph result = new Graph();
-            result.NamespaceMap.AddNamespace("parl", new Uri(schemaNamespace));
+            IMnisParty party = new MnisParty();
+            XDocument doc = XDocument.Parse(response);
+            XNamespace d = "http://schemas.microsoft.com/ado/2007/08/dataservices";
+            XNamespace m = "http://schemas.microsoft.com/ado/2007/08/dataservices/metadata";
+            XElement element = doc.Descendants(m + "properties").SingleOrDefault();
 
-            logger.Verbose("Generate triples");
-            IUriNode subject = result.CreateUriNode(subjectUri);
-            IUriNode rdfTypeNode = result.CreateUriNode(new Uri(RdfSpecsHelper.RdfType));
-            //Party
-            result.Assert(subject, rdfTypeNode, result.CreateUriNode("parl:Party"));
-            TripleGenerator.GenerateTriple(result, subject, "parl:partyMnisId", doc, "atom:entry/atom:content/m:properties/d:Party_Id", settings.SourceXmlNamespaceManager);
-            TripleGenerator.GenerateTriple(result, subject, "parl:partyName", doc, "atom:entry/atom:content/m:properties/d:Name", settings.SourceXmlNamespaceManager);
-            return result;
+            party.PartyMnisId = element.Element(d + "Party_Id").GetText();
+            party.PartyName = element.Element(d + "Name").GetText();
+
+            return new IBaseOntology[] { party };
+        }
+
+        public override Dictionary<string, object> GetKeysFromSource(IBaseOntology[] deserializedSource)
+        {
+            string partyMnisId = deserializedSource.OfType<IMnisParty>()
+                .SingleOrDefault()
+                .PartyMnisId;
+            return new Dictionary<string, object>()
+            {
+                { "partyMnisId", partyMnisId }
+            };
+        }
+
+        public override IBaseOntology[] SynchronizeIds(IBaseOntology[] source, Uri subjectUri, IBaseOntology[] target)
+        {
+            IMnisParty party = source.OfType<IMnisParty>().SingleOrDefault();
+            party.SubjectUri = subjectUri;
+
+            return new IBaseOntology[] { party };
         }
     }
 }

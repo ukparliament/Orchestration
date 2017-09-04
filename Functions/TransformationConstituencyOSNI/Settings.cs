@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Xml;
-
-namespace Functions.TransformationConstituencyOSNI
+﻿namespace Functions.TransformationConstituencyOSNI
 {
     public class Settings : ITransformationSettings
     {
@@ -21,15 +18,6 @@ namespace Functions.TransformationConstituencyOSNI
             }
         }
 
-        public XmlNamespaceManager SourceXmlNamespaceManager
-        {
-            get
-            {
-                XmlNamespaceManager sourceXmlNamespaceManager = new XmlNamespaceManager(new NameTable());
-                return sourceXmlNamespaceManager;
-            }
-        }
-
         public string SubjectRetrievalSparqlCommand
         {
             get
@@ -39,20 +27,8 @@ namespace Functions.TransformationConstituencyOSNI
                 ?s a parl:ConstituencyGroup.
             }
             where{
-                ?s a parl:ConstituencyGroup; 
-                    parl:constituencyGroupOnsCode @constituencyGroupOnsCode.
+                ?s parl:constituencyGroupOnsCode @constituencyGroupOnsCode.
             }";
-            }
-        }
-
-        public Dictionary<string, string> SubjectRetrievalParameters
-        {
-            get
-            {
-                return new Dictionary<string, string>
-                {
-                    {"constituencyGroupOnsCode","root/features/attributes/PC_ID" }
-                };
             }
         }
 
@@ -70,20 +46,12 @@ namespace Functions.TransformationConstituencyOSNI
         }
         where {
             bind(@subject as ?constituencyGroup)
-            ?constituencyGroup a parl:ConstituencyGroup;
-                parl:constituencyGroupOnsCode ?constituencyGroupOnsCode;
-                parl:constituencyGroupHasConstituencyArea ?constituencyArea.
-            ?constituencyArea a parl:ConstituencyArea;
-                parl:constituencyAreaExtent ?constituencyAreaExtent.
-        }";
+            ?constituencyGroup parl:constituencyGroupOnsCode ?constituencyGroupOnsCode.
+            optional {
+                ?constituencyGroup parl:constituencyGroupHasConstituencyArea ?constituencyArea
+                optional {?constituencyArea parl:constituencyAreaExtent ?constituencyAreaExtent}
             }
-        }
-
-        public Dictionary<string, string> ExistingGraphSparqlParameters
-        {
-            get
-            {
-                return null;
+        }";
             }
         }
 

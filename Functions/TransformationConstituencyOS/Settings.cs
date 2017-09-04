@@ -1,10 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml;
 using VDS.RDF.Query;
 
 namespace Functions.TransformationConstituencyOS
@@ -27,21 +23,6 @@ namespace Functions.TransformationConstituencyOS
             }
         }
 
-        public XmlNamespaceManager SourceXmlNamespaceManager
-        {
-            get
-            {
-                XmlNamespaceManager sourceXmlNamespaceManager = new XmlNamespaceManager(new NameTable());
-                sourceXmlNamespaceManager.AddNamespace("admingeo", "http://data.ordnancesurvey.co.uk/ontology/admingeo/");
-                sourceXmlNamespaceManager.AddNamespace("rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#");
-                sourceXmlNamespaceManager.AddNamespace("owl", "http://www.w3.org/2002/07/owl#");
-                sourceXmlNamespaceManager.AddNamespace("geometry", "http://data.ordnancesurvey.co.uk/ontology/geometry/");
-                sourceXmlNamespaceManager.AddNamespace("rdfs", "http://www.w3.org/2000/01/rdf-schema#");
-                sourceXmlNamespaceManager.AddNamespace("wgs84", "http://www.w3.org/2003/01/geo/wgs84_pos#");
-                return sourceXmlNamespaceManager;
-            }
-        }
-
         public string SubjectRetrievalSparqlCommand
         {
             get
@@ -51,20 +32,8 @@ namespace Functions.TransformationConstituencyOS
                 ?s a parl:ConstituencyGroup.
             }
             where{
-                ?s a parl:ConstituencyGroup; 
-                    parl:constituencyGroupOnsCode @constituencyGroupOnsCode.
+                ?s parl:constituencyGroupOnsCode @constituencyGroupOnsCode.
             }";
-            }
-        }
-
-        public Dictionary<string, string> SubjectRetrievalParameters
-        {
-            get
-            {
-                return new Dictionary<string, string>()
-                {
-                    {"constituencyGroupOnsCode", "rdf:RDF/rdf:Description/admingeo:gssCode" }
-                };
             }
         }
 
@@ -84,13 +53,13 @@ namespace Functions.TransformationConstituencyOS
         }
         where {
             bind(@subject as ?constituencyGroup)
-            ?constituencyGroup a parl:ConstituencyGroup;
-                parl:constituencyGroupOnsCode ?constituencyGroupOnsCode;
-                parl:constituencyGroupHasConstituencyArea ?constituencyArea.
-            ?constituencyArea a parl:ConstituencyArea;
-                parl:constituencyAreaExtent ?constituencyAreaExtent;
-                parl:constituencyAreaLatitude ?constituencyAreaLatitude;
-                parl:constituencyAreaLongitude ?constituencyAreaLongitude.
+            ?constituencyGroup parl:constituencyGroupOnsCode ?constituencyGroupOnsCode.
+            optional {
+                ?constituencyGroup parl:constituencyGroupHasConstituencyArea ?constituencyArea.
+                optional {?constituencyArea parl:constituencyAreaExtent ?constituencyAreaExtent}
+                optional {?constituencyArea parl:constituencyAreaLatitude ?constituencyAreaLatitude}
+                optional {?constituencyArea parl:constituencyAreaLongitude ?constituencyAreaLongitude}
+            }
         }";
             }
         }

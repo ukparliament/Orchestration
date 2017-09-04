@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Xml;
-
-namespace Functions.TransformationEPetition
+﻿namespace Functions.TransformationEPetition
 {
     public class Settings : ITransformationSettings
     {
@@ -21,15 +18,6 @@ namespace Functions.TransformationEPetition
             }
         }
 
-        public XmlNamespaceManager SourceXmlNamespaceManager
-        {
-            get
-            {
-                XmlNamespaceManager sourceXmlNamespaceManager = new XmlNamespaceManager(new NameTable());
-                return sourceXmlNamespaceManager;
-            }
-        }
-
         public string SubjectRetrievalSparqlCommand
         {
             get
@@ -45,17 +33,6 @@ namespace Functions.TransformationEPetition
             }
         }
 
-        public Dictionary<string, string> SubjectRetrievalParameters
-        {
-            get
-            {
-                return new Dictionary<string, string>
-                {
-                    {"ePetitionUkgapId","root/data/id" }
-                };
-            }
-        }
-
         public string ExistingGraphSparqlCommand
         {
             get
@@ -64,10 +41,10 @@ namespace Functions.TransformationEPetition
             construct {
                 ?ePetition a parl:EPetition;
 		            parl:ePetitionUkgapId ?ePetitionUkgapId;
-	                parl:openedAt ?openedAt;
 	                parl:background ?background;
 	                parl:additionalDetails ?additionalDetails;
 	                parl:closedAt ?closedAt;
+                    parl:createdAt ?createdAt;
 	                parl:action ?action;
 	                parl:updatedAt ?updatedAt;
 	                parl:ePetitionHasGovernmentResponse ?governmentResponse;
@@ -90,22 +67,23 @@ namespace Functions.TransformationEPetition
                     parl:signatureCount ?signatureCount;
                     parl:signatureCountRetrievedAt ?signatureCountRetrievedAt;
                     parl:locatedSignatureCountHasPlace ?locatedSignatureCountHasPlace.
-                ?moderation a parl:Moderation; 
+                ?locatedSignatureCountHasPlace a parl:Place.
+                ?rejection a parl:Rejection; 
                     parl:rejectionHasRejectionCode ?rejectionCode ;
                     parl:rejectionDetails ?rejectionDetails ;
-                    parl:approvedAt ?approvedAt; 
                     parl:rejectedAt ?rejectedAt.
+                ?approval a parl:Approval; 
+                    parl:approvedAt ?approvedAt.
                 ?thresholdAttainment a parl:ThresholdAttainment;
                     parl:thresholdAttainmentAt ?thresholdAttainmentAt;
                     parl:thresholdAttainmentHasThreshold ?threshold.
             }
             where {
 	            bind(@subject as ?ePetition)
-	            ?ePetition a parl:EPetition;
-		            parl:ePetitionUkgapId ?ePetitionUkgapId.
-	            optional {?ePetition parl:openedAt ?openedAt}
+	            ?ePetition parl:ePetitionUkgapId ?ePetitionUkgapId.
 	            optional {?ePetition parl:background ?background}
 	            optional {?ePetition parl:additionalDetails ?additionalDetails}
+                optional {?ePetition parl:createdAt ?createdAt}
 	            optional {?ePetition parl:closedAt ?closedAt}
 	            optional {?ePetition parl:action ?action}
                 optional {?ePetition parl:updatedAt ?updatedAt}
@@ -143,11 +121,17 @@ namespace Functions.TransformationEPetition
                     }
                 }
                 optional {
-                    ?ePetition parl:ePetitionHasModeration ?moderation
-                    optional {?moderation parl:rejectedAt ?rejectedAt}
-                    optional {?moderation parl:approvedAt ?approvedAt}
-                    optional {?moderation parl:rejectionHasRejectionCode ?rejectionCode}
-                    optional {?moderation parl:rejectionDetails ?rejectionDetails}
+                    ?ePetition parl:ePetitionHasModeration ?moderation.
+                    optional {
+                        bind(?moderation as ?rejection)
+                        ?rejection parl:rejectedAt ?rejectedAt.
+                        optional {?rejection parl:rejectionHasRejectionCode ?rejectionCode}
+                        optional {?rejection parl:rejectionDetails ?rejectionDetails}
+                    }
+                    optional {
+                        bind(?moderation as ?approval)
+                        ?approval parl:approvedAt ?approvedAt.
+                    }
                 }
                 optional {
                     ?ePetition parl:ePetitionHasThresholdAttainment ?thresholdAttainment
@@ -155,14 +139,6 @@ namespace Functions.TransformationEPetition
                     optional {?thresholdAttainment parl:thresholdAttainmentHasThreshold ?threshold}
                 }
             }";
-            }
-        }
-
-        public Dictionary<string, string> ExistingGraphSparqlParameters
-        {
-            get
-            {
-                return null;
             }
         }
 

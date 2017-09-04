@@ -1,239 +1,261 @@
-﻿using System;
+﻿using Parliament.Ontology.Base;
+using Parliament.Ontology.Code;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Xml;
 using System.Xml.Linq;
-using System.Xml.XPath;
 using VDS.RDF;
-using VDS.RDF.Parsing;
 using VDS.RDF.Query;
 
 namespace Functions.TransformationMemberMnis
 {
-    public class Transformation :BaseTransformation<Settings>
+    public class Transformation : BaseTransformation<Settings>
     {
-        public override IGraph GenerateNewGraph(XDocument doc, IGraph oldGraph, Uri subjectUri, Settings settings)
+        private XNamespace atom = "http://www.w3.org/2005/Atom";
+        private XNamespace d = "http://schemas.microsoft.com/ado/2007/08/dataservices";
+        private XNamespace m = "http://schemas.microsoft.com/ado/2007/08/dataservices/metadata";
+
+        public override IBaseOntology[] TransformSource(string response)
         {
-            Graph result = new Graph();
-            result.NamespaceMap.AddNamespace("parl", new Uri(schemaNamespace));
-            result.NamespaceMap.AddNamespace("ex", new Uri("http://example.com/"));
+            IMember member = new Member();
+            XDocument doc = XDocument.Parse(response);
+            XElement personElement = doc.Element(atom + "entry")
+                .Element(atom + "content")
+                .Element(m + "properties");
 
-            logger.Verbose("Generate triples");
-            IUriNode subject = result.CreateUriNode(subjectUri);
-            IUriNode rdfTypeNode = result.CreateUriNode(new Uri(RdfSpecsHelper.RdfType));
-            //Person
-            result.Assert(subject, rdfTypeNode, result.CreateUriNode("parl:Person"));
-            TripleGenerator.GenerateTriple(result, subject, "parl:personDateOfBirth", doc, "atom:entry/atom:content/m:properties/d:DateOfBirth", settings.SourceXmlNamespaceManager, "xsd:date");
-            TripleGenerator.GenerateTriple(result, subject, "parl:personGivenName", doc, "atom:entry/atom:content/m:properties/d:Forename", settings.SourceXmlNamespaceManager);
-            TripleGenerator.GenerateTriple(result, subject, "parl:personOtherNames", doc, "atom:entry/atom:content/m:properties/d:MiddleNames", settings.SourceXmlNamespaceManager);
-            TripleGenerator.GenerateTriple(result, subject, "parl:personFamilyName", doc, "atom:entry/atom:content/m:properties/d:Surname", settings.SourceXmlNamespaceManager);
-            TripleGenerator.GenerateTriple(result, subject, "ex:F31CBD81AD8343898B49DC65743F0BDF", doc, "atom:entry/atom:content/m:properties/d:NameDisplayAs", settings.SourceXmlNamespaceManager);
-            TripleGenerator.GenerateTriple(result, subject, "ex:A5EE13ABE03C4D3A8F1A274F57097B6C", doc, "atom:entry/atom:content/m:properties/d:NameListAs", settings.SourceXmlNamespaceManager);
-            TripleGenerator.GenerateTriple(result, subject, "ex:D79B0BAC513C4A9A87C9D5AFF1FC632F", doc, "atom:entry/atom:content/m:properties/d:NameFullTitle", settings.SourceXmlNamespaceManager);
-            TripleGenerator.GenerateTriple(result, subject, "parl:personPimsId", doc, "atom:entry/atom:content/m:properties/d:Pims_Id", settings.SourceXmlNamespaceManager);
-            TripleGenerator.GenerateTriple(result, subject, "parl:personDodsId", doc, "atom:entry/atom:content/m:properties/d:Dods_Id", settings.SourceXmlNamespaceManager);
+            member.PersonDateOfBirth = personElement.Element(d + "DateOfBirth").GetDate();
+            member.PersonGivenName = personElement.Element(d + "Forename").GetText();
+            member.PersonOtherNames = personElement.Element(d + "MiddleNames").GetText();
+            member.PersonFamilyName = personElement.Element(d + "Surname").GetText();
+            IMnisPerson mnisPerson = new MnisPerson();
+            mnisPerson.PersonMnisId = personElement.Element(d + "Member_Id").GetText();
+            IDodsPerson dodsPerson = new DodsPerson();
+            dodsPerson.PersonDodsId = personElement.Element(d + "Dods_Id").GetText();
+            IPimsPerson pimsPerson = new PimsPerson();
+            pimsPerson.PersonPimsId = personElement.Element(d + "Pims_Id").GetText();
+            IDeceasedPerson deceasedPerson = new DeceasedPerson();
+            deceasedPerson.PersonDateOfDeath = personElement.Element(d + "DateOfDeath").GetDate();
+            IPartyMember partyMember = new PartyMember();
+            partyMember.PartyMemberHasPartyMembership = generatePartyMembership(doc).ToArray();
 
-            //DeceasedPerson
-            TripleGenerator.GenerateTriple(result, subject, "parl:personDateOfDeath", doc, "atom:entry/atom:content/m:properties/d:DateOfDeath", settings.SourceXmlNamespaceManager, "xsd:date");
-            //MnisPerson
-            TripleGenerator.GenerateTriple(result, subject, "parl:personMnisId", doc, "atom:entry/atom:content/m:properties/d:Member_Id", settings.SourceXmlNamespaceManager);
-            //GenderIdentity
-            XElement genderElement = doc.XPathSelectElement("atom:entry/atom:content/m:properties/d:Gender", settings.SourceXmlNamespaceManager);
-            string genderMnisId=null;
-            if ((genderElement != null) && (string.IsNullOrWhiteSpace(genderElement.Value) == false))
-                genderMnisId = genderElement.Value;
-            generateTripleGenderIdentity(result, oldGraph, subject, genderMnisId);
-            //Incumbency
-            generateTripleIncumbency(result, oldGraph, subject, doc, settings.SourceXmlNamespaceManager);
-            //Party membership
-            generateTriplePartyMembership(result, oldGraph, subject, doc, settings.SourceXmlNamespaceManager);
+            string currentGenderText = personElement.Element(d + "Gender").GetText();
+            if (string.IsNullOrWhiteSpace(currentGenderText) == false)
+            {
+                IGenderIdentity genderIdentity = generateGenderIdentity(currentGenderText);
+                member.PersonHasGenderIdentity = new IGenderIdentity[] { genderIdentity };
+            }
 
-            return result;
+            List<IIncumbency> incumbencies = new List<IIncumbency>();
+            string house = personElement.Element(d + "House").GetText();
+            if (house == "Lords")
+                incumbencies.AddRange(generateHouseIncumbencies(doc));
+            incumbencies.AddRange(generateSeatIncumbencies(doc));
+            member.MemberHasIncumbency = incumbencies.ToArray();
+
+            return new IBaseOntology[] { member, mnisPerson, dodsPerson, pimsPerson, deceasedPerson, partyMember };
         }
 
-        private void generateTripleGenderIdentity(IGraph graph, IGraph oldGraph, IUriNode subject, string genderMnisId)
+        public override Dictionary<string, object> GetKeysFromSource(IBaseOntology[] deserializedSource)
         {
-            Uri genderIdentityUri;
-            IUriNode genderIdenitytTypeNode = graph.CreateUriNode("parl:GenderIdentity");
-            IUriNode rdfTypeNode = graph.CreateUriNode(new Uri(RdfSpecsHelper.RdfType));
-
-            logger.Verbose("Check gender identity");
-            IEnumerable<Triple> existingGenderIdentity = oldGraph.GetTriplesWithPredicateObject(rdfTypeNode, genderIdenitytTypeNode);
-            if ((existingGenderIdentity != null) && (existingGenderIdentity.Any()))
+            string personMnisId = deserializedSource.OfType<IMnisPerson>()
+                .SingleOrDefault()
+                .PersonMnisId;
+            return new Dictionary<string, object>()
             {
-                genderIdentityUri = ((IUriNode)existingGenderIdentity.SingleOrDefault().Subject).Uri;
-                logger.Verbose($"Found gender identity {genderIdentityUri}");
-            }
-            else
-            {
-                string genderIdentityId = new IdGenerator.IdMaker().MakeId();
-                genderIdentityUri = new Uri(genderIdentityId);
-                logger.Verbose($"New gender identity {genderIdentityUri}");
-            }
-            IUriNode genderIdentityNode = graph.CreateUriNode(genderIdentityUri);
-
-            graph.Assert(genderIdentityNode, rdfTypeNode, genderIdenitytTypeNode);
-            graph.Assert(genderIdentityNode, graph.CreateUriNode("parl:genderIdentityHasPerson"), subject);
-            generateTripleGender(graph, oldGraph, genderIdentityNode, genderMnisId);
+                { "personMnisId", personMnisId }
+            };
         }
 
-        private void generateTripleGender(IGraph graph, IGraph oldGraph, IUriNode subject, string genderMnisId)
+        public override Dictionary<string, object> GetKeysForTarget(IBaseOntology[] deserializedSource)
         {
-            Uri genderUri;
-            IUriNode genderPredicateNode = graph.CreateUriNode("parl:genderIdentityHasGender");
+            Uri genderUri = deserializedSource.OfType<IMember>()
+                .SingleOrDefault()
+                .PersonHasGenderIdentity
+                .SingleOrDefault()
+                .GenderIdentityHasGender
+                .SubjectUri;
+            return new Dictionary<string, object>()
+            {
+                { "gender", genderUri }
+            };
+        }
 
-            logger.Verbose($"Check gender");
-            IEnumerable<Triple> existingGender = oldGraph.GetTriplesWithSubjectPredicate(subject, genderPredicateNode);
-            if ((existingGender != null) && (existingGender.Any()))
+        public override IBaseOntology[] SynchronizeIds(IBaseOntology[] source, Uri subjectUri, IBaseOntology[] target)
+        {
+            IMember member = source.OfType<IMember>().SingleOrDefault();
+            if ((member.PersonHasGenderIdentity != null) && (member.PersonHasGenderIdentity.Any()))
             {
-                genderUri = ((IUriNode)existingGender.SingleOrDefault().Object).Uri;
-                logger.Verbose($"Found gender {genderUri}");
+                IGenderIdentity genderIdentity = target.OfType<IGenderIdentity>().SingleOrDefault();
+                if (genderIdentity != null)
+                    member.PersonHasGenderIdentity.SingleOrDefault().SubjectUri = genderIdentity.SubjectUri;
             }
-            else
+            if ((member.MemberHasIncumbency != null) && (member.MemberHasIncumbency.Any()))
             {
-                genderUri = IdRetrieval.GetSubject("Gender", "genderMnisId", genderMnisId, false, logger);
-                if (genderUri == null)
+                IEnumerable<IIncumbency> incumbencies = target.OfType<IIncumbency>();
+                if ((incumbencies != null) && (incumbencies.Any()))
                 {
-                    throw new Exception($"{subject.Uri}: Could not found gender for {genderMnisId}");
+                    foreach (IIncumbency incumbency in member.MemberHasIncumbency.Where(i => i.IncumbencyStartDate != null))
+                    {
+                        IIncumbency foundIncumbency = incumbencies.SingleOrDefault(h => h.IncumbencyStartDate == incumbency.IncumbencyStartDate);
+                        if (foundIncumbency != null)
+                        {
+                            IIncumbency[] matchedIncumbencies = member.MemberHasIncumbency.Where(i => i.SubjectUri == incumbency.SubjectUri).ToArray();
+                            foreach (IIncumbency newIncumbency in matchedIncumbencies)
+                                newIncumbency.SubjectUri = foundIncumbency.SubjectUri;
+                        }
+                    }
                 }
             }
-            graph.Assert(subject, genderPredicateNode, graph.CreateUriNode(genderUri));
+            IPartyMember partyMember = source.OfType<IPartyMember>().SingleOrDefault();
+            if ((partyMember.PartyMemberHasPartyMembership != null) && (partyMember.PartyMemberHasPartyMembership.Any()))
+            {
+                partyMember.PartyMemberHasPartyMembership = partyMember.PartyMemberHasPartyMembership.ToArray();
+                IEnumerable<IPartyMembership> partyMemberships = target.OfType<IPartyMembership>();
+                if ((partyMemberships != null) && (partyMemberships.Any()))
+                {
+                    foreach (IPartyMembership partyMembership in partyMember.PartyMemberHasPartyMembership)
+                    {
+                        IPartyMembership foundPartyMembership = partyMemberships.SingleOrDefault(h => h.PartyMembershipStartDate == partyMembership.PartyMembershipStartDate);
+                        if (foundPartyMembership != null)
+                            partyMembership.SubjectUri = partyMemberships.SingleOrDefault(h => h.PartyMembershipStartDate == partyMembership.PartyMembershipStartDate).SubjectUri;
+                    }
+                }
+            }
+            foreach (IPerson person in source.OfType<IPerson>())
+                person.SubjectUri = subjectUri;
+            return source.OfType<IPerson>().ToArray();
         }
 
-        private void generateTripleIncumbency(IGraph graph, IGraph oldGraph, IUriNode subject, XDocument doc, XmlNamespaceManager xmlNamespaceManager)
+        public override IGraph AlterNewGraph(IGraph newGraph, Uri subjectUri, string response)
         {
-            XElement lordsType;
-            XElement startDateElement;
-            XElement endDateElement;
-            IUriNode incumbencyNode;
-            HashSet<string> dates = new HashSet<string>();
-            string seatCommand = @"
+            XDocument doc = XDocument.Parse(response);
+            XElement personElement = doc.Element(atom + "entry")
+                .Element(atom + "content")
+                .Element(m + "properties");
+
+            string value = personElement.Element(d + "NameDisplayAs").GetText();
+            if (string.IsNullOrWhiteSpace(value)==false)
+                newGraph.Assert(newGraph.CreateUriNode(subjectUri), newGraph.CreateUriNode(new Uri("http://example.com/F31CBD81AD8343898B49DC65743F0BDF")), newGraph.CreateLiteralNode(value));
+            value = personElement.Element(d + "NameListAs").GetText();
+            if (string.IsNullOrWhiteSpace(value) == false)
+                newGraph.Assert(newGraph.CreateUriNode(subjectUri), newGraph.CreateUriNode(new Uri("http://example.com/A5EE13ABE03C4D3A8F1A274F57097B6C")), newGraph.CreateLiteralNode(value));
+            value = personElement.Element(d + "NameFullTitle").GetText();
+            if (string.IsNullOrWhiteSpace(value) == false)
+                newGraph.Assert(newGraph.CreateUriNode(subjectUri), newGraph.CreateUriNode(new Uri("http://example.com/D79B0BAC513C4A9A87C9D5AFF1FC632F")), newGraph.CreateLiteralNode(value));
+
+            return newGraph;
+        }
+
+        private IEnumerable<IIncumbency> generateSeatIncumbencies(XDocument doc)
+        {
+            IEnumerable<XElement> memberIncumbenciesElements = doc.Element(atom + "entry")
+                    .Elements(atom + "link")
+                    .Where(e => e.Attribute("title").Value == "MemberConstituencies")
+                    .SingleOrDefault()
+                    .Element(m + "inline")
+                    .Element(atom + "feed")
+                    .Elements(atom + "entry");
+            foreach (XElement element in memberIncumbenciesElements)
+            {
+                XElement seatIncumbencyElement = element.Element(atom + "content").Element(m + "properties");
+                IPastIncumbency incumbency = new PastIncumbency();
+                incumbency.SubjectUri = GenerateNewId();
+                incumbency.IncumbencyStartDate = seatIncumbencyElement.Element(d + "StartDate").GetDate();
+                incumbency.IncumbencyEndDate = seatIncumbencyElement.Element(d + "EndDate").GetDate();
+                ISeatIncumbency seatIncumbency = new SeatIncumbency();                
+                seatIncumbency.SubjectUri = incumbency.SubjectUri;
+                IParliamentPeriod parliamentPeriod = generateSeatIncumbencyParliamentPeriod(incumbency.IncumbencyStartDate.Value, incumbency.IncumbencyEndDate);
+                if (parliamentPeriod != null)
+                    seatIncumbency.SeatIncumbencyHasParliamentPeriod = new IParliamentPeriod[] { parliamentPeriod };
+
+                XElement constituencyElement = element.Elements(atom + "link")
+                    .Where(e => e.Attribute("title").Value == "Constituency")
+                    .SingleOrDefault()
+                    .Element(m + "inline")
+                    .Element(atom + "entry")
+                    .Element(atom + "content")
+                    .Element(m + "properties")
+                    .Element(d + "Constituency_Id");
+                string houseSeatCommand = @"
         construct {
         	?id a parl:HouseSeat.
         }
         where {
-        	?id a parl:HouseSeat;
-        		parl:houseSeatHasConstituencyGroup ?houseSeatHasConstituencyGroup.
+        	?id parl:houseSeatHasConstituencyGroup ?houseSeatHasConstituencyGroup.
         	?houseSeatHasConstituencyGroup parl:constituencyGroupMnisId @constituencyGroupMnisId.
         }";
-            IUriNode rdfTypeNode = graph.CreateUriNode(new Uri(RdfSpecsHelper.RdfType));
-            IUriNode dataTypeUri = graph.CreateUriNode("xsd:date");
-            IUriNode housePredicateNode = graph.CreateUriNode("parl:houseIncumbencyHasHouse");
-            IUriNode incumbencyTypePredicateNode = graph.CreateUriNode("parl:houseIncumbencyHasHouseIncumbencyType");
-
-            XElement house = doc.XPathSelectElement("atom:entry/atom:content/m:properties/d:House", xmlNamespaceManager);
-            if (house.Value == "Lords")
-            {
-                foreach (XElement element in doc.XPathSelectElements($"atom:entry/atom:link[@title='MemberLordsMembershipTypes']/m:inline/atom:feed/atom:entry", xmlNamespaceManager))
+                if ((constituencyElement != null) && (string.IsNullOrWhiteSpace(constituencyElement.Value) == false))
                 {
-                    lordsType = element.XPathSelectElement("atom:content/m:properties/d:LordsMembershipType_Id", xmlNamespaceManager);
-                    startDateElement = element.XPathSelectElement("atom:content/m:properties/d:StartDate", xmlNamespaceManager);
-                    endDateElement = element.XPathSelectElement("atom:content/m:properties/d:EndDate", xmlNamespaceManager);
-                    if (dates.Contains(startDateElement.Value) == true)
-                    {
-                        logger.Verbose($"Duplicate incumbency ({startDateElement.Value})");
-                        continue;
-                    }
-                    dates.Add(startDateElement.Value);
-                    if ((string.IsNullOrWhiteSpace(endDateElement.Value)) ||
-                        (Convert.ToDateTime(startDateElement.Value) <= Convert.ToDateTime(endDateElement.Value)))
-                    {
-                        logger.Verbose($"House incumbency ({startDateElement.Value})");
-                        incumbencyNode = generateIncumbency(graph, oldGraph, subject, startDateElement, endDateElement);
-                        IEnumerable<Triple> existingHouses = oldGraph.GetTriplesWithSubjectPredicate(incumbencyNode, housePredicateNode);
-                        Uri houseUri = null;
-                        if ((existingHouses != null) && (existingHouses.Any()))
-                        {
-                            houseUri = ((IUriNode)existingHouses.SingleOrDefault().Object).Uri;
-                        }
-                        else
-                        {
-                            houseUri = IdRetrieval.GetSubject("House", "houseName", "House of Lords", false, logger);
-                        }
-                        IEnumerable<Triple> existingTypes = oldGraph.GetTriplesWithSubjectPredicate(incumbencyNode, incumbencyTypePredicateNode);
-                        Uri incumbencyTypeUri = null;
-                        if ((existingTypes != null) && (existingTypes.Any()))
-                        {
-                            incumbencyTypeUri = ((IUriNode)existingTypes.SingleOrDefault().Object).Uri;
-                        }
-                        else
-                        {
-                            incumbencyTypeUri = IdRetrieval.GetSubject("HouseIncumbencyType", "houseIncumbencyTypeMnisId", lordsType.Value, false, logger);
-                        }
-                        graph.Assert(incumbencyNode, housePredicateNode, graph.CreateUriNode(houseUri));
-                        graph.Assert(incumbencyNode, incumbencyTypePredicateNode, graph.CreateUriNode(incumbencyTypeUri));
-                    }
-                }
-            }
-
-            foreach (XElement element in doc.XPathSelectElements("atom:entry/atom:link[@title='MemberConstituencies']/m:inline/atom:feed/atom:entry", xmlNamespaceManager))
-            {
-                startDateElement = element.XPathSelectElement("atom:content/m:properties/d:StartDate", xmlNamespaceManager);
-                logger.Verbose($"Seat incumbency ({startDateElement.Value})");
-                endDateElement = element.XPathSelectElement("atom:content/m:properties/d:EndDate", xmlNamespaceManager);
-                incumbencyNode = generateIncumbency(graph, oldGraph, subject, startDateElement, endDateElement);
-                bool hasEndDate = (endDateElement != null && string.IsNullOrWhiteSpace(endDateElement.Value) == false);
-                generateSeatIncumbencyParliamentPeriod(graph, incumbencyNode, startDateElement, endDateElement);
-                logger.Verbose($"Check seat ({startDateElement.Value})");
-                Uri houseSeatUri;
-                XElement constituencyElement = element.XPathSelectElement("atom:link[@title='Constituency']/m:inline/atom:entry/atom:content/m:properties", xmlNamespaceManager);
-                if (constituencyElement != null)
-                {
-                    string constituencyId = constituencyElement.XPathSelectElement("d:Constituency_Id", xmlNamespaceManager).Value;
-                    SparqlParameterizedString seatSparql = new SparqlParameterizedString(seatCommand);
+                    SparqlParameterizedString seatSparql = new SparqlParameterizedString(houseSeatCommand);
                     seatSparql.Namespaces.AddNamespace("parl", new Uri(schemaNamespace));
-                    seatSparql.SetLiteral("constituencyGroupMnisId", constituencyId);
-                    houseSeatUri = IdRetrieval.GetSubject(seatSparql.ToString(), false, logger);
+                    seatSparql.SetLiteral("constituencyGroupMnisId", constituencyElement.Value);
+                    Uri houseSeatUri = IdRetrieval.GetSubject(seatSparql.ToString(), false, logger);
                     if (houseSeatUri != null)
-                    {
-                        logger.Verbose($"House seat ({startDateElement.Value})");
-                        graph.Assert(incumbencyNode, graph.CreateUriNode("parl:seatIncumbencyHasHouseSeat"), graph.CreateUriNode(houseSeatUri));
-                    }
+                        seatIncumbency.SeatIncumbencyHasHouseSeat = new HouseSeat()
+                        {
+                            SubjectUri = houseSeatUri
+                        };
+                }
+                yield return incumbency;
+                yield return seatIncumbency;
+            }
+        }
+
+        private IEnumerable<IIncumbency> generateHouseIncumbencies(XDocument doc)
+        {
+            HashSet<DateTimeOffset> dates = new HashSet<DateTimeOffset>();
+            Uri houseUri = IdRetrieval.GetSubject("houseName", "House of Lords", false, logger);
+            IEnumerable<XElement> lordsIncumbenciesElements = doc.Element(atom + "entry")
+                    .Elements(atom + "link")
+                    .Where(e => e.Attribute("title").Value == "MemberLordsMembershipTypes")
+                    .SingleOrDefault()
+                    .Element(m + "inline")
+                    .Element(atom + "feed")
+                    .Elements(atom + "entry");
+            Dictionary<string, string> incumbencyTypes = IdRetrieval.GetSubjectsDictionary("houseIncumbencyTypeMnisId", logger);
+            foreach (XElement element in lordsIncumbenciesElements)
+            {
+                XElement lordIncumbencyElement = element.Element(atom + "content").Element(m + "properties");
+                IPastIncumbency incumbency = new PastIncumbency();
+                incumbency.SubjectUri = GenerateNewId();
+                incumbency.IncumbencyStartDate = lordIncumbencyElement.Element(d + "StartDate").GetDate();
+                incumbency.IncumbencyEndDate = lordIncumbencyElement.Element(d + "EndDate").GetDate();
+                if (((incumbency.IncumbencyEndDate.HasValue == false) || (incumbency.IncumbencyStartDate <= incumbency.IncumbencyEndDate)) &&
+                    (dates.Contains(incumbency.IncumbencyStartDate.Value) == false))
+                {
+                    dates.Add(incumbency.IncumbencyStartDate.Value);
+                    string houseIncumbencyTypeMnisId = lordIncumbencyElement.Element(d + "LordsMembershipType_Id").GetText();
+                    IHouseIncumbency houseIncumbency = new HouseIncumbency();
+                    houseIncumbency.SubjectUri = incumbency.SubjectUri;
+                    if (incumbencyTypes.ContainsKey(houseIncumbencyTypeMnisId))
+                        houseIncumbency.HouseIncumbencyHasHouseIncumbencyType = new HouseIncumbencyType()
+                        {
+                            SubjectUri = new Uri(incumbencyTypes[houseIncumbencyTypeMnisId])
+                        };
+                    houseIncumbency.HouseIncumbencyHasHouse = new House() { SubjectUri = houseUri };
+                    yield return incumbency;
+                    yield return houseIncumbency;
                 }
             }
         }
 
-        private IUriNode generateIncumbency(IGraph graph, IGraph oldGraph, IUriNode subject, XElement startDateElement, XElement endDateElement)
+        private IGenderIdentity generateGenderIdentity(string currentGenderText)
         {
-            IUriNode dataTypeNode = graph.CreateUriNode("xsd:date");
-            IUriNode rdfTypeNode = graph.CreateUriNode(new Uri(RdfSpecsHelper.RdfType));
-            string startDate = giveMeDatePart(startDateElement);
-            string endDate = giveMeDatePart(endDateElement);
-            INode startDateNode = graph.CreateLiteralNode(startDate, dataTypeNode.Uri);
-            IUriNode startDatePredicate = graph.CreateUriNode("parl:incumbencyStartDate");
-
-            IEnumerable<Triple> existingIncumbencies = oldGraph.GetTriplesWithPredicateObject(startDatePredicate, startDateNode);
-            Uri incumbencyUri = null;
-            if ((existingIncumbencies != null) && (existingIncumbencies.Any()))
-            {
-                incumbencyUri = ((IUriNode)existingIncumbencies.SingleOrDefault().Subject).Uri;
-                logger.Verbose($"Found incumbency {incumbencyUri} ({startDateElement.Value})");
-            }
-            else
-            {
-                string incumbencyId = new IdGenerator.IdMaker().MakeId();
-                incumbencyUri = new Uri(incumbencyId);
-                logger.Verbose($"New incumbency {incumbencyUri} ({startDateElement.Value})");
-            }
-            IUriNode incumbencyNode = graph.CreateUriNode(incumbencyUri);
-            graph.Assert(incumbencyNode, rdfTypeNode, graph.CreateUriNode("parl:Incumbency"));
-            graph.Assert(incumbencyNode, graph.CreateUriNode("parl:incumbencyHasMember"), subject);
-            graph.Assert(incumbencyNode, startDatePredicate, startDateNode);
-            if (string.IsNullOrWhiteSpace(endDate) == false)
-                graph.Assert(incumbencyNode, graph.CreateUriNode("parl:incumbencyEndDate"), graph.CreateLiteralNode(endDate, dataTypeNode.Uri));
-
-            return incumbencyNode;
+            IGenderIdentity genderIdentity = new GenderIdentity();
+            IGender gender = new Gender();
+            genderIdentity.SubjectUri = GenerateNewId();
+            gender.SubjectUri = IdRetrieval.GetSubject("genderMnisId", currentGenderText, false, logger);
+            genderIdentity.GenderIdentityHasGender = gender;
+            return genderIdentity;
         }
 
-        private void generateSeatIncumbencyParliamentPeriod(IGraph graph, IUriNode seatIncumbency, XElement startDateElement, XElement endDateElement)
+        private IParliamentPeriod generateSeatIncumbencyParliamentPeriod(DateTimeOffset startDate, DateTimeOffset? endDate)
         {
-            IUriNode dataTypeNode = graph.CreateUriNode("xsd:date");
             string sparqlCommand = @"
         construct {
             ?parliamentPeriod a parl:ParliamentPeriod.
         }where { 
-            ?parliamentPeriod a parl:ParliamentPeriod;
-                parl:parliamentPeriodStartDate ?parliamentPeriodStartDate.
+            ?parliamentPeriod parl:parliamentPeriodStartDate ?parliamentPeriodStartDate.
             optional {?parliamentPeriod parl:parliamentPeriodEndDate ?parliamentPeriodEndDate}
             filter ((?parliamentPeriodStartDate<=@startDate && ?parliamentPeriodEndDate>=@startDate) ||
     	            (?parliamentPeriodStartDate<=@endDate && ?parliamentPeriodEndDate>=@endDate) ||
@@ -242,84 +264,68 @@ namespace Functions.TransformationMemberMnis
         }";
             SparqlParameterizedString sparql = new SparqlParameterizedString(sparqlCommand);
             sparql.Namespaces.AddNamespace("parl", new Uri(schemaNamespace));
-            string startDate = giveMeDatePart(startDateElement);
-            string endDate = giveMeDatePart(endDateElement);
-            sparql.SetLiteral("startDate", startDate, dataTypeNode.Uri);
-            sparql.SetLiteral("endDate", endDate??string.Empty, dataTypeNode.Uri);
-            sparql.SetLiteral("hasEndDate", string.IsNullOrWhiteSpace(endDate)==false);
-            Uri parliamentPeriodUri = IdRetrieval.GetSubject(sparql.ToString(), false, logger);
+            sparql.SetLiteral("startDate", startDate.ToString("yyyy-MM-dd"), new Uri("http://www.w3.org/2001/XMLSchema#date"));
+            sparql.SetLiteral("endDate", endDate.HasValue ? endDate.Value.ToString("yyyy-MM-dd") : string.Empty, new Uri("http://www.w3.org/2001/XMLSchema#date"));
+            sparql.SetLiteral("hasEndDate", endDate.HasValue);
+            Uri parliamentPeriodUri = null;
+            try
+            {
+                parliamentPeriodUri = IdRetrieval.GetSubject(sparql.ToString(), false, logger);
+            }
+            catch (InvalidOperationException e)
+            {
+                if (e.Message == "Sequence contains more than one element")
+                    logger.Warning($"More than one parliamentary period found for incumbency {startDate}-{endDate}");
+                else
+                    logger.Exception(e);
+            }
             if (parliamentPeriodUri != null)
             {
-                logger.Verbose($"Parliament period seat ({startDate})");
-                graph.Assert(seatIncumbency, graph.CreateUriNode("parl:seatIncumbencyHasParliamentPeriod"), graph.CreateUriNode(parliamentPeriodUri));
+                return new ParliamentPeriod()
+                {
+                    SubjectUri = parliamentPeriodUri
+                };
             }
-        }
-
-        private string giveMeDatePart(XElement element)
-        {
-            if ((element == null) || (string.IsNullOrWhiteSpace(element.Value)))
+            else
                 return null;
-            string date = element.Value;
-            if (date.IndexOf("T") > 0)
-                date = date.Substring(0, date.IndexOf("T"));
-            return date;
         }
 
-        private void generateTriplePartyMembership(IGraph graph, IGraph oldGraph, IUriNode subject, XDocument doc, XmlNamespaceManager namespaceManager)
+        private IEnumerable<IPartyMembership> generatePartyMembership(XDocument doc)
         {
-            Uri partyUri = null;
-            IUriNode partyMembershipNode = null;
-            IUriNode rdfTypeNode = graph.CreateUriNode(new Uri(RdfSpecsHelper.RdfType));
-            IUriNode startDatePredicate = graph.CreateUriNode("parl:partyMembershipStartDate");
-            IUriNode endDatePredicate = graph.CreateUriNode("parl:partyMembershipEndDate");
-            IUriNode hasPartyPredicate = graph.CreateUriNode("parl:partyMembershipHasParty");
-
-            foreach (XElement element in doc.XPathSelectElements("atom:entry/atom:link[@title='MemberParties']/m:inline/atom:feed/atom:entry", namespaceManager))
+            IEnumerable<XElement> memberPartiesElements = doc.Element(atom + "entry")
+                    .Elements(atom + "link")
+                    .Where(e => e.Attribute("title").Value == "MemberParties")
+                    .SingleOrDefault()
+                    .Element(m + "inline")
+                    .Element(atom + "feed")
+                    .Elements(atom + "entry");
+            Dictionary<string, Uri> partyIds = new Dictionary<string, Uri>();
+            foreach (XElement element in memberPartiesElements)
             {
-                XElement partyElement = element.XPathSelectElement("atom:content/m:properties/d:Party_Id", namespaceManager);
-                logger.Verbose($"Party membership ({partyElement.Value})");
-                XElement startDateElement = element.XPathSelectElement("atom:content/m:properties/d:StartDate", namespaceManager);
-                XElement endDateElement = element.XPathSelectElement("atom:content/m:properties/d:EndDate", namespaceManager);
-
-
-                string startDate = giveMeDatePart(startDateElement);
-                string endDate = giveMeDatePart(endDateElement);
-                IUriNode dataTypeUri = graph.CreateUriNode("xsd:date");
-
-                partyUri = IdRetrieval.GetSubject("Party", "partyMnisId", partyElement.Value, false, logger);
-                if (partyUri == null)
-                {
-                    logger.Verbose($"Party not found ({partyElement.Value})");
-                    continue;
-                }
-                INode startDateNode = graph.CreateLiteralNode(startDate, dataTypeUri.Uri);
-                IUriNode hasPartyNode = graph.CreateUriNode(partyUri);
-                IEnumerable<Triple> existingMembershipByDate = oldGraph.GetTriplesWithPredicateObject(startDatePredicate, startDateNode);
-                partyMembershipNode = null;
-                if ((existingMembershipByDate != null) && (existingMembershipByDate.Any()))
-                {
-                    IEnumerable<Triple> existingMembershipByParty = oldGraph.GetTriplesWithPredicateObject(hasPartyPredicate, hasPartyNode);
-                    if ((existingMembershipByParty != null) && (existingMembershipByParty.Any()))
+                IPastPartyMembership partyMembership = new PastPartyMembership();
+                partyMembership.SubjectUri = GenerateNewId();
+                XElement partyElement = element.Element(atom + "content").Element(m + "properties");
+                string partyId = partyElement.Element(d + "Party_Id").GetText();
+                if (partyIds.ContainsKey(partyId))
+                    partyMembership.PartyMembershipHasParty = new Party()
                     {
-                        IEnumerable<IUriNode> subjectsByDate = existingMembershipByDate.Select(t => (IUriNode)t.Subject);
-                        IEnumerable<IUriNode> subjectsByParty = existingMembershipByParty.Select(t => (IUriNode)t.Subject);
-                        partyMembershipNode = subjectsByDate.Intersect(subjectsByParty).SingleOrDefault();
-                    }
-                }
-                if (partyMembershipNode == null)
-                {
-                    string partyMembershipId = new IdGenerator.IdMaker().MakeId();
-                    partyMembershipNode = graph.CreateUriNode(new Uri(partyMembershipId));
-                    logger.Verbose($"New party membership {partyMembershipNode.Uri} ({partyElement.Value})");
-                }
+                        SubjectUri = partyIds[partyId]
+                    };
                 else
-                    logger.Verbose($"Found existing party membership {partyMembershipNode.Uri} ({partyElement.Value})");
-                graph.Assert(partyMembershipNode, rdfTypeNode, graph.CreateUriNode("parl:PartyMembership"));
-                graph.Assert(partyMembershipNode, graph.CreateUriNode("parl:partyMembershipHasPartyMember"), subject);
-                graph.Assert(partyMembershipNode, graph.CreateUriNode("parl:partyMembershipHasParty"), graph.CreateUriNode(partyUri));
-                graph.Assert(partyMembershipNode, startDatePredicate, startDateNode);
-                if (string.IsNullOrWhiteSpace(endDate) == false)
-                    graph.Assert(partyMembershipNode, endDatePredicate, graph.CreateLiteralNode(endDate, dataTypeUri.Uri));
+                {
+                    Uri partyUri = IdRetrieval.GetSubject("partyMnisId", partyId, false, logger);
+                    if (partyUri == null)
+                        continue;
+                    partyMembership.PartyMembershipHasParty = new Party()
+                    {
+                        SubjectUri = partyUri
+                    };
+                    partyIds.Add(partyId, partyUri);
+                }
+                partyMembership.PartyMembershipStartDate = partyElement.Element(d + "StartDate").GetDate();
+                partyMembership.PartyMembershipEndDate = partyElement.Element(d + "EndDate").GetDate();
+
+                yield return partyMembership;
             }
         }
     }

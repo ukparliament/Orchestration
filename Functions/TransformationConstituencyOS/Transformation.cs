@@ -11,6 +11,8 @@ namespace Functions.TransformationConstituencyOS
 {
     public class Transformation : BaseTransformation<Settings>
     {
+        private readonly string tempLocation = "D:\\home\\site\\wwwroot\\aaaaa\\";
+
         public override IBaseOntology[] TransformSource(string response)
         {
             RDF sourceConstituency = new RDF();
@@ -95,7 +97,7 @@ namespace Functions.TransformationConstituencyOS
 
         private string generatePolygon(string ring)
         {
-            string inputFile = Path.GetTempFileName();
+            string inputFile = $"{tempLocation}{Guid.NewGuid().ToString()}.tmp";
             File.WriteAllLines(inputFile, ring.Split(' '));
             string polygon = convertEastingNorthingtoLongLat(inputFile);
             File.Delete(inputFile);
@@ -107,17 +109,18 @@ namespace Functions.TransformationConstituencyOS
             string[] conversionOutput = null;
             try
             {
-                string outputFile = Path.GetTempFileName();
+                string outputFile = $"{tempLocation}{Guid.NewGuid().ToString()}.tmp";
                 string[] arguments =
                     {
-                        "\"D:\\home\\site\\wwwroot\\aaaaa\\TransformationSettings.xml\"",
+                        $"\"{tempLocation}TransformationSettings.xml\"",
                         $"\"{inputFile}\"",
                         $"\"{outputFile}\""
                     };
                 System.Diagnostics.Process process = new System.Diagnostics.Process();
+                process.StartInfo.WorkingDirectory = tempLocation;
                 process.StartInfo.CreateNoWindow = true;
                 process.StartInfo.UseShellExecute = false;
-                process.StartInfo.FileName = "D:\\home\\site\\wwwroot\\aaaaa\\giqtrans.exe";
+                process.StartInfo.FileName = $"{tempLocation}giqtrans.exe";
                 process.StartInfo.Arguments = string.Join(" ", arguments);
                 process.Start();
                 while (process.HasExited == false)

@@ -72,16 +72,19 @@ namespace Functions.TransformationConstituencyOS
                     if (polygons[i].Parent.Parent.Name.LocalName == "outerBoundaryIs")
                     {
                         string polygon = generatePolygon(polygons[i].Value);
-                        if ((i < polygons.Length - 1) && (polygons[i+1].Parent.Parent.Name.LocalName == "innerBoundaryIs"))
+                        if (string.IsNullOrWhiteSpace(polygon) == false)
                         {
-                            i++;
-                            while ((i < polygons.Length) && (polygons[i].Parent.Parent.Name.LocalName == "innerBoundaryIs"))
+                            if ((i < polygons.Length - 1) && (polygons[i + 1].Parent.Parent.Name.LocalName == "innerBoundaryIs"))
                             {
-                                polygon = $"{polygon},{generatePolygon(polygons[i].Value)}";
                                 i++;
+                                while ((i < polygons.Length) && (polygons[i].Parent.Parent.Name.LocalName == "innerBoundaryIs"))
+                                {
+                                    polygon = $"{polygon},{generatePolygon(polygons[i].Value)}";
+                                    i++;
+                                }
                             }
+                            areas.Add($"Polygon({polygon})");
                         }
-                        areas.Add($"Polygon({polygon})");
                     }
                     i++;
                 }
@@ -92,16 +95,47 @@ namespace Functions.TransformationConstituencyOS
 
         private string generatePolygon(string ring)
         {
-            string result = string.Join(",", ring.Split(' ').Select(ne => convertEastingNorthingtoLongLat(ne)));
-            return $"({result})";
+            string inputFile = Path.GetTempFileName();
+            File.WriteAllLines(inputFile, ring.Split(' '));
+            string polygon = convertEastingNorthingtoLongLat(inputFile);
+            File.Delete(inputFile);
+            return polygon;
         }
 
-        private string convertEastingNorthingtoLongLat(string eastingNorthingPair)
+        private string convertEastingNorthingtoLongLat(string inputFile)
         {
-            string[] arr = eastingNorthingPair.Split(',');
-            double easting = Convert.ToDouble(arr[0]);        
-            double northing = Convert.ToDouble(arr[1]);
-            return EastingNorthingtoLatLongConversion.GetLongitudeLatitude(northing, easting);
+            string[] conversionOutput = null;
+            try
+            {
+                string outputFile = Path.GetTempFileName();
+                string[] arguments =
+                    {
+                        "\"aaaaa\\TransformationSettings.xml\"",
+                        $"\"{inputFile}\"",
+                        $"\"{outputFile}\""
+                    };
+                System.Diagnostics.Process process = new System.Diagnostics.Process();
+                process.StartInfo.CreateNoWindow = true;
+                process.StartInfo.UseShellExecute = false;
+                process.StartInfo.FileName = "aaaaa\\giqtrans.exe";
+                process.StartInfo.Arguments = string.Join(" ", arguments);
+                process.Start();
+                while (process.HasExited == false)
+                { }
+                conversionOutput = File.ReadAllLines(outputFile);
+                File.Delete(outputFile);
+            }
+            catch (Exception e)
+            {
+                logger.Exception(e);
+                return null;
+            }
+            string[] longLat = conversionOutput.ToList()
+                .Skip(1)
+                .Select(line => string.Format("{0} {1}", line.Split(',')[3], line.Split(',')[2]))
+                .ToArray();
+            string polygon = string.Join(",", longLat);
+            return $"({polygon})";
         }
     }
 }

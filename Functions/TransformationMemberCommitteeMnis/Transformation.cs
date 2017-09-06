@@ -33,12 +33,12 @@ namespace Functions.TransformationMemberCommitteeMnis
 
         private IFormalBodyMembership generateMembershipMember(XElement formalBodyElement)
         {
-            IFormalBodyMembership formalBodyMembership = new FormalBodyMembership();
+            IFormalBodyMembership formalBodyMembership = null;
             string personMnisId = formalBodyElement.Element(d + "Member_Id").GetText();
             if (string.IsNullOrWhiteSpace(personMnisId) == false)
             {
                 Uri personUri = IdRetrieval.GetSubject("personMnisId", personMnisId, false, logger);
-                if (personMnisId != null)
+                if (personUri != null)
                 {
                     if (formalBodyElement.Element(d + "ExOfficio").GetBoolean() == true)
                         formalBodyMembership = new ExOfficioMembership()

@@ -110,7 +110,7 @@ namespace Functions.TransformationConstituencyOS
                 string outputFile = Path.GetTempFileName();
                 string[] arguments =
                     {
-                        "\"aaaaa\\TransformationSettings.xml\"",
+                        "\"D:\\home\\site\\wwwroot\\aaaaa\\TransformationSettings.xml\"",
                         $"\"{inputFile}\"",
                         $"\"{outputFile}\""
                     };

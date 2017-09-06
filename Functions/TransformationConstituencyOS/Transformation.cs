@@ -117,7 +117,7 @@ namespace Functions.TransformationConstituencyOS
                 System.Diagnostics.Process process = new System.Diagnostics.Process();
                 process.StartInfo.CreateNoWindow = true;
                 process.StartInfo.UseShellExecute = false;
-                process.StartInfo.FileName = "aaaaa\\giqtrans.exe";
+                process.StartInfo.FileName = "D:\\home\\site\\wwwroot\\aaaaa\\giqtrans.exe";
                 process.StartInfo.Arguments = string.Join(" ", arguments);
                 process.Start();
                 while (process.HasExited == false)

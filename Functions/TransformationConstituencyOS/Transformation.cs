@@ -98,15 +98,16 @@ namespace Functions.TransformationConstituencyOS
         private string generatePolygon(string ring)
         {
             string inputFile = $"{tempLocation}{Guid.NewGuid().ToString()}.tmp";
-            File.WriteAllLines(inputFile, ring.Split(' '));
+            File.WriteAllLines(inputFile, ring.Split(' '));            
             string polygon = convertEastingNorthingtoLongLat(inputFile);
-            File.Delete(inputFile);
+            File.Delete(inputFile);            
             return polygon;
         }
 
         private string convertEastingNorthingtoLongLat(string inputFile)
-        {
+        {            
             string[] conversionOutput = null;
+            logger.Verbose("Converting polygon");
             try
             {
                 string outputFile = $"{tempLocation}{Guid.NewGuid().ToString()}.tmp";
@@ -117,16 +118,16 @@ namespace Functions.TransformationConstituencyOS
                         $"\"{outputFile}\""
                     };
                 System.Diagnostics.Process process = new System.Diagnostics.Process();
-                process.StartInfo.WorkingDirectory = tempLocation;
                 process.StartInfo.CreateNoWindow = true;
                 process.StartInfo.UseShellExecute = false;
                 process.StartInfo.FileName = $"{tempLocation}giqtrans.exe";
                 process.StartInfo.Arguments = string.Join(" ", arguments);
-                process.Start();
-                while (process.HasExited == false)
+                process.Start();                
+                while ((process.HasExited == false) || (File.Exists(outputFile)==false))
                 { }
+                process.Dispose();
                 conversionOutput = File.ReadAllLines(outputFile);
-                File.Delete(outputFile);
+                File.Delete(outputFile);                
             }
             catch (Exception e)
             {
@@ -138,6 +139,7 @@ namespace Functions.TransformationConstituencyOS
                 .Select(line => string.Format("{0} {1}", line.Split(',')[3], line.Split(',')[2]))
                 .ToArray();
             string polygon = string.Join(",", longLat);
+            logger.Verbose("Polygon converted");
             return $"({polygon})";
         }
     }

@@ -14,6 +14,7 @@ namespace Functions
             string lowestLoggingLevelString = Environment.GetEnvironmentVariable("LowestLoggingLevel", EnvironmentVariableTarget.Process);
             if (Enum.TryParse(lowestLoggingLevelString, true, out lowestLoggingLevel) == false)
                 lowestLoggingLevel = SeverityLevel.Information;
+            setAppName();
             setOperationId();
         }
 
@@ -63,7 +64,10 @@ namespace Functions
         {
             telemetryClient.Context.Operation.Id = Guid.NewGuid().ToString();
         }
-
+        private void setAppName()
+        {
+            telemetryClient.Context.Properties["AzureFunctionsName"] = Environment.GetEnvironmentVariable("WEBSITE_CONTENTSHARE", EnvironmentVariableTarget.Process);
+        }
         public void SetOperationName(string operationName)
         {
             telemetryClient.Context.Operation.Name = operationName;

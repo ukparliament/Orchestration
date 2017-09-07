@@ -14,6 +14,21 @@ namespace Parliament.Data.Orchestration.CoordinateTransformation.Controllers
             return polygon;
         }
 
+        public string Get()
+        {
+            try
+            {
+                string workingDirectory = System.Web.Hosting.HostingEnvironment.MapPath("~/GridInQuestArtefacts");
+                string tempPath = Path.GetTempPath();
+                return $"{workingDirectory}|{tempPath}";
+            }
+            catch (Exception e)
+            {
+                return e.StackTrace;
+            }
+            
+        }
+
         private string convertEastingNorthingtoLongLat(string ring)
         {
             string[] conversionOutput = null;

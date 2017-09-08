@@ -65,35 +65,91 @@ namespace Functions.TransformationConstituencyOS
                 XElement[] polygons = XDocument.Parse(xmlPolygon)
                     .Descendants("coordinates")
                     .ToArray();
-                int i = 0;
-                List<string> areas = new List<string>();
-                while (i < polygons.Length)
-                {
-                    if (polygons[i].Parent.Parent.Name.LocalName == "outerBoundaryIs")
-                    {
-                        string polygon = generatePolygon(polygons[i].Value);
-                        if ((i < polygons.Length - 1) && (polygons[i + 1].Parent.Parent.Name.LocalName == "innerBoundaryIs"))
-                        {
-                            i++;
-                            while ((i < polygons.Length) && (polygons[i].Parent.Parent.Name.LocalName == "innerBoundaryIs"))
-                            {
-                                polygon = $"{polygon},{generatePolygon(polygons[i].Value)}";
-                                i++;
-                            }
-                        }
-                        areas.Add($"Polygon({polygon})");
-                    }
-                    i++;
-                }
+                List<string> areas = generatePolygonArea(polygons);
                 constituencyArea.ConstituencyAreaExtent = areas;
             }
             return constituencyArea;
         }
 
+        private List<string> generatePolygonArea(XElement[] polygons)
+        {
+            int i = 0;
+            List<string> areas = new List<string>();
+            while (i < polygons.Length)
+            {
+                if (polygons[i].Parent.Parent.Name.LocalName == "outerBoundaryIs")
+                {
+                    string polygon = generatePolygon(polygons[i].Value);
+                    if (polygon == null)
+                        return new List<string>();
+                    if ((i < polygons.Length - 1) && (polygons[i + 1].Parent.Parent.Name.LocalName == "innerBoundaryIs"))
+                    {
+                        i++;
+                        while ((i < polygons.Length) && (polygons[i].Parent.Parent.Name.LocalName == "innerBoundaryIs"))
+                        {
+                            string innerPolygon = generatePolygon(polygons[i].Value);
+                            if (innerPolygon == null)
+                                return new List<string>();
+                            polygon = $"{polygon},{innerPolygon}";
+                            i++;
+                        }
+                    }
+                    areas.Add($"Polygon({polygon})");
+                }
+                i++;
+            }
+
+            return areas;
+        }
+
         private string generatePolygon(string ring)
         {
-            string result = string.Join(",", ring.Split(' ').Select(ne => convertEastingNorthingtoLongLat(ne)));
-            return $"({result})";
+            string[] conversionOutput = null;
+            string gridInQuestPath = Path.Combine(functionExecutionContext.FunctionDirectory, "GridInQuestArtefacts");
+            string tempPath = Path.Combine(functionExecutionContext.FunctionDirectory, "temp");
+            string fileName = Guid.NewGuid().ToString();
+            string inputFile = $"{tempPath}\\{fileName}.in";
+            string outputFile = $"{tempPath}\\{fileName}.out";
+            string[] arguments =
+                {
+                    $"\"{gridInQuestPath}\\TransformationSettings.xml\"",
+                    $"\"{inputFile}\"",
+                    $"\"{outputFile}\""
+                };
+            if (Directory.Exists(tempPath) == false)
+                Directory.CreateDirectory(tempPath);
+            File.WriteAllLines(inputFile, ring.Split(' '));
+            try
+            {
+                using (System.Diagnostics.Process process = new System.Diagnostics.Process())
+                {
+                    process.StartInfo.UseShellExecute = false;
+                    process.StartInfo.RedirectStandardOutput = true;
+                    process.StartInfo.FileName = $"{gridInQuestPath}\\giqtrans.exe";
+                    process.StartInfo.Arguments = string.Join(" ", arguments);
+                    process.Start();
+                    process.WaitForExit();
+                }
+                conversionOutput = File.ReadAllLines(outputFile);
+            }
+            catch (Exception e)
+            {
+                logger.Exception(e);
+                return null;
+            }
+            finally
+            {
+                if (File.Exists(inputFile))
+                    File.Delete(inputFile);
+                if (File.Exists(outputFile))
+                    File.Delete(outputFile);
+            }
+            string[] longLat = conversionOutput.ToList()
+                .Skip(1)
+                .Select(line => string.Format("{0} {1}", line.Split(',')[3], line.Split(',')[2]))
+                .ToArray();
+            string polygon = string.Join(",", longLat);
+            return $"({polygon})";
         }
 
         private string convertEastingNorthingtoLongLat(string eastingNorthingPair)

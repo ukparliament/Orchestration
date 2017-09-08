@@ -2,5 +2,5 @@
 bin
 obj
 *.settings.json
-*.user
 PublishProfiles
+*.csproj.user

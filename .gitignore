@@ -3,4 +3,4 @@ bin
 obj
 *.settings.json
 PublishProfiles
-*.csproj.user
+*.user

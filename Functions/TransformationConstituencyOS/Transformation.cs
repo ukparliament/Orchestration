@@ -80,16 +80,12 @@ namespace Functions.TransformationConstituencyOS
                 if (polygons[i].Parent.Parent.Name.LocalName == "outerBoundaryIs")
                 {
                     string polygon = generatePolygon(polygons[i].Value);
-                    if (polygon == null)
-                        return new List<string>();
                     if ((i < polygons.Length - 1) && (polygons[i + 1].Parent.Parent.Name.LocalName == "innerBoundaryIs"))
                     {
                         i++;
                         while ((i < polygons.Length) && (polygons[i].Parent.Parent.Name.LocalName == "innerBoundaryIs"))
                         {
                             string innerPolygon = generatePolygon(polygons[i].Value);
-                            if (innerPolygon == null)
-                                return new List<string>();
                             polygon = $"{polygon},{innerPolygon}";
                             i++;
                         }
@@ -135,7 +131,7 @@ namespace Functions.TransformationConstituencyOS
             catch (Exception e)
             {
                 logger.Exception(e);
-                return null;
+                throw new Exception("Problem with executing giqtrans.exe");
             }
             finally
             {

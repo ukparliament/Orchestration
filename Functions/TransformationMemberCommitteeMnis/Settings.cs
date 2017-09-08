@@ -2,13 +2,6 @@
 {
     public class Settings : ITransformationSettings
     {
-        public string OperationName
-        {
-            get
-            {
-                return "TransformationMemberCommitteeMnis";
-            }
-        }
 
         public string AcceptHeader
         {

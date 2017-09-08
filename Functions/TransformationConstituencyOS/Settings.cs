@@ -7,13 +7,6 @@ namespace Functions.TransformationConstituencyOS
 {
     public class Settings : ITransformationSettings
     {
-        public string OperationName
-        {
-            get
-            {
-                return "TransformationConstituencyOS";
-            }
-        }
 
         public string AcceptHeader
         {

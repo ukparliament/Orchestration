@@ -12,14 +12,14 @@ namespace Functions.QueueMessagesRetrieval
 {
     public static class QueueMessagesRetrieval
     {
-        private static Logger logger = new Logger();
+        private static Logger logger;
 
         private static readonly string serviceBusEndpoint = System.Environment.GetEnvironmentVariable("CUSTOMCONNSTR_ServiceBus", EnvironmentVariableTarget.Process);
 
         [FunctionName("QueueMessagesRetrieval")]
-        public static async Task<object> Run([HttpTrigger(WebHookType = "genericJson")]HttpRequestMessage req, TraceWriter log)
+        public static async Task<object> Run([HttpTrigger(WebHookType = "genericJson")]HttpRequestMessage req, TraceWriter log, ExecutionContext executionContext)
         {
-            logger.SetOperationName("QueueMessagesRetrieval");
+            logger = new Logger(executionContext);
             logger.Triggered();
 
             string queue = req.GetQueryNameValuePairs()

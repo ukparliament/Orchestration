@@ -13,12 +13,10 @@ namespace Functions.JsonKeyToArrayConverter
 {
     public class JsonKeyToArrayConverter
     {
-        private static Logger logger = new Logger();
-
         [FunctionName("JsonKeyToArrayConverter")]
-
-        public static async Task<object> Run([HttpTrigger(WebHookType = "genericJson")]HttpRequestMessage req, TraceWriter log)
+        public static async Task<object> Run([HttpTrigger(WebHookType = "genericJson")]HttpRequestMessage req, TraceWriter log, ExecutionContext executionContext)
         {
+            Logger logger = new Logger(executionContext);
             string jsonContent = await req.Content.ReadAsStringAsync();
             dynamic data = JsonConvert.DeserializeObject(jsonContent);
 

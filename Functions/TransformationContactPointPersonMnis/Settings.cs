@@ -1,17 +1,7 @@
-﻿using System.Collections.Generic;
-using System.Xml;
-
-namespace Functions.TransformationContactPointPersonMnis
+﻿namespace Functions.TransformationContactPointPersonMnis
 {
     public class Settings :ITransformationSettings
     {
-        public string OperationName
-        {
-            get
-            {
-                return "TransformationContactPointPersonMnis";
-            }
-        }
 
         public string AcceptHeader
         {

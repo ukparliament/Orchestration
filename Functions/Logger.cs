@@ -9,23 +9,21 @@ namespace Functions
     public class Logger
     {
         private readonly SeverityLevel lowestLoggingLevel;
-        public Logger()
+        public Logger(Microsoft.Azure.WebJobs.ExecutionContext executionContext)
         {
             string lowestLoggingLevelString = Environment.GetEnvironmentVariable("LowestLoggingLevel", EnvironmentVariableTarget.Process);
             if (Enum.TryParse(lowestLoggingLevelString, true, out lowestLoggingLevel) == false)
                 lowestLoggingLevel = SeverityLevel.Information;
             setAppName();
-            setOperationId();
+            setOperationName(executionContext.FunctionName);
+            setOperationId(executionContext.InvocationId);
         }
 
         private TelemetryClient telemetryClient = new TelemetryClient()
         {
             InstrumentationKey = Environment.GetEnvironmentVariable("ApplicationInsightsInstrumentationKey", EnvironmentVariableTarget.Process)
         };
-
         
-
-
         private Stopwatch timer;
         public void Triggered()
         {
@@ -60,15 +58,15 @@ namespace Functions
             if ((int)severityLevel >= (int)lowestLoggingLevel)
                 telemetryClient.TrackTrace(message, severityLevel, properties);
         }
-        private void setOperationId()
+        private void setOperationId(Guid invocationId)
         {
-            telemetryClient.Context.Operation.Id = Guid.NewGuid().ToString();
+            telemetryClient.Context.Operation.Id = invocationId.ToString();
         }
         private void setAppName()
         {
             telemetryClient.Context.Properties["AzureFunctionsName"] = Environment.GetEnvironmentVariable("WEBSITE_CONTENTSHARE", EnvironmentVariableTarget.Process);
         }
-        public void SetOperationName(string operationName)
+        private void setOperationName(string operationName)
         {
             telemetryClient.Context.Operation.Name = operationName;
         }

@@ -2,13 +2,6 @@
 {
     public class Settings : ITransformationSettings
     {
-        public string OperationName
-        {
-            get
-            {
-                return "TransformationEPetition";
-            }
-        }
 
         public string AcceptHeader
         {

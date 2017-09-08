@@ -8,12 +8,10 @@ namespace Functions.IdGenerator
 {
     public static class IdGenerator
     {
-        private static Logger logger = new Logger();
-
         [FunctionName("IdGenerator")]
-        public static async Task<string> Run([HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = null)]HttpRequestMessage req, TraceWriter log)
+        public static async Task<string> Run([HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = null)]HttpRequestMessage req, TraceWriter log, ExecutionContext executionContext)
         {
-            logger.SetOperationName("IdGenerator");
+            Logger logger = new Logger(executionContext);
             logger.Triggered();
             IdMaker generator = new IdMaker();
             string id = generator.MakeId();

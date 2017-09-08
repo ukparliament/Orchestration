@@ -10,12 +10,10 @@ namespace Functions.LogicAppsErrorMessageLog
 {
     public static class LogicAppsErrorMessageLog
     {
-        private static Logger logger = new Logger();
-
         [FunctionName("LogicAppsErrorMessageLog")]
-        public static async Task<object> Run([HttpTrigger(WebHookType = "genericJson")]HttpRequestMessage req, TraceWriter log)
+        public static async Task<object> Run([HttpTrigger(WebHookType = "genericJson")]HttpRequestMessage req, TraceWriter log, ExecutionContext executionContext)
         {
-            logger.SetOperationName("LogicAppsErrorMessageLog");
+            Logger logger = new Logger(executionContext);
             logger.Triggered();
             string json = await req.Content.ReadAsStringAsync();
             dynamic data = JsonConvert.DeserializeObject<dynamic>(json);

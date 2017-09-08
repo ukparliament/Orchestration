@@ -2,7 +2,6 @@
 {
     public interface ITransformationSettings
     {
-        string OperationName { get; }
         string AcceptHeader { get; }
         string SubjectRetrievalSparqlCommand { get; }
         string ExistingGraphSparqlCommand { get; }

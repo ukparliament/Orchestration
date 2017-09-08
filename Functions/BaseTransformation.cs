@@ -18,13 +18,14 @@ namespace Functions
     public class BaseTransformation<T> where T : ITransformationSettings, new()
     {
         protected Logger logger;
+        protected Microsoft.Azure.WebJobs.ExecutionContext functionExecutionContext;
 
         protected static readonly string schemaNamespace = Environment.GetEnvironmentVariable("SchemaNamespace", EnvironmentVariableTarget.Process);
 
-        public async Task<object> Run(HttpRequestMessage req, T settings)
+        public async Task<object> Run(HttpRequestMessage req, T settings, Microsoft.Azure.WebJobs.ExecutionContext executionContext)
         {
-            logger = new Logger();
-            logger.SetOperationName(settings.OperationName);
+            logger = new Logger(executionContext);
+            functionExecutionContext = executionContext;
             logger.Triggered();
             string jsonContent = await req.Content.ReadAsStringAsync();
             dynamic data = JsonConvert.DeserializeObject(jsonContent);
@@ -274,7 +275,7 @@ namespace Functions
             bool isGraphUpdated = GraphUpdate.UpdateDifference(difference, logger);
             if (isGraphUpdated == false)
                 return await communicateBack(callbackUrl, $"Problem when updating graph for {subjectUri}");
-            return await communicateBack(callbackUrl);
+            return await communicateBack(callbackUrl);            
         }
 
     }

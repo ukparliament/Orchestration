@@ -1,17 +1,9 @@
 ﻿using System.Collections.Generic;
-using System.Xml;
 
 namespace Functions.TransformationContactPointElectoralMnis
 {
     public class Settings: ITransformationSettings
     {
-        public string OperationName
-        {
-            get
-            {
-                return "TransformationContactPointElectoralMnis";
-            }
-        }
 
         public string AcceptHeader
         {

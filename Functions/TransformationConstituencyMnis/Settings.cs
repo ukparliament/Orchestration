@@ -5,13 +5,6 @@ namespace Functions.Transformation
 {
     public class Settings : ITransformationSettings
     {
-        public string OperationName
-        {
-            get
-            {
-                return "TransformationConstituencyMnis";
-            }
-        }
 
         public string AcceptHeader
         {

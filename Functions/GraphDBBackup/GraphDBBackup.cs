@@ -14,7 +14,7 @@ namespace Functions.GraphDBBackup
 {
     public static class GraphDBBackup
     {
-        private static Logger logger = new Logger();
+        private static Logger logger;
 
         private static readonly string releaseId = Environment.GetEnvironmentVariable("ReleaseId", EnvironmentVariableTarget.Process);
         private static readonly string storageAccountConnectionString = Environment.GetEnvironmentVariable("CUSTOMCONNSTR_BackupStorage", EnvironmentVariableTarget.Process);
@@ -22,9 +22,9 @@ namespace Functions.GraphDBBackup
         private static readonly string subscriptionKey = Environment.GetEnvironmentVariable("SubscriptionKey", EnvironmentVariableTarget.Process);
 
         [FunctionName("GraphDBBackup")]
-        public static async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = null)]HttpRequestMessage req, TraceWriter log)
+        public static async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = null)]HttpRequestMessage req, TraceWriter log, Microsoft.Azure.WebJobs.ExecutionContext executionContext)
         {
-            logger.SetOperationName("GraphDBBackup");
+            logger = new Logger(executionContext);
             logger.Triggered();
             new Thread(() => createBackup()).Start();
             return req.CreateResponse(HttpStatusCode.Accepted);

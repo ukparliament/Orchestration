@@ -25,6 +25,21 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <None Update="TransformationConstituencyOS\GridInQuestArtefacts\GIQ.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TransformationConstituencyOS\GridInQuestArtefacts\giqtrans.exe">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TransformationConstituencyOS\GridInQuestArtefacts\GM15GB.dat">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TransformationConstituencyOS\GridInQuestArtefacts\TN15GB.dat">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TransformationConstituencyOS\GridInQuestArtefacts\TransformationSettings.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="host.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

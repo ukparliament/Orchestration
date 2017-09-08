@@ -152,12 +152,5 @@ namespace Functions.TransformationConstituencyOS
             return $"({polygon})";
         }
 
-        private string convertEastingNorthingtoLongLat(string eastingNorthingPair)
-        {
-            string[] arr = eastingNorthingPair.Split(',');
-            double easting = Convert.ToDouble(arr[0]);
-            double northing = Convert.ToDouble(arr[1]);
-            return EastingNorthingtoLatLongConversion.GetLongitudeLatitude(northing, easting);
-        }
     }
 }

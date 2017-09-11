@@ -54,7 +54,7 @@
             optional {?contactPoint parl:faxNumber ?faxNumber}
             optional {?contactPoint parl:phoneNumber ?phoneNumber}
             optional {
-                ?postalAddress parl:postalAddressHasContactPoint ?contactPoint.
+                ?contactPoint parl:contactPointHasPostalAddress ?postalAddress.
                 optional {?postalAddress parl:addressLine1 ?addressLine1}
                 optional {?postalAddress parl:addressLine2 ?addressLine2}
                 optional {?postalAddress parl:addressLine3 ?addressLine3}

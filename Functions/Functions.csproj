@@ -3,6 +3,9 @@
     <TargetFramework>net461</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
+    <EmbeddedResource Include="TransformationConstituencyOS\EastingNorthingConversion\ShiftReference.csv" />
+  </ItemGroup>
+  <ItemGroup>
     <PackageReference Include="dotNetRDF" Version="1.0.12" />
     <PackageReference Include="Microsoft.ApplicationInsights" Version="2.4.0" />
     <PackageReference Include="Microsoft.Azure.WebJobs" Version="2.1.0-beta1" />
@@ -25,21 +28,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <None Update="TransformationConstituencyOS\GridInQuestArtefacts\GIQ.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="TransformationConstituencyOS\GridInQuestArtefacts\giqtrans.exe">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="TransformationConstituencyOS\GridInQuestArtefacts\GM15GB.dat">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="TransformationConstituencyOS\GridInQuestArtefacts\TN15GB.dat">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="TransformationConstituencyOS\GridInQuestArtefacts\TransformationSettings.xml">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <None Update="host.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

@@ -1,4 +1,5 @@
-﻿using Parliament.Ontology.Base;
+﻿using Functions.TransformationConstituencyOS.EastingNorthingConversion;
+using Parliament.Ontology.Base;
 using Parliament.Ontology.Code;
 using System;
 using System.Collections.Generic;
@@ -100,49 +101,17 @@ namespace Functions.TransformationConstituencyOS
 
         private string generatePolygon(string ring)
         {
-            string[] conversionOutput = null;
-            string gridInQuestPath = Path.Combine(functionExecutionContext.FunctionDirectory, "GridInQuestArtefacts");
-            string tempPath = Path.Combine(functionExecutionContext.FunctionDirectory, "temp");
-            string fileName = Guid.NewGuid().ToString();
-            string inputFile = $"{tempPath}\\{fileName}.in";
-            string outputFile = $"{tempPath}\\{fileName}.out";
-            string[] arguments =
-                {
-                    $"\"{gridInQuestPath}\\TransformationSettings.xml\"",
-                    $"\"{inputFile}\"",
-                    $"\"{outputFile}\""
-                };
-            if (Directory.Exists(tempPath) == false)
-                Directory.CreateDirectory(tempPath);
-            File.WriteAllLines(inputFile, ring.Split(' '));
-            try
-            {
-                using (System.Diagnostics.Process process = new System.Diagnostics.Process())
-                {
-                    process.StartInfo.UseShellExecute = false;
-                    process.StartInfo.RedirectStandardOutput = true;
-                    process.StartInfo.FileName = $"{gridInQuestPath}\\giqtrans.exe";
-                    process.StartInfo.Arguments = string.Join(" ", arguments);
-                    process.Start();
-                    process.WaitForExit();
-                }
-                conversionOutput = File.ReadAllLines(outputFile);
-            }
-            catch (Exception e)
-            {
-                logger.Exception(e);
-                throw new Exception("Problem with executing giqtrans.exe");
-            }
-            finally
-            {
-                if (File.Exists(inputFile))
-                    File.Delete(inputFile);
-                if (File.Exists(outputFile))
-                    File.Delete(outputFile);
-            }
-            string[] longLat = conversionOutput.ToList()
-                .Skip(1)
-                .Select(line => string.Format("{0} {1}", line.Split(',')[3], line.Split(',')[2]))
+            CoordinateTransformation coordinateTransformation = new CoordinateTransformation();
+            CoordinateConversion coordinateConversion = new CoordinateConversion();
+
+            double[][] enPairs = ring.Split(' ')
+                .Select(line => new double[] { Convert.ToDouble(line.Split(',')[0]), Convert.ToDouble(line.Split(',')[1]) })
+                .ToArray();
+            double[][] transformedENPairs = coordinateTransformation.TransformEastingNorthing(enPairs);
+            double[][] longLatPairs = coordinateConversion.ConvertToLongitudeLatitude(transformedENPairs);
+
+            string[] longLat = longLatPairs
+                .Select(longLatPair => string.Join(" ", string.Format("{0:0.00000000000}", longLatPair[0]), string.Format("{0:0.00000000000}", longLatPair[1])))
                 .ToArray();
             string polygon = string.Join(",", longLat);
             return $"({polygon})";

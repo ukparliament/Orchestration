@@ -56,6 +56,12 @@
         "description": "Name of the Storage Account to backup GraphDB data."
       }
     },
+    "apiPrefixUrl": {
+      "type": "string",
+      "metadata": {
+        "description": "Url segment of API for additional deployments."
+      }
+    },
     "environment": {
       "type": "string",
       "metadata": {
@@ -177,7 +183,7 @@
           ],
           "properties": {
             "Data": {
-              "value": "[concat('https://',parameters('apiManagementName'),'.azure-api.net/graph-store')]",
+              "value": "[concat('https://',parameters('apiManagementName'),'.azure-api.net/',parameters('apiPrefixUrl'),'graph-store')]",
               "type": "Custom"
             },
             "ServiceBus": {

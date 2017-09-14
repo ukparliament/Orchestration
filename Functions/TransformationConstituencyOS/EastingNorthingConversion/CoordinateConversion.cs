@@ -3,17 +3,17 @@ using System.Collections.Generic;
 
 namespace Functions.TransformationConstituencyOS.EastingNorthingConversion
 {
-    public class CoordinateConversion
+    public static class CoordinateConversion
     {
-        private readonly double n0 = -100000.0;
-        private readonly double e0 = 400000.0;
-        private readonly double a = 6377563.396;
-        private readonly double f0 = 0.9996012717;
-        private readonly double phi0 = (49.0 * Math.PI) / 180.0;
-        private readonly double b = 6356256.909;
-        private readonly double lambda0 = (-2.0 * Math.PI) / 180.0;
+        private static readonly double n0 = -100000.0;
+        private static readonly double e0 = 400000.0;
+        private static readonly double a = 6377563.396;
+        private static readonly double f0 = 0.9996012717;
+        private static readonly double phi0 = (49.0 * Math.PI) / 180.0;
+        private static readonly double b = 6356256.909;
+        private static readonly double lambda0 = (-2.0 * Math.PI) / 180.0;
 
-        public double[][] ConvertToLongitudeLatitude(double[][] eastingNorthingPairs)
+        public static double[][] ConvertToLongitudeLatitude(double[][] eastingNorthingPairs)
         {
             List<double[]> result = new List<double[]>();
             foreach (double[] enPair in eastingNorthingPairs)
@@ -22,7 +22,7 @@ namespace Functions.TransformationConstituencyOS.EastingNorthingConversion
             return result.ToArray();
         }
 
-        private double[] getLongLat(double easting, double northing)
+        private static double[] getLongLat(double easting, double northing)
         {
             double phi1 = ((northing - n0) / (a * f0)) + phi0;
             double marc = meridonalArc(phi1);
@@ -60,7 +60,7 @@ namespace Functions.TransformationConstituencyOS.EastingNorthingConversion
             return result;
         }
 
-        private double meridonalArc(double phi1)
+        private static double meridonalArc(double phi1)
         {
             double aF0 = a * f0;
             double bF0 = b * f0;

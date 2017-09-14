@@ -4,16 +4,11 @@ using System.Linq;
 
 namespace Functions.TransformationConstituencyOS.EastingNorthingConversion
 {
-    public class CoordinateTransformation
+    public static class CoordinateTransformation
     {
-        private readonly double[][] shifts;
-        public CoordinateTransformation()
-        {
-            string shiftTxt = getShifts();
-            shifts = generateShiftTable(shiftTxt);
-        }
+        private static readonly double[][] shifts = generateShiftTable();
 
-        public double[][] TransformEastingNorthing(double[][] eastingNorthingPairs)
+        public static double[][] TransformEastingNorthing(double[][] eastingNorthingPairs)
         {
             List<double[]> result = new List<double[]>();
             foreach (double[] enPair in eastingNorthingPairs)
@@ -22,7 +17,7 @@ namespace Functions.TransformationConstituencyOS.EastingNorthingConversion
             return result.ToArray();
         }
 
-        private double[] eastingNorthingOSGB36ToETRS89Geo(double easting, double northing)
+        private static double[] eastingNorthingOSGB36ToETRS89Geo(double easting, double northing)
         {
             double e = easting;
             double n = northing;
@@ -60,7 +55,7 @@ namespace Functions.TransformationConstituencyOS.EastingNorthingConversion
             return new double[] { e, n };
         }
 
-        private string getShifts()
+        private static string getShifts()
         {
             string resourceName = "Functions.TransformationConstituencyOS.EastingNorthingConversion.ShiftReference.csv";
             string shiftTxt = null;
@@ -71,8 +66,9 @@ namespace Functions.TransformationConstituencyOS.EastingNorthingConversion
             return shiftTxt;
         }
 
-        private double[][] generateShiftTable(string shiftTxt)
+        private static double[][] generateShiftTable()
         {
+            string shiftTxt = getShifts();
             double[][] shifts = shiftTxt.Split(new char[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries)
                 .Select(line => new double[] { Convert.ToDouble(line.Split(',')[0]), Convert.ToDouble(line.Split(',')[1]) })
                 .ToArray();

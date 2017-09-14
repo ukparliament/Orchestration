@@ -101,14 +101,11 @@ namespace Functions.TransformationConstituencyOS
 
         private string generatePolygon(string ring)
         {
-            CoordinateTransformation coordinateTransformation = new CoordinateTransformation();
-            CoordinateConversion coordinateConversion = new CoordinateConversion();
-
             double[][] enPairs = ring.Split(' ')
                 .Select(line => new double[] { Convert.ToDouble(line.Split(',')[0]), Convert.ToDouble(line.Split(',')[1]) })
                 .ToArray();
-            double[][] transformedENPairs = coordinateTransformation.TransformEastingNorthing(enPairs);
-            double[][] longLatPairs = coordinateConversion.ConvertToLongitudeLatitude(transformedENPairs);
+            double[][] transformedENPairs = CoordinateTransformation.TransformEastingNorthing(enPairs);
+            double[][] longLatPairs = CoordinateConversion.ConvertToLongitudeLatitude(transformedENPairs);
 
             string[] longLat = longLatPairs
                 .Select(longLatPair => string.Join(" ", string.Format("{0:0.00000000000}", longLatPair[0]), string.Format("{0:0.00000000000}", longLatPair[1])))

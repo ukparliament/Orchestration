@@ -56,12 +56,6 @@
         "description": "Name of the Storage Account to backup GraphDB data."
       }
     },
-    "apiPrefixUrl": {
-      "type": "string",
-      "metadata": {
-        "description": "Url segment of API for additional deployments."
-      }
-    },
     "releaseId": {
       "type": "int",
       "metadata": {
@@ -139,6 +133,11 @@
             "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
           ],
           "properties": {
+            "AzureWebJobsDashboard": "[concat('DefaultEndpointsProtocol=https;AccountName=',variables('storageAccountName'),';AccountKey=',listKeys(resourceId('Microsoft.Storage/storageAccounts',variables('storageAccountName')),'2016-01-01').keys[0].value)]",
+            "AzureWebJobsStorage": "[concat('DefaultEndpointsProtocol=https;AccountName=',variables('storageAccountName'),';AccountKey=',listKeys(resourceId('Microsoft.Storage/storageAccounts',variables('storageAccountName')),'2016-01-01').keys[0].value)]",
+            "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING": "[concat('DefaultEndpointsProtocol=https;AccountName=',variables('storageAccountName'),';AccountKey=',listKeys(resourceId('Microsoft.Storage/storageAccounts',variables('storageAccountName')),'2016-01-01').keys[0].value)]",
+            "WEBSITE_CONTENTSHARE": "[parameters('azureFunctionsName')]",
+            "FUNCTIONS_EXTENSION_VERSION": "~1",
             "IdNamespace": "[parameters('idNamespace')]",
             "SchemaNamespace": "[parameters('schemaNamespace')]",
             "ApplicationInsightsInstrumentationKey": "[reference(resourceId(subscription().subscriptionId,parameters('operationsResourceGroupName'),'Microsoft.Insights/Components',parameters('applicationInsightsName')),'2014-04-01').InstrumentationKey]",
@@ -158,7 +157,7 @@
           ],
           "properties": {
             "Data": {
-              "value": "[concat('https://',parameters('apiManagementName'),'.azure-api.net/',parameters('apiPrefixUrl'),'/graph-store')]",
+              "value": "",
               "type": "Custom"
             },
             "ServiceBus": {

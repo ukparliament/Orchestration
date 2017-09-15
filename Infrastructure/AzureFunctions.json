@@ -62,12 +62,6 @@
         "description": "Url segment of API for additional deployments."
       }
     },
-    "environment": {
-      "type": "string",
-      "metadata": {
-        "description": "Name of the environment that is being deployed to."
-      }
-    },
     "releaseId": {
       "type": "int",
       "metadata": {
@@ -91,11 +85,7 @@
       "apiVersion": "2016-01-01",
       "location": "[resourceGroup().location]",
       "tags": {
-        "34a4fc9c-8817-4c95-8e1b-76e27fbe2699": "f009d98d-028e-48bc-af57-944f3dd9a77c",
-        "Department": "Data & Search",
-        "Environment": "[parameters('environment')]",
-        "ReleaseId": "[parameters('releaseId')]",
-        "Type": "Storage account"
+        "ReleaseId": "[parameters('releaseId')]"
       },
       "properties": {},
       "resources": [],
@@ -112,19 +102,14 @@
         "capacity": 0
       },
       "kind": "functionapp",
-      "name": "[concat(parameters('azureFunctionsName'),'plan')]",
-      "apiVersion": "2015-08-01",
+      "name": "[parameters('azureFunctionsName')]",
+      "apiVersion": "2016-09-01",
       "location": "[resourceGroup().location]",
       "tags": {
-        "34a4fc9c-8817-4c95-8e1b-76e27fbe2699": "f009d98d-028e-48bc-af57-944f3dd9a77c",
-        "Department": "Data & Search",
-        "Environment": "[parameters('environment')]",
-        "ReleaseId": "[parameters('releaseId')]",
-        "Type": "App service plan"
+        "ReleaseId": "[parameters('releaseId')]"
       },
       "properties": {
-        "name": "[concat(parameters('azureFunctionsName'),'plan')]",
-        "numberOfWorkers": 0
+        "name": "[parameters('azureFunctionsName')]"
       },
       "resources": [],
       "dependsOn": []
@@ -134,18 +119,14 @@
       "type": "Microsoft.Web/sites",
       "kind": "functionapp",
       "name": "[parameters('azureFunctionsName')]",
-      "apiVersion": "2015-08-01",
+      "apiVersion": "2016-08-01",
       "location": "[resourceGroup().location]",
       "tags": {
-        "34a4fc9c-8817-4c95-8e1b-76e27fbe2699": "f009d98d-028e-48bc-af57-944f3dd9a77c",
-        "Department": "Data & Search",
-        "Environment": "[parameters('environment')]",
-        "ReleaseId": "[parameters('releaseId')]",
-        "Type": "Azure Functions"
+        "ReleaseId": "[parameters('releaseId')]"
       },
       "properties": {
-        "name": "[parameters('azureFunctionsName')]",
-        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', concat(parameters('azureFunctionsName'), 'Plan'))]"
+        "enabled": true,
+        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', parameters('azureFunctionsName'))]"
       },
       "resources": [
         {
@@ -158,18 +139,12 @@
             "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
           ],
           "properties": {
-            "AzureWebJobsDashboard": "[concat('DefaultEndpointsProtocol=https;AccountName=',variables('storageAccountName'),';AccountKey=',listKeys(resourceId('Microsoft.Storage/storageAccounts',variables('storageAccountName')),'2016-01-01').keys[0].value)]",
-            "AzureWebJobsStorage": "[concat('DefaultEndpointsProtocol=https;AccountName=',variables('storageAccountName'),';AccountKey=',listKeys(resourceId('Microsoft.Storage/storageAccounts',variables('storageAccountName')),'2016-01-01').keys[0].value)]",
-            "FUNCTIONS_EXTENSION_VERSION": "~1",
-            "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING": "[concat('DefaultEndpointsProtocol=https;AccountName=',variables('storageAccountName'),';AccountKey=',listKeys(resourceId('Microsoft.Storage/storageAccounts',variables('storageAccountName')),'2016-01-01').keys[0].value)]",
-            "WEBSITE_CONTENTSHARE": "[parameters('azureFunctionsName')]",
-            "WEBSITE_NODE_DEFAULT_VERSION": "6.5.0",
             "IdNamespace": "[parameters('idNamespace')]",
             "SchemaNamespace": "[parameters('schemaNamespace')]",
             "ApplicationInsightsInstrumentationKey": "[reference(resourceId(subscription().subscriptionId,parameters('operationsResourceGroupName'),'Microsoft.Insights/Components',parameters('applicationInsightsName')),'2014-04-01').InstrumentationKey]",
             "ReleaseId": "[parameters('releaseId')]",
             "SubscriptionKey": "",
-            "LowestLoggingLevel":  "[parameters('lowestLoggingLevel')]"
+            "LowestLoggingLevel": "[parameters('lowestLoggingLevel')]"
           }
         },
         {
@@ -183,7 +158,7 @@
           ],
           "properties": {
             "Data": {
-              "value": "[concat('https://',parameters('apiManagementName'),'.azure-api.net/',parameters('apiPrefixUrl'),'graph-store')]",
+              "value": "[concat('https://',parameters('apiManagementName'),'.azure-api.net/',parameters('apiPrefixUrl'),'/graph-store')]",
               "type": "Custom"
             },
             "ServiceBus": {
@@ -198,7 +173,7 @@
         }
       ],
       "dependsOn": [
-        "[resourceId('Microsoft.Web/serverfarms', concat(parameters('azureFunctionsName'), 'Plan'))]"
+        "[resourceId('Microsoft.Web/serverfarms', parameters('azureFunctionsName'))]"
       ]
     }
   ]

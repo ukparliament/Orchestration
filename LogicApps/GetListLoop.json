@@ -44,12 +44,6 @@
                 "description": "Name of the Azure Functions."
             }
         },
-        "environment": {
-            "type": "string",
-            "metadata": {
-                "description": "Name of the environment that is being deployed to."
-            }
-        },
         "releaseId": {
             "type": "int",
             "metadata": {
@@ -70,11 +64,7 @@
             "apiVersion": "2016-06-01",
             "location": "[resourceGroup().location]",
             "tags": {
-                "34a4fc9c-8817-4c95-8e1b-76e27fbe2699": "f009d98d-028e-48bc-af57-944f3dd9a77c",
-                "Department": "Data & Search",
-                "Environment": "[parameters('environment')]",
-                "ReleaseId": "[parameters('releaseId')]",
-                "Type": "Logic App"
+                "ReleaseId": "[parameters('releaseId')]"
             },
             "properties": {
                 "state": "Enabled",

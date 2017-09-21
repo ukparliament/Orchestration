@@ -47,6 +47,8 @@ foreach($set in $webAppSettings){
 
 Log "Sets new subscription key"
 $settings["SubscriptionKey"]=$subscriptionKey
+Log "Sets new data connection"
+$settings["Data"]="https://$APIManagementName.azure-api.net/$APIPrefix/graph-store"
 Set-AzureRmWebApp -ResourceGroupName $OrchestrationResourceGroupName -Name $AzureFunctionsName -AppSettings $settings
 
 Log "Job well done!"

@@ -105,7 +105,7 @@
             "LogicAppsErrorMessageLog": {
               "inputs": {
                 "body": {
-                  "action": "@actions('Get_List')",
+                  "action": "@actions('Get_items')",
                   "batchId": "@{outputs('Get_BatchId')}",
                   "workflow": "@workflow()"
                 },
@@ -118,7 +118,7 @@
               },
               "runAfter": {
                 "Get_items": [
-                  "Succeeded"
+                  "Failed"
                 ]
               },
               "type": "Function"

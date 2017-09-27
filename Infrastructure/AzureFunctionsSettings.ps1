@@ -68,6 +68,6 @@ Log "Sets new url for web link"
 $connections["WebLinkItem"]=@{Type="Custom";Value=$weblinkUrl}
 Log "Sets new data connection"
 $connections["Data"]=@{Type="Custom";Value="https://$APIManagementName.azure-api.net/$APIPrefix/graph-store"}
-Set-AzureRmWebApp -ResourceGroupName $APIResourceGroupName -Name $PhotoAPIName -ConnectionStrings $connections
+Set-AzureRmWebApp -ResourceGroupName $OrchestrationResourceGroupName -Name $AzureFunctionsName -ConnectionStrings $connections
 
 Log "Job well done!"

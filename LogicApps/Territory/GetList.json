@@ -157,8 +157,8 @@
                     "$connections": {
                         "value": {
                           "servicebus": {
-                            "connectionId": "[concat(subscription().id,'/resourceGroups/',resourceGroup().name,'/providers/Microsoft.Web/connections/',parameters('serviceBusName'),'connection')]",
-                            "connectionName": "[concat(parameters('serviceBusName'),'connection')]",
+                            "connectionId": "[concat(subscription().id,'/resourceGroups/',resourceGroup().name,'/providers/Microsoft.Web/connections/',parameters('serviceBusName'))]",
+                            "connectionName": "[parameters('serviceBusName')]",
                             "id": "[concat(subscription().id,'/providers/Microsoft.Web/locations/',resourceGroup().location,'/managedApis/servicebus')]"
                           }
                         }

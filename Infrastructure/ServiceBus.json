@@ -60,7 +60,7 @@
         {
             "comments": "API connection to Service Bus used by Logic Apps",
             "type": "Microsoft.Web/connections",
-            "name": "[concat(parameters('serviceBusName'),'connection')]",
+            "name": "[parameters('serviceBusName')]",
             "apiVersion": "2016-06-01",
             "location": "[resourceGroup().location]",
             "tags": {
@@ -70,7 +70,7 @@
                 "api": {
                     "id": "[concat(subscription().id,'/providers/Microsoft.Web/locations/',resourceGroup().location,'/managedApis/servicebus')]"
                 },
-                "displayName": "[concat(parameters('serviceBusName'),'connection')]",
+                "displayName": "[parameters('serviceBusName')]",
                 "parameterValues": {
                     "connectionString": "[listKeys(resourceId(subscription().subscriptionId,resourceGroup().name,'Microsoft.ServiceBus/namespaces/authorizationRules',parameters('serviceBusName'),variables('authorizationKeyName')),'2015-08-01').primaryConnectionString]"
                 }

@@ -2,18 +2,6 @@
   "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
-    "serviceBusName": {
-      "type": "string",
-      "metadata": {
-        "description": "Name of the Service Bus."
-      }
-    },
-    "azureFunctionsName": {
-      "type": "string",
-      "metadata": {
-        "description": "Name of the Azure Functions."
-      }
-    },
     "releaseId": {
       "type": "int",
       "metadata": {
@@ -97,11 +85,6 @@
         "parameters": {
           "$connections": {
             "value": {
-              "servicebus": {
-                "connectionId": "[concat(subscription().id,'/resourceGroups/',resourceGroup().name,'/providers/Microsoft.Web/connections/',parameters('serviceBusName'))]",
-                "connectionName": "[parameters('serviceBusName')]",
-                "id": "[concat(subscription().id,'/providers/Microsoft.Web/locations/',resourceGroup().location,'/managedApis/servicebus')]"
-              },
               "sharepointonline": {
                 "connectionId": "[concat(subscription().id,'/resourceGroups/',resourceGroup().name,'/providers/Microsoft.Web/connections/',variables('sharepointConnectionName'))]",
                 "connectionName": "[variables('sharepointConnectionName')]",

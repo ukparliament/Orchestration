@@ -167,6 +167,10 @@
             "BackupStorage": {
               "value": "[concat('DefaultEndpointsProtocol=https;AccountName=',parameters('backupStorageAccountName'),';AccountKey=',listKeys(resourceId(subscription().subscriptionId,parameters('operationsResourceGroupName'),'Microsoft.Storage/storageAccounts',parameters('backupStorageAccountName')),'2016-01-01').keys[0].value)]",
               "type": "Custom"
+            },
+            "WebLinkItem": {
+              "value": "",
+              "type": "Custom"
             }
           }
         }

@@ -189,6 +189,17 @@ $logicAppVariable=@(
         "triggerTime"="21:25";
         "queueReadBatchSize"=50;
     }
+	New-Object -TypeName PSObject -Property @{
+        "name"="weblink";
+        "listUri"="";
+        "listAcceptHeader"="";
+        "foreachObject"="@json('')";
+        "idObject"="@json('')";
+        "frequency"="hour";
+        "interval"=24;
+        "triggerTime"="21:30";
+        "queueReadBatchSize"=50;
+    }
 )
 
 $variableNames=@("name","listUri","listAcceptHeader","foreachObject","idObject","frequency","interval","triggerTime","queueReadBatchSize")

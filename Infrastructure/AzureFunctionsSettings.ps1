@@ -1,9 +1,9 @@
 <#
 .SYNOPSIS
-Sets subscription key parameter in Azure Functions.
+Sets app settings in Azure Functions.
 
 .DESCRIPTION
-Sets subscription key parameter in Azure Functions.
+Sets app settings in Azure Functions.
 
 .PARAMETER APIResourceGroupName
 Name of the Resource Group where the API Management is.
@@ -37,8 +37,14 @@ $apiProductOrchestration=Get-AzureRmApiManagementProduct -Context $management -T
 $subscription=Get-AzureRmApiManagementSubscription -Context $management -ProductId $apiProductOrchestration.ProductId
 $subscriptionKey=$subscription.PrimaryKey
 
-Log "Gets current settings"
+Log "Retrives Logic app trigger - web link item"
+$trigger=Get-AzureRmLogicAppTriggerCallbackUrl -ResourceGroupName $OrchestrationResourceGroupName -Name "getitem-weblink" -TriggerName "manual"
+$weblinkUrl=$trigger.Value.Replace("?","/ids/{id}?")
+
+
+Log "Gets current app settings"
 $webApp = Get-AzureRmwebApp -ResourceGroupName $OrchestrationResourceGroupName -Name $AzureFunctionsName
+
 $webAppSettings = $webApp.SiteConfig.AppSettings
 $settings=@{}
 foreach($set in $webAppSettings){ 
@@ -47,8 +53,21 @@ foreach($set in $webAppSettings){
 
 Log "Sets new subscription key"
 $settings["SubscriptionKey"]=$subscriptionKey
-Log "Sets new data connection"
-$settings["Data"]="https://$APIManagementName.azure-api.net/$APIPrefix/graph-store"
 Set-AzureRmWebApp -ResourceGroupName $OrchestrationResourceGroupName -Name $AzureFunctionsName -AppSettings $settings
+
+Log "Gets current connection strings"
+$connectionStrings=$webApp.SiteConfig.ConnectionStrings
+$connections = @{}
+foreach($connection in $connectionStrings){
+	if (($connection.Name -ne "Data") -or ($connection.Name -ne "WebLinkItem")) {
+		$connections[$connection.Name]=@{Type=if ($connection.Type -eq $null){"Custom"}else{$connection.Type.ToString()};Value=$connection.ConnectionString}
+	}
+}
+
+Log "Sets new url for web link"
+$connections["WebLinkItem"]=@{Type="Custom";Value=$weblinkUrl}
+Log "Sets new data connection"
+$connections["Data"]=@{Type="Custom";Value="https://$APIManagementName.azure-api.net/$APIPrefix/graph-store"}
+Set-AzureRmWebApp -ResourceGroupName $APIResourceGroupName -Name $PhotoAPIName -ConnectionStrings $connections
 
 Log "Job well done!"

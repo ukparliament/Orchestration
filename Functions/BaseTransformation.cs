@@ -201,6 +201,8 @@ namespace Functions
             {
                 logger.Verbose("Deserializing source");
                 deserializedSource = TransformSource(response);
+                if (deserializedSource==null)
+                    return await communicateBack(callbackUrl, "Nothing was deserialized from the source");
             }
             catch (Exception e)
             {

@@ -1,3 +1,5 @@
-**Path**: Functions\`GraphDBBackup`
+**Path**: Functions\\`GraphDBBackup`
 
-**Description**: Backs up this database. The GraphDB is the data storage platform for the entrire platform.  The backup is written toAzure's backupdataplatform resource.
+[Triple Store]: https://en.wikipedia.org/wiki/Triplestore
+
+**Description**: Backs up the GraphDB database to the data storage platform.  GraphDB is a [Triple Store] database hosted on and used by the the platform.

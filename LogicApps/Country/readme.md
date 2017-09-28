@@ -1,5 +1,5 @@
 | **Function** | **getlist-country**                                                   |
 |--------------|-----------------------------------------------------------------------|
-| Description  | “Logic App that obtains list of countries from Government Register.”  |
+| Description  | â€œLogic App that obtains list of countries from Government Register.â€  |
 | Input        | <https://country.register.gov.uk/records?page-size=1000&page-index=1> |
-| Output       | For each country ? Country Message ? ServiceBus                       |
+| Output       | For each country -> Country Message -> ServiceBus                       |

@@ -6,4 +6,3 @@ Settings.ps1 contains the definitions used to configure execution of the LogicAp
 * URI for the external data
 
 Schedules link to the LogicApps to perform the data ingestion.
-

@@ -8,7 +8,7 @@ All artefacts are designed for Azure platform. Repository consist of [Logic Apps
 Sets up the platform on which Functions and LogicApps operate.
 
 ## LogicApps ##
-LogicApps collect data required from various sources, such as from Government registers and publications already published by Parliament. The data retrieved is stored in the GraphDB by the *Functions* in a consistent format for further use.
+LogicApps collect data required from a variety of sources, such as from Government registers and publications already published by Parliament. The data retrieved is stored in the GraphDB by the *Functions* in a consistent format for further use.
 
 Settings.ps1 script generates task variables that are used by ARM templates (*loop.json) to create workflows. Name property is reused accross Logic Apps, scheduler jobs and Azure Functions. There are some additional workflows that override defualt ones.
 

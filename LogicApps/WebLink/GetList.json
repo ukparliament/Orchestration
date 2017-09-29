@@ -114,7 +114,7 @@
                   "id": "[concat(subscription().id,'/resourceGroups/',resourceGroup().name,'/providers/Microsoft.Web/sites/',parameters('azureFunctionsName'),'/functions/LogicAppsErrorMessageLog')]"
                 },
                 "retryPolicy": {
-                  "type": "none"
+                  "type": "None"
                 }
               },
               "runAfter": {

@@ -5,4 +5,4 @@ Settings.ps1 contains the definitions used to configure execution of the LogicAp
     * Trigger Time
 * URI for the external data
 
-Schedules link to the LogicApps to perform the data ingestion.
+Schedules link to the LogicApps to perform theingestion of data.

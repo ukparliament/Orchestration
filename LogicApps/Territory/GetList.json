@@ -77,9 +77,9 @@
                                 "function": {
                                     "id": "[concat(subscription().id,'/resourceGroups/',resourceGroup().name,'/providers/Microsoft.Web/sites/',parameters('azureFunctionsName'),'/functions/LogicAppsErrorMessageLog')]"
                                 },
-                                "retryPolicy": {
-                                    "type": "None"
-                                }
+                              "retryPolicy": {
+                                "type": "none"
+                              }
                             },
                             "runAfter": {
                                 "Get_List": [
@@ -134,9 +134,9 @@
                                 "function": {
                                     "id": "[concat(subscription().id,'/resourceGroups/',resourceGroup().name,'/providers/Microsoft.Web/sites/',parameters('azureFunctionsName'),'/functions/JsonKeyToArrayConverter')]"
                                 },
-                                "retryPolicy": {
-                                    "type": "None"
-                                }
+                              "retryPolicy": {
+                                "type": "none"
+                              }
                             },
                             "runAfter": {
                                 "Response": [

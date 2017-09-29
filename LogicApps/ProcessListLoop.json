@@ -62,9 +62,9 @@
                                                         "id": "[concat(subscription().id,'/resourceGroups/',resourceGroup().name,'/providers/Microsoft.Logic/workflows/update-',parameters('logicAppsSetting_name')[copyIndex()])]"
                                                     }
                                                 },
-                                                "retryPolicy": {
-                                                    "type": "None"
-                                                }
+                                              "retryPolicy": {
+                                                "type": "none"
+                                              }
                                             },
                                             "runAfter": {},
                                             "type": "Workflow"
@@ -92,9 +92,9 @@
                               "function": {
                                 "id": "[concat(subscription().id,'/resourceGroups/',resourceGroup().name,'/providers/Microsoft.Web/sites/',parameters('azureFunctionsName'),'/functions/LogicAppsErrorMessageLog')]"
                               },
-                                "retryPolicy": {
-                                    "type": "None"
-                                }
+                              "retryPolicy": {
+                                "type": "none"
+                              }
                             },
                             "runAfter": {
                                 "QueueMessagesRetrieval": [
@@ -112,9 +112,9 @@
                               "function": {
                                 "id": "[concat(subscription().id,'/resourceGroups/',resourceGroup().name,'/providers/Microsoft.Web/sites/',parameters('azureFunctionsName'),'/functions/QueueMessagesRetrieval')]"
                               },
-                                "retryPolicy": {
-                                    "type": "None"
-                                }
+                              "retryPolicy": {
+                                "type": "none"
+                              }
                             },
                             "runAfter": {},
                             "type": "Function"

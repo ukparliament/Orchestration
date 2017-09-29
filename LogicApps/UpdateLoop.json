@@ -55,9 +55,9 @@
                                             "function": {
                                                 "id": "[concat(subscription().id,'/resourceGroups/',resourceGroup().name,'/providers/Microsoft.Web/sites/',parameters('azureFunctionsName'),'/functions/LogicAppsErrorMessageLog')]"
                                             },
-                                            "retryPolicy": {
-                                                "type": "None"
-                                            }
+                                          "retryPolicy": {
+                                            "type": "none"
+                                          }
                                         },
                                         "runAfter": {},
                                         "type": "Function"
@@ -82,9 +82,9 @@
                                 "function": {
                                     "id": "[concat(subscription().id,'/resourceGroups/',resourceGroup().name,'/providers/Microsoft.Web/sites/',parameters('azureFunctionsName'),'/functions/LogicAppsErrorMessageLog')]"
                                 },
-                                "retryPolicy": {
-                                    "type": "None"
-                                }
+                              "retryPolicy": {
+                                "type": "none"
+                              }
                             },
                             "runAfter": {
                                 "Update_Webhook": [
@@ -95,9 +95,9 @@
                         },
                         "Update_Webhook": {
                             "inputs": {
-                                "retryPolicy": {
-                                    "type": "None"
-                                },
+                              "retryPolicy": {
+                                "type": "none"
+                              },
                               "subscribe": {
                                 "body": {
                                   "callbackUrl": "@listCallbackUrl()",

@@ -40,7 +40,15 @@ namespace Functions.TransformationWebLink
                 return null;
             }
             else
-                personWebLink.SubjectUri = new Uri(url);
+            {
+                if (Uri.TryCreate(url, UriKind.Absolute, out Uri uri))
+                    personWebLink.SubjectUri = uri;
+                else
+                {
+                    logger.Warning($"Invalid url '{url}' found");
+                    return null;
+                }
+            }                
 
             return new IBaseOntology[] { personWebLink };
         }

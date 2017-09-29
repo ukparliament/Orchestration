@@ -15,9 +15,10 @@ LogicApps collect data required from various sources, such as from Government re
 Settings.ps1 script generates task variables that are used by ARM templates (*loop.json) to create workflows. Name property is reused accross Logic Apps, scheduler jobs and Azure Functions. There are some additional workflows that override defualt ones.
 
 ## Functions ##
-Functions may be associated with different areas, inluding:
-* the infrasture, as with `GraphDBBackup`;
+Functions may be associated with a variety of areas, including:
+* the infrastructure, as with `GraphDBBackup`;
 * helping to process the data retrieved, as with `JsonKeyToArrayConverter`;
+* providing a consistent way tasks are performed, as with `LogicAppsErrorMessageLog` or `QueueMessagesRetrieval`
 * the data, as with `TransformationTerritory`.
 
 Code (C#) that extends functionality of Logic Apps. In order to run it locally local.settings.json file has to be added to the project.

@@ -5,9 +5,7 @@
 All artefacts are designed for Azure platform. Repository consist of [Logic Apps](https://docs.microsoft.com/en-gb/azure/logic-apps/) and [Azure Functions](https://docs.microsoft.com/en-us/azure/azure-functions/functions-overview) that are deployed using combination of [ARM templates](https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-manager-template-walkthrough) and powershell scripts.
 
 ## Infrastructure ##
-Sets up the platform on which Functions and LogicApps operate.  This sets up:
-* first
-* second
+Sets up the platform on which Functions and LogicApps operate.
 
 ## LogicApps ##
 LogicApps collect data required from various sources, such as from Government registers and publications already published by Parliament. The data retrieved is stored in the GraphDB by the *Functions* in a consistent format for further use.

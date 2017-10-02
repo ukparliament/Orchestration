@@ -1,160 +1,163 @@
 {
-    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
-    "contentVersion": "1.0.0.0",
-    "parameters": {
-        "logicAppsSetting_name": {
-            "type": "array",
-            "metadata": {
-                "description": "Names for Service Bus queues/workflows."
-            }
-        },
-        "azureFunctionsName": {
-            "type": "string",
-            "metadata": {
-                "description": "Name of the Azure Functions."
-            }
-        },
-        "releaseId": {
-            "type": "int",
-            "metadata": {
-                "description": "The identifier of the current release record."
-            }
-        }
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "logicAppsSetting_name": {
+      "type": "array",
+      "metadata": {
+        "description": "Names for Service Bus queues/workflows."
+      }
     },
-    "variables": {},
-    "resources": [
-        {
-            "comments": "Logic App that updates data in GraphDB.",
-            "type": "Microsoft.Logic/workflows",
-            "copy": {
-                "name": "workflowcopy",
-                "count": "[length(parameters('logicAppsSetting_name'))]"
-            },
-            "name": "[concat('update-',parameters('logicAppsSetting_name')[copyIndex()])]",
-            "apiVersion": "2016-06-01",
-            "location": "[resourceGroup().location]",
-            "tags": {
-                "ReleaseId": "[parameters('releaseId')]"
-            },
-            "properties": {
-                "state": "Enabled",
-                "definition": {
-                    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
-                    "actions": {
-                        "Condition": {
-                            "actions": {},
-                            "else": {
-                                "actions": {
-                                    "LogicAppsErrorMessageLog": {
-                                        "inputs": {
-                                            "body": {
-                                                "action": "@actions('Update_Webhook')",
-                                                "workflow": "@workflow()",
-                                                "batchId": "@triggerBody().message.properties.batchId"
-                                            },
-                                            "function": {
-                                                "id": "[concat(subscription().id,'/resourceGroups/',resourceGroup().name,'/providers/Microsoft.Web/sites/',parameters('azureFunctionsName'),'/functions/LogicAppsErrorMessageLog')]"
-                                            },
-                                          "retryPolicy": {
-                                            "type": "none"
-                                          }
-                                        },
-                                        "runAfter": {},
-                                        "type": "Function"
-                                    }
-                                }
-                            },
-                            "expression": "@equals(body('Update_Webhook'), 'OK')",
-                            "runAfter": {
-                                "Update_Webhook": [
-                                    "Succeeded"
-                                ]
-                            },
-                            "type": "If"
-                        },
-                        "LogicAppsErrorMessageLog_2": {
-                            "inputs": {
-                                "body": {
-                                    "action": "@actions('Update_Webhook')",
-                                    "workflow": "@workflow()",
-                                    "batchId": "@triggerBody().message.properties.batchId"
-                                },
-                                "function": {
-                                    "id": "[concat(subscription().id,'/resourceGroups/',resourceGroup().name,'/providers/Microsoft.Web/sites/',parameters('azureFunctionsName'),'/functions/LogicAppsErrorMessageLog')]"
-                                },
-                              "retryPolicy": {
-                                "type": "none"
-                              }
-                            },
-                            "runAfter": {
-                                "Update_Webhook": [
-                                    "Failed"
-                                ]
-                            },
-                            "type": "Function"
-                        },
-                        "Update_Webhook": {
-                            "inputs": {
-                              "retryPolicy": {
-                                "type": "none"
-                              },
-                              "subscribe": {
-                                "body": {
-                                  "callbackUrl": "@listCallbackUrl()",
-                                  "url": "@triggerBody().message.properties.url",
-                                  "batchId": "@triggerBody().message.properties.batchId"
-                                },
-                                "method": "POST",
-                                "uri": "[listsecrets(concat(resourceId('Microsoft.Web/sites',parameters('azureFunctionsName')),concat('/functions/Transformation',parameters('logicAppsSetting_name')[copyIndex()])),'2015-08-01').trigger_url]"
-                              },
-                                "unsubscribe": {}
-                            },
-                            "runAfter": {},
-                            "type": "HttpWebhook"
-                        },
-                        "Response": {
-                            "inputs": {
-                                "statusCode": 200
-                            },
-                            "runAfter": {
-                                "Condition": [
-                                    "Succeeded"
-                                ],
-                                "LogicAppsErrorMessageLog_2": [
-                                    "Succeeded",
-                                    "Skipped"
-                                ]
-                            },
-                            "type": "Response"
-                        }
+    "azureFunctionsName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the Azure Functions."
+      }
+    },
+    "releaseId": {
+      "type": "int",
+      "metadata": {
+        "description": "The identifier of the current release record."
+      }
+    }
+  },
+  "variables": {},
+  "resources": [
+    {
+      "comments": "Logic App that updates data in GraphDB.",
+      "type": "Microsoft.Logic/workflows",
+      "copy": {
+        "name": "workflowcopy",
+        "count": "[length(parameters('logicAppsSetting_name'))]"
+      },
+      "name": "[concat('update-',parameters('logicAppsSetting_name')[copyIndex()])]",
+      "apiVersion": "2016-06-01",
+      "location": "[resourceGroup().location]",
+      "tags": {
+        "ReleaseId": "[parameters('releaseId')]"
+      },
+      "properties": {
+        "state": "Enabled",
+        "definition": {
+          "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+          "actions": {
+            "Condition": {
+              "actions": {},
+              "else": {
+                "actions": {
+                  "LogicAppsErrorMessageLog": {
+                    "inputs": {
+                      "body": {
+                        "action": "@actions('Update_Webhook')",
+                        "workflow": "@workflow()",
+                        "batchId": "@triggerBody().message.properties.batchId"
+                      },
+                      "function": {
+                        "id": "[concat(subscription().id,'/resourceGroups/',resourceGroup().name,'/providers/Microsoft.Web/sites/',parameters('azureFunctionsName'),'/functions/LogicAppsErrorMessageLog')]"
+                      },
+                      "retryPolicy": {
+                        "type": "none"
+                      }
                     },
-                    "contentVersion": "1.0.0.0",
-                    "outputs": {},
-                    "parameters": {},
-                    "triggers": {
-                        "manual": {
-                            "inputs": {
-                                "schema": {
-                                    "properties": {
-                                        "message": {
-                                            "type": "object"
-                                        }
-                                    },
-                                    "required": [
-                                        "message"
-                                    ],
-                                    "type": "object"
-                                }
-                            },
-                            "kind": "Http",
-                            "type": "Request"
-                        }
-                    }
-                },
-                "parameters": {}
+                    "runAfter": {},
+                    "type": "Function"
+                  }
+                }
+              },
+              "expression": "@equals(body('Update_Webhook'), 'OK')",
+              "runAfter": {
+                "Update_Webhook": [
+                  "Succeeded"
+                ]
+              },
+              "type": "If"
             },
-            "resources": [],
-            "dependsOn": []
-        }
-    ]
+            "LogicAppsErrorMessageLog_2": {
+              "inputs": {
+                "body": {
+                  "action": "@actions('Update_Webhook')",
+                  "workflow": "@workflow()",
+                  "batchId": "@triggerBody().message.properties.batchId"
+                },
+                "function": {
+                  "id": "[concat(subscription().id,'/resourceGroups/',resourceGroup().name,'/providers/Microsoft.Web/sites/',parameters('azureFunctionsName'),'/functions/LogicAppsErrorMessageLog')]"
+                },
+                "retryPolicy": {
+                  "type": "none"
+                }
+              },
+              "runAfter": {
+                "Update_Webhook": [
+                  "Failed"
+                ]
+              },
+              "type": "Function"
+            },
+            "Update_Webhook": {
+              "inputs": {
+                "retryPolicy": {
+                  "type": "none"
+                },
+                "subscribe": {
+                  "body": {
+                    "callbackUrl": "@listCallbackUrl()",
+                    "url": "@triggerBody().message.properties.url",
+                    "batchId": "@triggerBody().message.properties.batchId"
+                  },
+                  "method": "POST",
+                  "uri": "[listsecrets(concat(resourceId('Microsoft.Web/sites',parameters('azureFunctionsName')),concat('/functions/Transformation',parameters('logicAppsSetting_name')[copyIndex()])),'2015-08-01').trigger_url]"
+                },
+                "unsubscribe": {}
+              },
+              "limit": {
+                "timeout": "PT5M"
+              },
+              "runAfter": {},
+              "type": "HttpWebhook"
+            },
+            "Response": {
+              "inputs": {
+                "statusCode": 200
+              },
+              "runAfter": {
+                "Condition": [
+                  "Succeeded"
+                ],
+                "LogicAppsErrorMessageLog_2": [
+                  "Succeeded",
+                  "Skipped"
+                ]
+              },
+              "type": "Response"
+            }
+          },
+          "contentVersion": "1.0.0.0",
+          "outputs": {},
+          "parameters": {},
+          "triggers": {
+            "manual": {
+              "inputs": {
+                "schema": {
+                  "properties": {
+                    "message": {
+                      "type": "object"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ],
+                  "type": "object"
+                }
+              },
+              "kind": "Http",
+              "type": "Request"
+            }
+          }
+        },
+        "parameters": {}
+      },
+      "resources": [],
+      "dependsOn": []
+    }
+  ]
 }

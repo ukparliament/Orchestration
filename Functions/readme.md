@@ -1,3 +1,6 @@
+These sections form the orchestresions for the platform.  The are hosted on the platforn's rerources descibed and configured using ARM (Azure Resource Manager)
+templates. 
+
 **Path**:    **Functions**
 
 **Description**: The functions being described follow the pattern Transform*Message* where *Message* has been created by it's corresponding getlist-*Message* function in **Logic Apps**

@@ -5,7 +5,17 @@
 All artefacts are designed for Azure platform. Repository consist of [Logic Apps](https://docs.microsoft.com/en-gb/azure/logic-apps/) and [Azure Functions](https://docs.microsoft.com/en-us/azure/azure-functions/functions-overview) that are deployed using combination of [ARM templates](https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-manager-template-walkthrough) and powershell scripts.
 
 ## Infrastructure ##
-Sets up the platform on which Functions and LogicApps operate.
+Sets up the platform on which **Functions** and **LogicApps** operate.  This is deployed from **Infrasture**, setting up:
+* the WMs
+* the Network components and Firwalls
+* Storage Devices
+* Schedules
+
+These components are required and used by the **LogicApps** and **Functions**.
+
+Deploment is initiated through `Tasks` defined within the `Build and Release` section in VSTS.  These use ARM templates defined in the Infastruture folder
+which are configured using JSON files, such as `Scheduler.json` located in the `Orchestration / Infrastructure` folder which sets up the schedulated tasks
+required by data collection functions.
 
 ## LogicApps ##
 LogicApps collect data required from a variety of sources, such as from Government registers and publications already published by Parliament. The data retrieved is stored in the GraphDB by the *Functions* in a consistent format for further use.

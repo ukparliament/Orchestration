@@ -5,7 +5,7 @@
 All artefacts are designed for the Azure Platform Repository consisting of [Logic Apps](https://docs.microsoft.com/en-gb/azure/logic-apps/) and [Azure Functions](https://docs.microsoft.com/en-us/azure/azure-functions/functions-overview) that are deployed using combination of [ARM templates](https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-manager-template-walkthrough) and powershell scripts.
 
 ## Infrastructure ##
-Sets up the platform on which **Functions** and **LogicApps** operate.  This is deployed from **Infrasture**, setting up:
+Sets up the platform on which **Functions** and **LogicApps** operate.  This is deployed from using settings defined under **Infrasture**, setting up:
 * the WMs
 * the Network components and Firwalls
 * Storage Devices

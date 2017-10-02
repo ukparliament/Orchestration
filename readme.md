@@ -11,14 +11,14 @@ Sets up the platform on which **Functions** and **LogicApps** operate.  This is 
 * Storage Devices
 * Schedules
 
-These components are required and used by the **LogicApps** and **Functions**.
+Therefore these components are required by the **LogicApps** and **Functions**.
 
 Deploment is initiated through `Tasks` defined within the `Build and Release` section in VSTS.  These use ARM templates defined in the Infastruture folder
 which are configured using JSON files, such as `Scheduler.json` located in the `Orchestration / Infrastructure` folder which sets up the schedulated tasks
 required by data collection functions.
 
 ## LogicApps ##
-LogicApps collect data required from a variety of sources, such as from Government registers and publications already published by Parliament. The data retrieved is stored in the GraphDB by the *Functions* in a consistent format for further use.
+LogicApps collect data required from a variety of sources, such as from Government registers and publications already published elsewhere by Parliament. The data retrieved is stored in the GraphDB by the *Functions* in a consistent format for further use.
 
 Settings.ps1 script generates task variables that are used by ARM templates (*loop.json) to create workflows. Name property is reused accross Logic Apps, scheduler jobs and Azure Functions. There are some additional workflows that override defualt ones.
 

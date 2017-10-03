@@ -24,7 +24,7 @@ Currently retention is permanent but will be reduced if an expected enhancement 
 
 **Path**: `IdRetrieval.cs`
 
-**Description**: Helper class to read data (Subject, Value) from the triple store with the option to create data when it's not present.
+**Description**: Helper class to read data (Subject and Value) from the triple store with the option to create data when it's not present.
 
 ---
 

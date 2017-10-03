@@ -17,7 +17,7 @@ corresponding getlist-*Message* function in **Logic Apps**.  Transformations:
 **Path**: `GraphDBBackup`
 
 **Description**: Backs up this database. The GraphDB is the data storage platform for the entrire platform.
-The backup is performed daily to Azure's backup data platform resource and is scheduled by the platform.
+The backup is performed daily at 5am to Azure's backup data platform resource and is scheduled in the `SchedulerJobLoop.json` file in the `LogicApps` folder.
 Currently retention is permanent but will be reduced if an expected enhancement from
 Microsoft reducing the retention is introcuced.
 

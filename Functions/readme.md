@@ -36,7 +36,7 @@ Microsoft reducing the retention is introcuced.
 * the ability to log durations, recording the start and end times
 * Log messages as errors.
 
-Logs are managed by Operations Management Suite on the platform allowing:
-* analysis
+Logs are managed by Operations Management Suite (OMS) on the platform. Through OMS the following can be performed:
+*log analysis 
 * alerting
 * historic storage

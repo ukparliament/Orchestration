@@ -10,7 +10,7 @@ corresponding getlist-*Message* function in **Logic Apps**.  Transformations:
 
 **Input**: Messages from the MessageBus
 
-**Output**: Transformed *Message* in a standard form.
+**Output**: Transformed *Message* in a standard form based on the ontology.
 
 ----
 
@@ -39,5 +39,5 @@ Microsoft reducing the retention is introcuced.
 Logs are managed by Operations Management Suite (OMS) on the platform. Through OMS the following can be performed:
 
 * log analysis 
-* alerting
+* raising of alerts
 * historic storage

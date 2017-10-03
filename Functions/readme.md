@@ -18,7 +18,7 @@ corresponding getlist-*Message* function in **Logic Apps**.  Transformations:
 
 **Description**: Backs up this database to the data storage platform.
 The backup is run daily at 5am to Azure's backup data platform resource. This is scheduled in the `SchedulerJobLoop.json` file in the `LogicApps` folder.
-Currently retention is permanent but will be reduced if an expected enhancement from Microsoft can manage this retention automatically.
+Currently retention is permanent but will be reduced if an expected enhancement from Microsoft can manage this retention better and automatically.
 
 ---
 

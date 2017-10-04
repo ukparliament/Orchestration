@@ -45,12 +45,12 @@ namespace Functions.TransformationMemberMnis
                 member.PersonHasGenderIdentity = new IGenderIdentity[] { genderIdentity };
             }
 
-            List<IIncumbency> incumbencies = new List<IIncumbency>();
+            List<IParliamentaryIncumbency> incumbencies = new List<IParliamentaryIncumbency>();
             string house = personElement.Element(d + "House").GetText();
             if (house == "Lords")
                 incumbencies.AddRange(generateHouseIncumbencies(doc));
             incumbencies.AddRange(generateSeatIncumbencies(doc));
-            member.MemberHasIncumbency = incumbencies.ToArray();
+            member.MemberHasParliamentaryIncumbency = incumbencies.ToArray();
 
             return new IBaseOntology[] { member, mnisPerson, dodsPerson, pimsPerson, deceasedPerson, partyMember };
         }
@@ -89,18 +89,18 @@ namespace Functions.TransformationMemberMnis
                 if (genderIdentity != null)
                     member.PersonHasGenderIdentity.SingleOrDefault().SubjectUri = genderIdentity.SubjectUri;
             }
-            if ((member.MemberHasIncumbency != null) && (member.MemberHasIncumbency.Any()))
+            if ((member.MemberHasParliamentaryIncumbency != null) && (member.MemberHasParliamentaryIncumbency.Any()))
             {
-                IEnumerable<IIncumbency> incumbencies = target.OfType<IIncumbency>();
+                IEnumerable<IParliamentaryIncumbency> incumbencies = target.OfType<IParliamentaryIncumbency>();
                 if ((incumbencies != null) && (incumbencies.Any()))
                 {
-                    foreach (IIncumbency incumbency in member.MemberHasIncumbency.Where(i => i.IncumbencyStartDate != null))
+                    foreach (IParliamentaryIncumbency incumbency in member.MemberHasParliamentaryIncumbency.Where(i => i.ParliamentaryIncumbencyStartDate != null))
                     {
-                        IIncumbency foundIncumbency = incumbencies.SingleOrDefault(h => h.IncumbencyStartDate == incumbency.IncumbencyStartDate);
+                        IParliamentaryIncumbency foundIncumbency = incumbencies.SingleOrDefault(h => h.ParliamentaryIncumbencyStartDate == incumbency.ParliamentaryIncumbencyStartDate);
                         if (foundIncumbency != null)
                         {
-                            IIncumbency[] matchedIncumbencies = member.MemberHasIncumbency.Where(i => i.SubjectUri == incumbency.SubjectUri).ToArray();
-                            foreach (IIncumbency newIncumbency in matchedIncumbencies)
+                            IParliamentaryIncumbency[] matchedIncumbencies = member.MemberHasParliamentaryIncumbency.Where(i => i.SubjectUri == incumbency.SubjectUri).ToArray();
+                            foreach (IParliamentaryIncumbency newIncumbency in matchedIncumbencies)
                                 newIncumbency.SubjectUri = foundIncumbency.SubjectUri;
                         }
                     }
@@ -146,7 +146,7 @@ namespace Functions.TransformationMemberMnis
             return newGraph;
         }
 
-        private IEnumerable<IIncumbency> generateSeatIncumbencies(XDocument doc)
+        private IEnumerable<IParliamentaryIncumbency> generateSeatIncumbencies(XDocument doc)
         {
             IEnumerable<XElement> memberIncumbenciesElements = doc.Element(atom + "entry")
                     .Elements(atom + "link")
@@ -158,13 +158,13 @@ namespace Functions.TransformationMemberMnis
             foreach (XElement element in memberIncumbenciesElements)
             {
                 XElement seatIncumbencyElement = element.Element(atom + "content").Element(m + "properties");
-                IPastIncumbency incumbency = new PastIncumbency();
+                IPastParliamentaryIncumbency incumbency = new PastParliamentaryIncumbency();
                 incumbency.SubjectUri = GenerateNewId();
-                incumbency.IncumbencyStartDate = seatIncumbencyElement.Element(d + "StartDate").GetDate();
-                incumbency.IncumbencyEndDate = seatIncumbencyElement.Element(d + "EndDate").GetDate();
+                incumbency.ParliamentaryIncumbencyStartDate = seatIncumbencyElement.Element(d + "StartDate").GetDate();
+                incumbency.ParliamentaryIncumbencyEndDate = seatIncumbencyElement.Element(d + "EndDate").GetDate();
                 ISeatIncumbency seatIncumbency = new SeatIncumbency();                
                 seatIncumbency.SubjectUri = incumbency.SubjectUri;
-                IParliamentPeriod parliamentPeriod = generateSeatIncumbencyParliamentPeriod(incumbency.IncumbencyStartDate.Value, incumbency.IncumbencyEndDate);
+                IParliamentPeriod parliamentPeriod = generateSeatIncumbencyParliamentPeriod(incumbency.ParliamentaryIncumbencyStartDate.Value, incumbency.ParliamentaryIncumbencyEndDate);
                 if (parliamentPeriod != null)
                     seatIncumbency.SeatIncumbencyHasParliamentPeriod = new IParliamentPeriod[] { parliamentPeriod };
 
@@ -201,7 +201,7 @@ namespace Functions.TransformationMemberMnis
             }
         }
 
-        private IEnumerable<IIncumbency> generateHouseIncumbencies(XDocument doc)
+        private IEnumerable<IParliamentaryIncumbency> generateHouseIncumbencies(XDocument doc)
         {
             HashSet<DateTimeOffset> dates = new HashSet<DateTimeOffset>();
             Uri houseUri = IdRetrieval.GetSubject("houseName", "House of Lords", false, logger);
@@ -216,14 +216,14 @@ namespace Functions.TransformationMemberMnis
             foreach (XElement element in lordsIncumbenciesElements)
             {
                 XElement lordIncumbencyElement = element.Element(atom + "content").Element(m + "properties");
-                IPastIncumbency incumbency = new PastIncumbency();
+                IPastParliamentaryIncumbency incumbency = new PastParliamentaryIncumbency();
                 incumbency.SubjectUri = GenerateNewId();
-                incumbency.IncumbencyStartDate = lordIncumbencyElement.Element(d + "StartDate").GetDate();
-                incumbency.IncumbencyEndDate = lordIncumbencyElement.Element(d + "EndDate").GetDate();
-                if (((incumbency.IncumbencyEndDate.HasValue == false) || (incumbency.IncumbencyStartDate <= incumbency.IncumbencyEndDate)) &&
-                    (dates.Contains(incumbency.IncumbencyStartDate.Value) == false))
+                incumbency.ParliamentaryIncumbencyStartDate = lordIncumbencyElement.Element(d + "StartDate").GetDate();
+                incumbency.ParliamentaryIncumbencyEndDate = lordIncumbencyElement.Element(d + "EndDate").GetDate();
+                if (((incumbency.ParliamentaryIncumbencyEndDate.HasValue == false) || (incumbency.ParliamentaryIncumbencyStartDate <= incumbency.ParliamentaryIncumbencyEndDate)) &&
+                    (dates.Contains(incumbency.ParliamentaryIncumbencyStartDate.Value) == false))
                 {
-                    dates.Add(incumbency.IncumbencyStartDate.Value);
+                    dates.Add(incumbency.ParliamentaryIncumbencyStartDate.Value);
                     string houseIncumbencyTypeMnisId = lordIncumbencyElement.Element(d + "LordsMembershipType_Id").GetText();
                     IHouseIncumbency houseIncumbency = new HouseIncumbency();
                     houseIncumbency.SubjectUri = incumbency.SubjectUri;

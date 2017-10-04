@@ -39,8 +39,8 @@ namespace Functions.TransformationContactPointElectoralMnis
                 parl:faxNumber ?faxNumber;
                 parl:phoneNumber ?phoneNumber;
                 parl:contactPointHasPostalAddress ?postalAddress;
-                parl:contactPointHasElectoralIncumbency ?incumbency.
-            ?incumbency a parl:ElectoralIncumbency.
+                parl:contactPointHasElectoralIncumbency ?electoralIncumbency.
+            ?electoralIncumbency a parl:ElectoralIncumbency.
             ?postalAddress a parl:PostalAddress;
                 parl:addressLine1 ?addressLine1;
                 parl:addressLine2 ?addressLine2;
@@ -64,7 +64,7 @@ namespace Functions.TransformationContactPointElectoralMnis
                 optional {?postalAddress parl:addressLine5 ?addressLine5}
                 optional {?postalAddress parl:postCode ?postCode}
             }
-            optional {?contactPoint parl:contactPointHasElectoralIncumbency ?incumbency}
+            optional {?contactPoint parl:contactPointHasElectoralIncumbency ?electoralIncumbency}
         }";
             }
         }

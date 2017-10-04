@@ -21,25 +21,25 @@ namespace Functions.TransformationContactPointSeatMnis
             contactPoint.FaxNumber = contactPointElement.Element(d + "Fax").GetText();
             contactPoint.PhoneNumber = contactPointElement.Element(d + "Phone").GetText();
             contactPoint.ContactPointHasPostalAddress = GeneratePostalAddress(contactPointElement);
-            IIncumbency incumbency = generateIncumbency(contactPointElement);
+            IParliamentaryIncumbency incumbency = generateIncumbency(contactPointElement);
             if (incumbency != null)
-                contactPoint.ContactPointHasIncumbency = new IIncumbency[] { incumbency };
+                contactPoint.ContactPointHasParliamentaryIncumbency = new IParliamentaryIncumbency[] { incumbency };
 
             return new IBaseOntology[] { contactPoint };
         }
 
-        private IIncumbency generateIncumbency(XElement contactPointElement)
+        private IParliamentaryIncumbency generateIncumbency(XElement contactPointElement)
         {
-            IIncumbency incumbency = null;
+            IParliamentaryIncumbency incumbency = null;
             string incumbencyCommand = @"
         construct {
-            ?id a parl:Incumbency.
+            ?id a parl:ParliamentaryIncumbency.
         }
         where {
-            ?id parl:incumbencyHasMember ?incumbencyHasMember;
-                parl:incumbencyStartDate ?incumbencyStartDate.
-            ?incumbencyHasMember parl:personMnisId @personMnisId.
-        } order by desc(?incumbencyStartDate) limit 1";
+            ?id parl:parliamentaryIncumbencyHasMember ?parliamentaryIncumbencyHasMember;
+                parl:parliamentaryIncumbencyStartDate ?parliamentaryIncumbencyStartDate.
+            ?parliamentaryIncumbencyHasMember parl:personMnisId @personMnisId.
+        } order by desc(?parliamentaryIncumbencyStartDate) limit 1";
             Uri incumbencyUri;
 
             string mnisId = contactPointElement.Element(d + "Member_Id").GetText();
@@ -53,7 +53,7 @@ namespace Functions.TransformationContactPointSeatMnis
             incumbencySparql.SetLiteral("personMnisId", mnisId);
             incumbencyUri = IdRetrieval.GetSubject(incumbencySparql.ToString(), false, logger);
             if (incumbencyUri != null)
-                incumbency = new Incumbency()
+                incumbency = new ParliamentaryIncumbency()
                 {
                     SubjectUri = incumbencyUri
                 };

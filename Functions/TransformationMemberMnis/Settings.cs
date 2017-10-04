@@ -44,15 +44,15 @@
                 <http://example.com/A5EE13ABE03C4D3A8F1A274F57097B6C> ?personNameListAs;
                 <http://example.com/D79B0BAC513C4A9A87C9D5AFF1FC632F> ?personNameFullTitle;
                 parl:personHasGenderIdentity ?genderIdentity;
-                parl:memberHasIncumbency ?incumbency;
+                parl:memberHasParliamentaryIncumbency ?parliamentaryIncumbency;
                 parl:partyMemberHasPartyMembership ?partyMembership.
             ?genderIdentity a parl:GenderIdentity;
                 parl:genderIdentityHasGender ?gender.
-            ?incumbency a parl:Incumbency;
+            ?parliamentaryIncumbency a parl:ParliamentaryIncumbency;
                 parl:seatIncumbencyHasHouseSeat ?seatIncumbencyHasHouseSeat;
                 parl:seatIncumbencyHasParliamentPeriod ?seatIncumbencyHasParliamentPeriod;
-        		parl:incumbencyStartDate ?incumbencyStartDate;
-        		parl:incumbencyEndDate ?incumbencyEndDate;
+        		parl:parliamentaryIncumbencyStartDate ?parliamentaryIncumbencyStartDate;
+        		parl:parliamentaryIncumbencyEndDate ?parliamentaryIncumbencyEndDate;
                 parl:houseIncumbencyHasHouse ?houseIncumbencyHasHouse;
                 parl:houseIncumbencyHasHouseIncumbencyType ?houseIncumbencyHasHouseIncumbencyType.
             ?partyMembership a parl:PartyMembership;
@@ -81,13 +81,13 @@
                 }
             }
             optional {
-                ?person parl:memberHasIncumbency ?incumbency.
-                optional {?incumbency parl:incumbencyStartDate ?incumbencyStartDate}
-                optional {?incumbency parl:incumbencyEndDate ?incumbencyEndDate}
-                optional {?incumbency parl:seatIncumbencyHasHouseSeat ?seatIncumbencyHasHouseSeat}
-                optional {?incumbency parl:seatIncumbencyHasParliamentPeriod ?seatIncumbencyHasParliamentPeriod}
+                ?person parl:memberHasParliamentaryIncumbency ?parliamentaryIncumbency.
+                optional {?parliamentaryIncumbency parl:parliamentaryIncumbencyStartDate ?parliamentaryIncumbencyStartDate}
+                optional {?parliamentaryIncumbency parl:parliamentaryIncumbencyEndDate ?parliamentaryIncumbencyEndDate}
+                optional {?parliamentaryIncumbency parl:seatIncumbencyHasHouseSeat ?seatIncumbencyHasHouseSeat}
+                optional {?parliamentaryIncumbency parl:seatIncumbencyHasParliamentPeriod ?seatIncumbencyHasParliamentPeriod}
                 optional {
-                    ?incumbency parl:houseIncumbencyHasHouse ?houseIncumbencyHasHouse;
+                    ?parliamentaryIncumbency parl:houseIncumbencyHasHouse ?houseIncumbencyHasHouse;
                         parl:houseIncumbencyHasHouseIncumbencyType ?houseIncumbencyHasHouseIncumbencyType.
                     ?houseIncumbencyHasHouse parl:houseName ""House of Lords"".
                 }

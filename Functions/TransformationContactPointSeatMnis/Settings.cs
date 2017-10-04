@@ -37,8 +37,8 @@
                 parl:faxNumber ?faxNumber;
                 parl:phoneNumber ?phoneNumber;
                 parl:contactPointHasPostalAddress ?postalAddress;
-                parl:contactPointHasIncumbency ?incumbency.
-            ?incumbency a parl:Incumbency.
+                parl:contactPointHasParliamentaryIncumbency ?parliamentaryIncumbency.
+            ?parliamentaryIncumbency a parl:ParliamentaryIncumbency.
             ?postalAddress a parl:PostalAddress;
                 parl:addressLine1 ?addressLine1;
                 parl:addressLine2 ?addressLine2;
@@ -62,7 +62,7 @@
                 optional {?postalAddress parl:addressLine5 ?addressLine5}
                 optional {?postalAddress parl:postCode ?postCode}
             }
-            optional {?contactPoint parl:contactPointHasIncumbency ?incumbency}
+            optional {?contactPoint parl:contactPointHasParliamentaryIncumbency ?parliamentaryIncumbency}
         }";
             }
         }

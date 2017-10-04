@@ -33,13 +33,13 @@ namespace Functions.TransformationContactPointElectoralMnis
             IElectoralIncumbency incumbency = null;
             string incumbencyCommand = @"
         construct {
-            ?id a parl:Incumbency.
+            ?id a parl:ParliamentaryIncumbency.
         }
         where {
-            ?id parl:incumbencyHasMember ?incumbencyHasMember;
-                parl:incumbencyStartDate ?incumbencyStartDate.
-            ?incumbencyHasMember parl:personMnisId @personMnisId.
-        } order by desc(?incumbencyStartDate) limit 1";
+            ?id parl:parliamentaryIncumbencyHasMember ?parliamentaryIncumbencyHasMember;
+                parl:parliamentaryIncumbencyStartDate ?parliamentaryIncumbencyStartDate.
+            ?parliamentaryIncumbencyHasMember parl:personMnisId @personMnisId.
+        } order by desc(?parliamentaryIncumbencyStartDate) limit 1";
             Uri incumbencyUri;
 
             string mnisId = contactPointElement.Element(d + "Member_Id").GetText();

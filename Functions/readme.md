@@ -1,20 +1,42 @@
-These sections form the orchestresions for the platform.  The are hosted on the platforn's rerources descibed and configured using ARM (Azure Resource Manager)
+These sections form the orchestrations of the platform.  They are hosted on the platforn's rerources descibed and configured using ARM (Azure Resource Manager)
 templates. 
 
 **Path**:    **Functions**
 
-**Description**: The functions being described follow the pattern Transform*Message* where *Message* has been created by it's corresponding getlist-*Message* function in **Logic Apps**
-The transformations occuring are:
-*  language used in *Message* follows Parliament's ontology
-*  Duplicates will not be created; rather duplicates will return the original *Message*.
+**Description**: Functions conforming to a Transform*Message* convention follow the same pattern.  *Message* has been created by it's
+corresponding getlist-*Message* function in **Logic Apps**.  Transformations:
+*  use the consistent language defined by Parliament's ontology in the *Message* 
+*  avoid creating duplicates; rather duplicates will return the original *Message*.
 
 **Input**: Messages from the MessageBus
 
-**Output**: *Message* in the standard form.
+**Output**: Transformed *Message* in a standard form based on the ontology.
 
 ----
 
 **Path**: `GraphDBBackup`
 
-**Description**: Backs up this database. The GraphDB is the data storage platform for the entrire platform.  The backup is written toAzure's backupdataplatform resource.
+**Description**: Backs up this database to the data storage platform.
+The backup is run daily at 5am to Azure's backup data platform resource. This is scheduled in the `SchedulerJobLoop.json` file in the `LogicApps` folder.
+Currently retention is permanent but will be reduced if an expected enhancement from Microsoft can manage this retention better and automatically.
 
+---
+
+**Path**: `IdRetrieval.cs`
+
+**Description**: Helper class to read data (Subject and Value) from the triple store with the option to create data when it's not present.
+
+---
+
+**Path**: `Logger.cs`
+
+**Description**: Helper class to log messages to the event log.  Functionality included is:
+* Messages are logged with a Severity Level;
+* the ability to log durations, recording the start and end times
+* Log messages as errors.
+
+Logs are managed by Operations Management Suite (OMS) on the platform. Through OMS the following can be performed:
+
+* log analysis 
+* raising of alerts
+* historic storage

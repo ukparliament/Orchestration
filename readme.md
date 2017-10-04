@@ -2,15 +2,25 @@
 
 ## Overview ##
 
-All artefacts are designed for Azure platform. Repository consist of [Logic Apps](https://docs.microsoft.com/en-gb/azure/logic-apps/) and [Azure Functions](https://docs.microsoft.com/en-us/azure/azure-functions/functions-overview) that are deployed using combination of [ARM templates](https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-manager-template-walkthrough) and powershell scripts.
+All artefacts are designed for the Azure Platform Repository consisting of [Logic Apps](https://docs.microsoft.com/en-gb/azure/logic-apps/) and [Azure Functions](https://docs.microsoft.com/en-us/azure/azure-functions/functions-overview) that are deployed using combination of [ARM templates](https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-manager-template-walkthrough) and powershell scripts.
 
 ## Infrastructure ##
-Sets up the platform on which Functions and LogicApps operate.
+**Infrastructure** sets up the platform on which **Functions** and **LogicApps** operate.  This is deployed from using settings defined under **Infrasture**, setting up:
+* the WMs and clustered VMs
+* the Network components and Firwalls
+* Storage Devices
+* Schedules
+
+Deploment is initiated through `Tasks` defined within the `Build and Release` section in VSTS.  These use ARM templates defined in the Infastruture folder
+which are configured using JSON files, such as `Scheduler.json` located in the `Orchestration / Infrastructure` folder which sets up the schedulated tasks
+required by data collection functions.
 
 ## LogicApps ##
-LogicApps collect data required from a variety of sources, such as from Government registers and publications already published by Parliament. The data retrieved is stored in the GraphDB by the *Functions* in a consistent format for further use.
+LogicApps collect data required from a variety of sources, including the Government registers and publications already published elsewhere by Parliament.
+The data retrieved is stored in the GraphDB by the *Functions* in a consistent format for further use.
 
-Settings.ps1 script generates task variables that are used by ARM templates (*loop.json) to create workflows. Name property is reused accross Logic Apps, scheduler jobs and Azure Functions. There are some additional workflows that override defualt ones.
+`Settings.ps1` script generates task variables that are used by ARM templates (*loop.json) to create workflows. Name property is reused accross Logic Apps,
+scheduler jobs and Azure Functions. There are some additional workflows that override default ones.
 
 ## Functions ##
 Functions may be associated with a variety of areas, including:

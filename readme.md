@@ -5,15 +5,46 @@
 All artefacts are designed for the Azure Platform Repository consisting of [Logic Apps](https://docs.microsoft.com/en-gb/azure/logic-apps/) and [Azure Functions](https://docs.microsoft.com/en-us/azure/azure-functions/functions-overview) that are deployed using combination of [ARM templates](https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-manager-template-walkthrough) and powershell scripts.
 
 ## Infrastructure ##
-**Infrastructure** sets up the platform on which **Functions** and **LogicApps** operate.  This is deployed from using settings defined under **Infrasture**, setting up:
-* the WMs and clustered VMs
-* the Network components and Firwalls
+**Infrastructure** sets up the platform on which **Functions** and **LogicApps** operate.  This is deployed using settings defined under **Infrasture** setting up:
+* the Virtual Machines (VMs) and clustered VMs
+* the Network components and Firewalls
 * Storage Devices
 * Schedules
 
 Deploment is initiated through `Tasks` defined within the `Build and Release` section in VSTS.  These use ARM templates defined in the Infastruture folder
 which are configured using JSON files, such as `Scheduler.json` located in the `Orchestration / Infrastructure` folder which sets up the schedulated tasks
 required by data collection functions.
+
+### Environments ###
+
+Components of the infrastructure are organised into the following environments:
+* Dev
+* Staging
+* Live
+
+Developments take place in the `Dev` environment and are realeased to the `Live` environment when development is completed.
+The `Dev` environment is also used to try and test new concepts which do not form part of the standard development plans, such as migrating 
+Parliament's legacy services onto the Azure platform.
+
+### Components of the Infrastructure ###
+
+VMs perform the computational role for the infrastructure, running the Logic Apps and Functions.  Clustering provides the
+mechanism to recover should a VM fail which is expected to happen if Microsoft performs maintence on their physical computers.
+
+#### Network components ####
+
+These components include:
+* Network Security Groups (NSGs), comprising of:
+  * Inbound rules; and
+  * Outbound rule
+* Virtual Networks
+* Clusters
+* Network Interface Cards
+
+NSGs 
+
+
+
 
 ## LogicApps ##
 LogicApps collect data required from a variety of sources, including the Government registers and publications already published elsewhere by Parliament.

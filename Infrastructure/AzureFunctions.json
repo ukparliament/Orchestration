@@ -120,7 +120,10 @@
       },
       "properties": {
         "enabled": true,
-        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', parameters('azureFunctionsName'))]"
+        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', parameters('azureFunctionsName'))]",
+        "siteConfig": {
+          "alwaysOn": true
+        }
       },
       "resources": [
         {

@@ -38,19 +38,22 @@ These components include:
   * Inbound rules; and
   * Outbound rule
 * Virtual Networks
-* Clusters
+* Network Clusters
 * Network Interface Cards
 
-NSGs 
+NSGs protect the componets they safeguard by restricting the network traffic that is permitted to pass through them.  
+NSGs define Inbound and Outbound rules which allow (and deny) access to components.  Rules are following
+Microsoft's recommendations.
 
-
-
+The network components show those which are conneted to the Internet and those which aren't with NSGs protecting those that are.
 
 ## LogicApps ##
-LogicApps collect data required from a variety of sources, including the Government registers and publications already published elsewhere by Parliament.
-The data retrieved is stored in the GraphDB by the *Functions* in a consistent format for further use.
+LogicApps collect data required from a variety of sources, including the Government registers and publications 
+already published elsewhere by Parliament.  The data retrieved is stored in the GraphDB by the *Functions* 
+in a consistent format for further use.
 
-`Settings.ps1` script generates task variables that are used by ARM templates (*loop.json) to create workflows. Name property is reused accross Logic Apps,
+`Settings.ps1` script generates task variables that are used by ARM templates (*loop.json) to create
+workflows. Name property is reused accross Logic Apps,
 scheduler jobs and Azure Functions. There are some additional workflows that override default ones.
 
 ## Functions ##
@@ -60,8 +63,8 @@ Functions may be associated with a variety of areas, including:
 * providing a consistent way tasks are performed, as with `LogicAppsErrorMessageLog` or `QueueMessagesRetrieval`
 * the data, as with `TransformationTerritory`.
 
-Code (C#) that extends functionality of Logic Apps. In order to run it locally local.settings.json file has to be added to the project.
-Below is the layout of the file:
+Code (C#) that extends functionality of Logic Apps. In order to run it locally local.settings.json file 
+as to be added to the project.  Below is the layout of the file:
 
 ```json
 {

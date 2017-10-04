@@ -89,11 +89,11 @@
       "comments": "App Service plan for the Azure Functions",
       "type": "Microsoft.Web/serverfarms",
       "sku": {
-        "name": "Y1",
-        "tier": "Dynamic",
-        "size": "Y1",
-        "family": "Y",
-        "capacity": 0
+        "name": "S1",
+        "tier": "Standard",
+        "size": "S1",
+        "family": "S",
+        "capacity": 1
       },
       "kind": "functionapp",
       "name": "[parameters('azureFunctionsName')]",

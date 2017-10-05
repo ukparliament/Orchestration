@@ -17,14 +17,16 @@ required by data collection functions.
 
 ### Environments ###
 
-Components of the infrastructure are organised into the following environments:
-* Dev
+Components of the infrastructure are organised into the following major environments:
 * Staging
 * Live
 
-Developments take place in the `Dev` environment and are realeased to the `Live` environment when development is completed.
-The `Dev` environment is also used to try and test new concepts which do not form part of the standard development plans, such as migrating 
-Parliament's legacy services onto the Azure platform.
+The Staging environment
+hosts the platform used by the WebSite with their DevCI webite during its development.  When complete
+the Data and Search platrom is deployed to `Live` and utilised by the Beta webite at https://beta.parliament.uk/.
+
+Additional environments are created by the Data and Search Team to meet specific development objectives such as when 
+migrating existing legacy services to the Azure platform.
 
 ### Components of the Infrastructure ###
 

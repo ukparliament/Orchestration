@@ -20,8 +20,7 @@
                 ?s a parl:HouseIncumbencyType.
             }
             where{
-                ?s a parl:HouseIncumbencyType; 
-                    parl:houseIncumbencyTypeMnisId @houseIncumbencyTypeMnisId.
+                ?s parl:houseIncumbencyTypeMnisId @houseIncumbencyTypeMnisId.
             }";
             }
         }

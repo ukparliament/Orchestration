@@ -17,14 +17,16 @@ required by data collection functions.
 
 ### Environments ###
 
-Components of the infrastructure are organised into the following environments:
-* Dev
+Components of the infrastructure are organised into the following major environments:
 * Staging
 * Live
 
-Developments take place in the `Dev` environment and are realeased to the `Live` environment when development is completed.
-The `Dev` environment is also used to try and test new concepts which do not form part of the standard development plans, such as migrating 
-Parliament's legacy services onto the Azure platform.
+The Staging environment
+hosts the platform used by the WebSite with their DevCI webite during its development.  When complete
+the Data and Search platrom is deployed to `Live` and utilised by the Beta webite at https://beta.parliament.uk/.
+
+Additional environments are created by the Data and Search Team to meet specific development objectives such as when 
+migrating existing legacy services to the Azure platform.
 
 ### Components of the Infrastructure ###
 
@@ -38,19 +40,22 @@ These components include:
   * Inbound rules; and
   * Outbound rule
 * Virtual Networks
-* Clusters
+* Network Clusters
 * Network Interface Cards
 
-NSGs 
+NSGs protect the componets they safeguard by restricting the network traffic that is permitted to pass through them.  
+NSGs define Inbound and Outbound rules which allow (and deny) access to components.  Rules are following
+Microsoft's recommendations.
 
-
-
+The network components show those which are conneted to the Internet and those which aren't with NSGs protecting those that are.
 
 ## LogicApps ##
-LogicApps collect data required from a variety of sources, including the Government registers and publications already published elsewhere by Parliament.
-The data retrieved is stored in the GraphDB by the *Functions* in a consistent format for further use.
+LogicApps collect data required from a variety of sources, including the Government registers and publications 
+already published elsewhere by Parliament.  The data retrieved is stored in the GraphDB by the *Functions* 
+in a consistent format for further use.
 
-`Settings.ps1` script generates task variables that are used by ARM templates (*loop.json) to create workflows. Name property is reused accross Logic Apps,
+`Settings.ps1` script generates task variables that are used by ARM templates (*loop.json) to create
+workflows. Name property is reused accross Logic Apps,
 scheduler jobs and Azure Functions. There are some additional workflows that override default ones.
 
 ## Functions ##
@@ -60,8 +65,8 @@ Functions may be associated with a variety of areas, including:
 * providing a consistent way tasks are performed, as with `LogicAppsErrorMessageLog` or `QueueMessagesRetrieval`
 * the data, as with `TransformationTerritory`.
 
-Code (C#) that extends functionality of Logic Apps. In order to run it locally local.settings.json file has to be added to the project.
-Below is the layout of the file:
+Code (C#) that extends functionality of Logic Apps. In order to run it locally local.settings.json file 
+as to be added to the project.  Below is the layout of the file:
 
 ```json
 {

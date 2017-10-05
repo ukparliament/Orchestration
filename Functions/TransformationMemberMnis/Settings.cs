@@ -52,13 +52,19 @@
                 parl:seatIncumbencyHasHouseSeat ?seatIncumbencyHasHouseSeat;
                 parl:seatIncumbencyHasParliamentPeriod ?seatIncumbencyHasParliamentPeriod;
         		parl:parliamentaryIncumbencyStartDate ?parliamentaryIncumbencyStartDate;
-        		parl:parliamentaryIncumbencyEndDate ?parliamentaryIncumbencyEndDate;
+                parl:parliamentaryIncumbencyEndDate ?parliamentaryIncumbencyEndDate;
                 parl:houseIncumbencyHasHouse ?houseIncumbencyHasHouse;
                 parl:houseIncumbencyHasHouseIncumbencyType ?houseIncumbencyHasHouseIncumbencyType.
             ?partyMembership a parl:PartyMembership;
                 parl:partyMembershipStartDate ?partyMembershipStartDate;
                 parl:partyMembershipEndDate ?partyMembershipEndDate;
         		parl:partyMembershipHasParty ?partyMembershipHasParty.
+            ?governmentIncumbency a parl:MnisGovernmentIncumbency;
+                parl:governmentIncumbencyHasGovernmentPerson ?person;
+                parl:governmentIncumbencyMnisId ?governmentIncumbencyMnisId;
+                parl:incumbencyStartDate ?governmentIncumbencyStartDate;
+                parl:incumbencyEndDate ?governmentIncumbencyEndDate;
+                parl:governmentIncumbencyHasGovernmentPosition ?governmentPosition.
         }
         where {
             bind(@subject as ?person)
@@ -98,13 +104,20 @@
                 optional {?partyMembership parl:partyMembershipHasParty ?partyMembershipHasParty}                
                 optional {?partyMembership parl:partyMembershipEndDate ?partyMembershipEndDate}
             }
+            optional {
+                ?governmentIncumbency parl:governmentIncumbencyHasGovernmentPerson ?person.
+                optional {?governmentIncumbency parl:governmentIncumbencyMnisId ?governmentIncumbencyMnisId}
+                optional {?governmentIncumbency parl:incumbencyStartDate ?governmentIncumbencyStartDate}
+                optional {?governmentIncumbency parl:incumbencyEndDate ?governmentIncumbencyEndDate}
+                optional {?governmentIncumbency parl:governmentIncumbencyHasGovernmentPosition ?governmentPosition}
+            }
         }";
             }
         }
 
         public string FullDataUrlParameterizedString(string dataUrl)
         {
-            return $"{dataUrl}?$select=Surname,MiddleNames,Forename,DateOfBirth,DateOfDeath,Gender,Member_Id,House,StartDate,EndDate,Dods_Id,Pims_Id,NameDisplayAs,NameListAs,NameFullTitle,MemberConstituencies/StartDate,MemberConstituencies/EndDate,MemberConstituencies/EndDate,MemberConstituencies/Constituency/Constituency_Id,MemberConstituencies/Constituency/StartDate,MemberConstituencies/Constituency/EndDate,MemberParties/Party_Id,MemberParties/StartDate,MemberParties/EndDate,MemberLordsMembershipTypes/StartDate,MemberLordsMembershipTypes/EndDate,MemberLordsMembershipTypes/LordsMembershipType_Id&$expand=MemberConstituencies,MemberConstituencies/Constituency,MemberParties,MemberLordsMembershipTypes";
+            return $"{dataUrl}?$select=Surname,MiddleNames,Forename,DateOfBirth,DateOfDeath,Gender,Member_Id,House,StartDate,EndDate,Dods_Id,Pims_Id,NameDisplayAs,NameListAs,NameFullTitle,MemberConstituencies/StartDate,MemberConstituencies/EndDate,MemberConstituencies/EndDate,MemberConstituencies/Constituency/Constituency_Id,MemberConstituencies/Constituency/StartDate,MemberConstituencies/Constituency/EndDate,MemberParties/Party_Id,MemberParties/StartDate,MemberParties/EndDate,MemberLordsMembershipTypes/StartDate,MemberLordsMembershipTypes/EndDate,MemberLordsMembershipTypes/LordsMembershipType_Id,MemberGovernmentPosts/MemberGovernmentPost_Id,MemberGovernmentPosts/StartDate,MemberGovernmentPosts/EndDate,MemberGovernmentPosts/GovernmentPost_Id&$expand=MemberConstituencies,MemberConstituencies/Constituency,MemberParties,MemberLordsMembershipTypes,MemberGovernmentPosts";
         }
     }
 }

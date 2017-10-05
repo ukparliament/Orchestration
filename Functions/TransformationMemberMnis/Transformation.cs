@@ -52,7 +52,9 @@ namespace Functions.TransformationMemberMnis
             incumbencies.AddRange(generateSeatIncumbencies(doc));
             member.MemberHasParliamentaryIncumbency = incumbencies.ToArray();
 
-            return new IBaseOntology[] { member, mnisPerson, dodsPerson, pimsPerson, deceasedPerson, partyMember };
+            IBaseOntology[] governmentIncumbencies = generateGovernmentIncumbencies(doc).ToArray();
+
+            return new IBaseOntology[] { member, mnisPerson, dodsPerson, pimsPerson, deceasedPerson, partyMember }.Concat(governmentIncumbencies).ToArray();
         }
 
         public override Dictionary<string, object> GetKeysFromSource(IBaseOntology[] deserializedSource)
@@ -122,8 +124,33 @@ namespace Functions.TransformationMemberMnis
                 }
             }
             foreach (IPerson person in source.OfType<IPerson>())
-                person.SubjectUri = subjectUri;
-            return source.OfType<IPerson>().ToArray();
+                person.SubjectUri = subjectUri; 
+            IEnumerable<IMnisGovernmentIncumbency> governmentIncumbencies = source.OfType<IMnisGovernmentIncumbency>();
+            IEnumerable<IIncumbency> associatedIncumbencies = Enumerable.Empty<IIncumbency>();
+            if ((governmentIncumbencies != null) && (governmentIncumbencies.Any()))
+            {
+                associatedIncumbencies = source.OfType<IIncumbency>()
+                    .Where(i => !(i is IMnisGovernmentIncumbency) && governmentIncumbencies.Any(gi => gi.SubjectUri == i.SubjectUri));
+                IEnumerable<IMnisGovernmentIncumbency> targetGovernmentIncumbencies = target.OfType<IMnisGovernmentIncumbency>();
+                foreach (IMnisGovernmentIncumbency governementIncumbency in governmentIncumbencies)
+                {
+                    governementIncumbency.GovernmentIncumbencyHasGovernmentPerson = new GovernmentPerson()
+                    {
+                        SubjectUri = subjectUri
+                    };
+                    IMnisGovernmentIncumbency foundGovernmentIncumbency = targetGovernmentIncumbencies.SingleOrDefault(i => i.GovernmentIncumbencyMnisId == governementIncumbency.GovernmentIncumbencyMnisId);
+                    if (foundGovernmentIncumbency != null)
+                    {
+                        IEnumerable<IIncumbency> foundAssociatedIncumbencies = associatedIncumbencies.Where(i => i.SubjectUri == governementIncumbency.SubjectUri);
+                        foreach (IIncumbency incumbency in foundAssociatedIncumbencies)
+                            incumbency.SubjectUri = foundGovernmentIncumbency.SubjectUri;
+                        governementIncumbency.SubjectUri = foundGovernmentIncumbency.SubjectUri;
+                    }
+                }
+            }
+
+            IBaseOntology[] people = source.OfType<IPerson>().ToArray();
+            return people.Concat(governmentIncumbencies).Concat(associatedIncumbencies).ToArray();
         }
 
         public override IGraph AlterNewGraph(IGraph newGraph, Uri subjectUri, string response)
@@ -134,7 +161,7 @@ namespace Functions.TransformationMemberMnis
                 .Element(m + "properties");
 
             string value = personElement.Element(d + "NameDisplayAs").GetText();
-            if (string.IsNullOrWhiteSpace(value)==false)
+            if (string.IsNullOrWhiteSpace(value) == false)
                 newGraph.Assert(newGraph.CreateUriNode(subjectUri), newGraph.CreateUriNode(new Uri("http://example.com/F31CBD81AD8343898B49DC65743F0BDF")), newGraph.CreateLiteralNode(value));
             value = personElement.Element(d + "NameListAs").GetText();
             if (string.IsNullOrWhiteSpace(value) == false)
@@ -162,7 +189,7 @@ namespace Functions.TransformationMemberMnis
                 incumbency.SubjectUri = GenerateNewId();
                 incumbency.ParliamentaryIncumbencyStartDate = seatIncumbencyElement.Element(d + "StartDate").GetDate();
                 incumbency.ParliamentaryIncumbencyEndDate = seatIncumbencyElement.Element(d + "EndDate").GetDate();
-                ISeatIncumbency seatIncumbency = new SeatIncumbency();                
+                ISeatIncumbency seatIncumbency = new SeatIncumbency();
                 seatIncumbency.SubjectUri = incumbency.SubjectUri;
                 IParliamentPeriod parliamentPeriod = generateSeatIncumbencyParliamentPeriod(incumbency.ParliamentaryIncumbencyStartDate.Value, incumbency.ParliamentaryIncumbencyEndDate);
                 if (parliamentPeriod != null)
@@ -326,6 +353,42 @@ namespace Functions.TransformationMemberMnis
                 partyMembership.PartyMembershipEndDate = partyElement.Element(d + "EndDate").GetDate();
 
                 yield return partyMembership;
+            }
+        }
+
+        private IEnumerable<IIncumbency> generateGovernmentIncumbencies(XDocument doc)
+        {
+            IEnumerable<XElement> memberGovernmentIncumbenciesElements = doc.Element(atom + "entry")
+                    .Elements(atom + "link")
+                    .Where(e => e.Attribute("title").Value == "MemberGovernmentPosts")
+                    .SingleOrDefault()
+                    .Element(m + "inline")
+                    .Element(atom + "feed")
+                    .Elements(atom + "entry");
+            Dictionary<string, string> governmentPosts = IdRetrieval.GetSubjectsDictionary("governmentPositionMnisId", logger);
+            foreach (XElement element in memberGovernmentIncumbenciesElements)
+            {
+                IMnisGovernmentIncumbency governmentIncumbency = new MnisGovernmentIncumbency();
+                governmentIncumbency.SubjectUri = GenerateNewId();
+                XElement governmentIncumbencyElement = element.Element(atom + "content").Element(m + "properties");
+                governmentIncumbency.GovernmentIncumbencyMnisId = governmentIncumbencyElement.Element(d + "MemberGovernmentPost_Id").GetText();
+                governmentIncumbency.IncumbencyStartDate = governmentIncumbencyElement.Element(d + "StartDate").GetDate();
+                string governmentPostMnisId = governmentIncumbencyElement.Element(d + "GovernmentPost_Id").GetText();
+                if (governmentPosts.ContainsKey(governmentPostMnisId))
+                    governmentIncumbency.GovernmentIncumbencyHasGovernmentPosition = new GovernmentPosition()
+                    {
+                        SubjectUri = new Uri(governmentPosts[governmentPostMnisId])
+                    };
+                else
+                {
+                    logger.Warning($"Government post '${governmentPostMnisId}' not found");
+                }
+                IPastIncumbency incumbency = new PastIncumbency();
+                incumbency.SubjectUri = governmentIncumbency.SubjectUri;
+                incumbency.IncumbencyEndDate = governmentIncumbencyElement.Element(d + "EndDate").GetDate();
+
+                yield return governmentIncumbency;
+                yield return incumbency;
             }
         }
     }

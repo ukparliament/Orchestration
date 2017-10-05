@@ -142,7 +142,7 @@ $logicAppVariable=@(
         "idObject"="@json('')";
         "frequency"="hour";
         "interval"=24;
-        "triggerTime"="21:30";
+        "triggerTime"="22:10";
         "queueReadBatchSize"=50;
     }
 	New-Object -TypeName PSObject -Property @{
@@ -198,6 +198,17 @@ $logicAppVariable=@(
         "frequency"="hour";
         "interval"=24;
         "triggerTime"="21:30";
+        "queueReadBatchSize"=50;
+    }
+	New-Object -TypeName PSObject -Property @{
+        "name"="governmentpostmnis";
+        "listUri"="http://data.parliament.uk/membersdataplatform/open/OData.svc/GovernmentPosts?`$select=GovernmentPost_Id";
+        "listAcceptHeader"="application/atom+xml";
+        "foreachObject"="@json(body('Get_List')).feed.entry";
+        "idObject"="@{item().id}";
+        "frequency"="hour";
+        "interval"=24;
+        "triggerTime"="20:20";
         "queueReadBatchSize"=50;
     }
 )

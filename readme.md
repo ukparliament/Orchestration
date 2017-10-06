@@ -31,7 +31,8 @@ migrating existing legacy services to the Azure platform.
 ### Components of the Infrastructure ###
 
 VMs perform the computational role for the infrastructure, running the Logic Apps and Functions.  Clustering provides the
-mechanism to recover should a VM fail which is expected to happen if Microsoft performs maintence on their physical computers.
+means to continue processing should one VM fail.  This is to be expected, for instance, should Microsoft perform maintence on
+their physical computers hosting the VMs.
 
 #### Network components ####
 

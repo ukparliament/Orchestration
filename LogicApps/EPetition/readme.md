@@ -4,9 +4,6 @@
 | Input        | <https://petition.parliament.uk/petitions>                              |
 | Output       | For each petition --> Petition Message --> ServiceBus                   |
 
-
-
-
 ---
 
 | **Function**:| **`getlistpage-epetition()`**                                                 |

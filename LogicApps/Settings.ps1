@@ -201,6 +201,17 @@ $logicAppVariable=@(
         "queueReadBatchSize"=50;
     }
 	New-Object -TypeName PSObject -Property @{
+        "name"="photo";
+        "listUri"="";
+        "listAcceptHeader"="";
+        "foreachObject"="@json('')";
+        "idObject"="@json('')";
+        "frequency"="hour";
+        "interval"=24;
+        "triggerTime"="21:35";
+        "queueReadBatchSize"=50;
+    }
+	New-Object -TypeName PSObject -Property @{
         "name"="governmentpostmnis";
         "listUri"="http://data.parliament.uk/membersdataplatform/open/OData.svc/GovernmentPosts?`$select=GovernmentPost_Id";
         "listAcceptHeader"="application/atom+xml";

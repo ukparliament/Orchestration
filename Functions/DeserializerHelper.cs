@@ -52,6 +52,15 @@ namespace Functions
                 return null;
         }
 
+        public static bool? GetBoolean(this JValue value)
+        {
+            if ((value != null) && (value.Value != null) && (string.IsNullOrWhiteSpace(value.Value.ToString()) == false) &&
+                (bool.TryParse(value.Value.ToString(), out bool bl)))
+                return bl;
+            else
+                return null;
+        }
+
         public static IEnumerable<string> GiveMeSingleTextValue(string value)
         {
             if (string.IsNullOrWhiteSpace(value))

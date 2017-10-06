@@ -1,16 +1,8 @@
-**Folders**
+**Summary**
 
-Folders under `Orhestration`:
-* Functions
-* Infrastructure
-* LogicApps
+The folders in this **LogicApps** folder are importing data from external or other parliamentary sources
+for storage in the GraphDB.  The records read result in the creation of a message which is placed on the MessageBus.  
+These messages are picked up by their corresponding Transform function within the Orchestrations\Functions folder.
 
-The container creating Orchestrations is primarily focused on providing the data platform servicing the WebSite.  The WebSite
-uses APIs to retrieve the data required from the platform for publication; the platform services these requests.
-The scope is not just limited to the WebSite, allowing any external source to make similar requests to meet their own needs.
-
-Folder  | Description
-------- | -----------
-Infrastructure | Sets up the infrastructure necesssary for the Orchestration such as the ServiceBus to store messages which trigger functionality, schedules which trigger the retrieval of data hosted externally and other storage used by the functions.
-LogicApps | Responding to messages on the service bus that are created by scheduled tasks on the Infrastructure.
-Functions | Providing a function library used by the contents of Orchestration
+The running of functions is triggered by scheduled jobs running on the platform and are setup by the *Settings.ps1* file.
+These triggers are scheduled to run daily although this timing is defined by the code so is subject to change.

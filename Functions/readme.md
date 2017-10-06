@@ -1,12 +1,13 @@
-These sections form the orchestrations of the platform.  They are hosted on the platforn's rerources descibed and configured using ARM (Azure Resource Manager)
-templates. 
+Functions provide processing capabilities to support the Orchestrations and the platform in general.  Some
+functions are following a consistent naming pattern which this section describes.  Others not following this pattern 
+are adequately described by their function names .
 
-**Path**:    **Functions**
+**Path**:   Functions\\Transform*Message*
 
-**Description**: Functions conforming to a Transform*Message* convention follow the same pattern.  *Message* has been created by it's
-corresponding getlist-*Message* function in **Logic Apps**.  Transformations:
-*  use the consistent language defined by Parliament's ontology in the *Message* 
-*  avoid creating duplicates; rather duplicates will return the original *Message*.
+**Description**: Functions conforming to the Transform*Message* convention follow the same pattern.  *Message*
+has been created by it's corresponding getlist-*Message* function in **Logic Apps**.  Transformations:
+* use a consistent language defined by Parliament's ontology in the *Message* 
+* they avoid creating duplicates; rather duplicates will return the original *Message*.
 
 **Input**: Messages from the MessageBus
 

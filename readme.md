@@ -5,14 +5,16 @@
 All artefacts are designed for the Azure Platform Repository consisting of [Logic Apps](https://docs.microsoft.com/en-gb/azure/logic-apps/) and [Azure Functions](https://docs.microsoft.com/en-us/azure/azure-functions/functions-overview) that are deployed using combination of [ARM templates](https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-manager-template-walkthrough) and powershell scripts.
 
 ## Infrastructure ##
-**Infrastructure** sets up the platform on which **Functions** and **LogicApps** operate.  This is deployed using settings defined under **Infrasture** setting up:
+**Infrastructure** sets up the platform on which **Functions** and **LogicApps** operate.  This is deployed using
+settings defined under **Infrasture** setting up:
 * the Virtual Machines (VMs) and clustered VMs
 * the Network components and Firewalls
 * Storage Devices
 * Schedules
 
-Deploment is initiated through `Tasks` defined within the `Build and Release` section in VSTS.  These use ARM templates defined in the Infastruture folder
-which are configured using JSON files, such as `Scheduler.json` located in the `Orchestration / Infrastructure` folder which sets up the schedulated tasks
+Deploment is initiated through `Tasks` defined within the `Build and Release` section in VSTS.  These use ARM templates
+defined in the Infastruture folder which are configured using JSON files, such as `Scheduler.json` located in
+the `Orchestration / Infrastructure` folder which sets up the schedulated tasks
 required by data collection functions.
 
 ### Environments ###

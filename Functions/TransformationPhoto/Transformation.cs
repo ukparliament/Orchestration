@@ -28,7 +28,7 @@ namespace Functions.TransformationPhoto
 
             if (photoTakenDown != true)
             {
-                var mnisId = ((JValue)jsonResponse.SelectToken("Person_x0020_MnisId")).Value;
+                var mnisId = ((JValue)jsonResponse.SelectToken("Person_x0020_MnisId"))?.Value;
                 if (mnisId == null)
                 {
                     logger.Warning("No member info found");
@@ -52,8 +52,8 @@ namespace Functions.TransformationPhoto
                     logger.Warning("No person found");
             }
 
-            var midX = ((JValue)jsonResponse.SelectToken("MidX")).Value;
-            var midY = ((JValue)jsonResponse.SelectToken("MidY")).Value;
+            var midX = ((JValue)jsonResponse.SelectToken("MidX"))?.Value;
+            var midY = ((JValue)jsonResponse.SelectToken("MidY"))?.Value;
             if (midX == null || midY == null)
             {
                 logger.Warning("No MidX or MidY info found");

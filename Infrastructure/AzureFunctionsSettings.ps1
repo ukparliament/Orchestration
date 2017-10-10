@@ -39,9 +39,12 @@ $subscription=Get-AzureRmApiManagementSubscription -Context $management -Product
 $subscriptionKey=$subscription.PrimaryKey
 
 Log "Retrives Logic app trigger - web link item"
-$trigger=Get-AzureRmLogicAppTriggerCallbackUrl -ResourceGroupName $OrchestrationResourceGroupName -Name "getitem-weblink" -TriggerName "manual"
-$weblinkUrl=$trigger.Value.Replace("?","/ids/{id}?")
+$triggerWebLink=Get-AzureRmLogicAppTriggerCallbackUrl -ResourceGroupName $OrchestrationResourceGroupName -Name "getitem-weblink" -TriggerName "manual"
+$weblinkUrl=$triggerWebLink.Value.Replace("?","/ids/{id}?")
 
+Log "Retrives Logic app trigger - photo item"
+$triggerPhoto=Get-AzureRmLogicAppTriggerCallbackUrl -ResourceGroupName $OrchestrationResourceGroupName -Name "getitem-photo" -TriggerName "manual"
+$photoUrl=$triggerPhoto.Value.Replace("?","/ids/{id}?")
 
 Log "Gets current app settings"
 $webApp = Get-AzureRmwebApp -ResourceGroupName $OrchestrationResourceGroupName -Name $AzureFunctionsName
@@ -67,6 +70,8 @@ foreach($connection in $connectionStrings){
 
 Log "Sets new url for web link"
 $connections["WebLinkItem"]=@{Type="Custom";Value=$weblinkUrl}
+Log "Sets new url for photo"
+$connections["PhotoItem"]=@{Type="Custom";Value=$photoUrl}
 Log "Sets new data connection"
 $connections["Data"]=@{Type="Custom";Value="https://$APIManagementName.azure-api.net/$APIPrefix/graph-store"}
 Set-AzureRmWebApp -ResourceGroupName $OrchestrationResourceGroupName -Name $AzureFunctionsName -ConnectionStrings $connections

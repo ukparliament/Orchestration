@@ -10,6 +10,9 @@ performed by the tasks under the *Data Platform: Logic Apps code* task group and
 in the *Orchestration / LogicApps/SchedulerJobLoop.json* file. There is tight coupling between the names
 of the schedules and the names of the **LogicApps**.
 
+*Settings.ps1* outputs to a log when it is compiled.  These log files can be viewed although the process to view them is
+beyond the scope of this description.  Should viewing these or any other logs be considered necessary then contact a member of the Data and Search Team.
+
 Triggers are scheduled to run every evening although this is dependant on the settings in the code so liable to change.
 
 Photos are read from Parliament's internal SharePoint site.  This requires taking special measures when deploying 

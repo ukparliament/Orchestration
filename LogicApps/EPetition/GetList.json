@@ -133,7 +133,7 @@
             },
             "GetMaxUpdatedAt": {
               "inputs": {
-                "body": "construct{[] <http://id.ukpds.org/schema/maxUpdatedAt> ?date}where{{select (max(?updatedAt) as ?maxUpdatedAt) where{?s a <http://id.ukpds.org/schema/EPetition>;<http://id.ukpds.org/schema/updatedAt> ?updatedAt.}}bind(coalesce(?maxUpdatedAt,'1900-01-01T01:01:01Z') as ?date)} ",
+                "body": "construct{[] <http://id.ukpds.org/schema/maxUpdatedAt> ?date}where{{select (max(?updatedAt) as ?maxUpdatedAt) where{?s <http://id.ukpds.org/schema/ePetitionUkgapId> ?ePetitionUkgapId;<http://id.ukpds.org/schema/updatedAt> ?updatedAt.}}bind(coalesce(?maxUpdatedAt,'1900-01-01T01:01:01Z') as ?date)} ",
                 "headers": {
                   "Accept": "application/ld+json",
                   "Content-Type": "application/sparql-query",

@@ -1,25 +1,29 @@
-Functions provide processing capabilities to support the Orchestrations and the platform in general.  Some
-functions are following a consistent naming pattern which this section describes.  Others not following this pattern 
-are adequately described by their function names .
+Functions provide processing capabilities to support the Orchestrations and the platform more generalyl.  Some
+functions are following a consistent naming pattern which is described here.  Others not following this pattern 
+have helpful function names .
 
 **Path**:   Functions\\Transform*Message*
 
 **Description**: Functions conforming to the Transform*Message* convention follow the same pattern.  *Message*
 has been created by it's corresponding getlist-*Message* function in **Logic Apps**.  Transformations:
 * use a consistent language defined by Parliament's ontology in the *Message* 
-* they avoid creating duplicates; rather duplicates will return the original *Message*.
+* avoid creating duplicates; rather duplicates will return the original *Message*.
 
 **Input**: Messages from the MessageBus
 
 **Output**: Transformed *Message* in a standard form based on the ontology.
 
 ----
-
 **Path**: `GraphDBBackup`
 
 **Description**: Backs up this database to the data storage platform.
 The backup is run daily at 5am to Azure's backup data platform resource. This is scheduled in the `SchedulerJobLoop.json` file in the `LogicApps` folder.
 Currently retention is permanent but will be reduced if an expected enhancement from Microsoft can manage this retention better and automatically.
+
+---
+**Path**: `GraphDBConnector.cs`
+
+**Description** Returns the connector to the GraphDB on the environment this is being execuited on.
 
 ---
 

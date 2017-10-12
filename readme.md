@@ -25,16 +25,16 @@ Components of the infrastructure are organised into the following major environm
 
 The Staging environment
 hosts the platform used by the WebSite with their DevCI webite during its development.  When complete
-the Data and Search platrom is deployed to `Live` and utilised by the Beta webite at https://beta.parliament.uk/.
+the Data and Search platform is deployed to `Live` and utilised by the Beta webite at https://beta.parliament.uk/.
 
 Additional environments are created by the Data and Search Team to meet specific development objectives such as when 
 migrating existing legacy services to the Azure platform.
 
 ### Components of the Infrastructure ###
 
-VMs perform the computational role for the infrastructure, running the Logic Apps and Functions.  Clustering provides the
-means to continue processing should one VM fail.  This is to be expected, for instance, should Microsoft perform maintence on
-their physical computers hosting the VMs.
+VMs perform the computational role for the infrastructure running the Logic Apps and Functions.  Clustering provides the
+means to continue processing should one VM fail.  This is to be expected if, for instance, Microsoft perform maintence on
+their physical computers hosting these VMs.
 
 #### Network components ####
 
@@ -47,10 +47,10 @@ These components include:
 * Network Interface Cards
 
 NSGs protect the componets they safeguard by restricting the network traffic that is permitted to pass through them.  
-NSGs define Inbound and Outbound rules which allow (and deny) access to components.  Rules are following
-Microsoft's recommendations.
+NSGs define Inbound and Outbound rules which allow (and deny) access to components.  Rules follow Microsoft's recommendations
+for the components used on the platform.
 
-The network components show those which are conneted to the Internet and those which aren't with NSGs protecting those that are.
+The network components show those which are conneted to the Internet and those which aren't;  NSGs are protecting those that are.
 
 ## LogicApps ##
 LogicApps collect data required from a variety of sources, including the Government registers and publications 
@@ -68,8 +68,8 @@ Functions may be associated with a variety of areas, including:
 * providing a consistent way tasks are performed, as with `LogicAppsErrorMessageLog` or `QueueMessagesRetrieval`
 * the data, as with `TransformationTerritory`.
 
-Code (C#) that extends functionality of Logic Apps. In order to run it locally local.settings.json file 
-as to be added to the project.  Below is the layout of the file:
+Code (C#) that extends functionality of LogicApps. In order to run it locally *local.settings.json* file 
+has to be added to the project.  Below is the layout of the file:
 
 ```json
 {

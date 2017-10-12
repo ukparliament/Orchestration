@@ -10,7 +10,7 @@ performed by the tasks under the *Data Platform: Logic Apps code* task group and
 in the *Orchestration / LogicApps/SchedulerJobLoop.json* file. There is tight coupling between the names
 of the schedules and the names of the **LogicApps**.
 
-When *Settings.ps1*is compiled this writes a log detiling the compilation.  These log files can be viewed in VSTS
+When *Settings.ps1* is compiled it writes a log detailing the compilation.  These log files can be viewed in VSTS
 although doing so is
 beyond the scope of this description.  Should this be considered useful then contact a member of the Data and Search Team.
 

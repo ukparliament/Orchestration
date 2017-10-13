@@ -25,32 +25,34 @@ namespace Functions.TransformationPhoto
             memberImage.SubjectUri = new Uri($"{idNamespace}{imageResourceUri}");
 
             bool? photoTakenDown = ((JValue)jsonResponse.SelectToken("Photo_x0020_Taken_x0020_Down")).GetBoolean();
-
-            if (photoTakenDown != true)
+            if (photoTakenDown == true)
             {
-                var mnisId = ((JValue)jsonResponse.SelectToken("Person_x0020_MnisId"))?.Value;
-                if (mnisId == null)
-                {
-                    logger.Warning("No member info found");
-                    return null;
-                }
+                logger.Verbose("Image information marked as removed");
+                return new IBaseOntology[] { memberImage };
+            }
 
-                string mnisIdStr = Convert.ToInt32(Convert.ToDouble(mnisId)).ToString();
+            var mnisId = ((JValue)jsonResponse.SelectToken("Person_x0020_MnisId"))?.Value;
+            if (mnisId == null)
+            {
+                logger.Warning("No member info found");
+                return null;
+            }
 
-                Uri personUri = IdRetrieval.GetSubject("personMnisId", mnisIdStr, false, logger);
-                if (personUri != null)
-                {
-                    memberImage.MemberImageHasMember = new List<IMember>
+            string mnisIdStr = Convert.ToInt32(Convert.ToDouble(mnisId)).ToString();
+
+            Uri personUri = IdRetrieval.GetSubject("personMnisId", mnisIdStr, false, logger);
+            if (personUri != null)
+            {
+                memberImage.MemberImageHasMember = new List<IMember>
                     {
                         new Member()
                         {
                             SubjectUri=personUri
                         }
                     };
-                }
-                else
-                    logger.Warning("No person found");
             }
+            else
+                logger.Warning("No person found");
 
             var midX = ((JValue)jsonResponse.SelectToken("MidX"))?.Value;
             var midY = ((JValue)jsonResponse.SelectToken("MidY"))?.Value;
@@ -87,5 +89,6 @@ namespace Functions.TransformationPhoto
 
             return new IBaseOntology[] { memberImage };
         }
+        
     }
 }

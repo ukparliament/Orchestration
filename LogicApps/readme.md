@@ -1,7 +1,7 @@
-**Summary**
+**Summary of LogicApps**
 
-The folders in this **LogicApps** folder are importing data from external or other parliamentary sources
-for storage in the **GraphDB**.  For each record read a corresponding message is created on the MessageBus.  Messages
+The folders in the **LogicApps** folder are importing data from external or other parliamentary sources
+for storage in the **GraphDB**.  For each record read a corresponding message is created in the appropriate queue on the MessageBus.  Messages
 are consumed by their corresponding Transform function within the [Orchestrations / Functions](https://data-parliament.visualstudio.com/Platform/_git/Orchestration?path=%2FFunctions&version=GBmaster&_a=contents) folder.
 
 *Settings.ps1* defines the schedules to be used by the platform to execute the *getlist-xxx* functions.  *Settings.ps1*

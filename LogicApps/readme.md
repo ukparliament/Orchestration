@@ -19,4 +19,4 @@ Triggers are scheduled to run every evening although this is dependant on the se
 Photos are read from Parliament's internal SharePoint site.  This requires taking special measures when deploying 
 the SharePoint connector as valid authenication details must be provided during deplyment. Once deplyed this
 connector can be used without further authenication.  This authenication requirement also applies to the WebLink connector.
-Processing of items follows the standard pattern - Get and then Transform.
+Processing of items follows the standard pattern - **Get** and then followed by **Transform**.

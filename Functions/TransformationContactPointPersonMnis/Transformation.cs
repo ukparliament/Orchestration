@@ -7,7 +7,7 @@ namespace Functions.TransformationContactPointPersonMnis
 {
     public class Transformation : BaseTransformationContactPoint<Settings>
     {
-        public override IBaseOntology[] TransformSource(string response)
+        public override IOntologyInstance[] TransformSource(string response)
         {
             IMnisContactPoint contactPoint = new MnisContactPoint();
             XDocument doc = XDocument.Parse(response);
@@ -24,7 +24,7 @@ namespace Functions.TransformationContactPointPersonMnis
             if (person != null)
                 contactPoint.ContactPointHasPerson = new IPerson[] { person };
 
-            return new IBaseOntology[] { contactPoint };
+            return new IOntologyInstance[] { contactPoint };
         }
 
         private IPerson generatePerson(XElement contactPointElement)

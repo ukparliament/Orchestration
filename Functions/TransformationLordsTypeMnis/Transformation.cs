@@ -9,7 +9,7 @@ namespace Functions.TransformationLordsTypeMnis
 {
     public class Transformation : BaseTransformation<Settings>
     {
-        public override IBaseOntology[] TransformSource(string response)
+        public override IOntologyInstance[] TransformSource(string response)
         {
             IMnisHouseIncumbencyType incumbencyType = new MnisHouseIncumbencyType();
             XDocument doc = XDocument.Parse(response);
@@ -20,10 +20,10 @@ namespace Functions.TransformationLordsTypeMnis
             incumbencyType.HouseIncumbencyTypeMnisId = element.Element(d + "LordsMembershipType_Id").GetText();
             incumbencyType.HouseIncumbencyTypeName = element.Element(d + "Name").GetText();
 
-            return new IBaseOntology[] { incumbencyType };
+            return new IOntologyInstance[] { incumbencyType };
         }
 
-        public override Dictionary<string, object> GetKeysFromSource(IBaseOntology[] deserializedSource)
+        public override Dictionary<string, object> GetKeysFromSource(IOntologyInstance[] deserializedSource)
         {
             string houseIncumbencyTypeMnisId = deserializedSource.OfType<IMnisHouseIncumbencyType>()
                 .SingleOrDefault()
@@ -34,12 +34,12 @@ namespace Functions.TransformationLordsTypeMnis
             };
         }
 
-        public override IBaseOntology[] SynchronizeIds(IBaseOntology[] source, Uri subjectUri, IBaseOntology[] target)
+        public override IOntologyInstance[] SynchronizeIds(IOntologyInstance[] source, Uri subjectUri, IOntologyInstance[] target)
         {
             IMnisHouseIncumbencyType incumbencyType = source.OfType<IMnisHouseIncumbencyType>().SingleOrDefault();
             incumbencyType.SubjectUri = subjectUri;
 
-            return new IBaseOntology[] { incumbencyType };
+            return new IOntologyInstance[] { incumbencyType };
         }
 
     }

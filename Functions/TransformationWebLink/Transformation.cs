@@ -10,7 +10,7 @@ namespace Functions.TransformationWebLink
 {
     public class Transformation : BaseTransformation<Settings>
     {
-        public override IBaseOntology[] TransformSource(string response)
+        public override IOntologyInstance[] TransformSource(string response)
         {
             IPersonWebLink personWebLink = new PersonWebLink();
             JObject jsonResponse = (JObject)JsonConvert.DeserializeObject(response);
@@ -50,10 +50,10 @@ namespace Functions.TransformationWebLink
                 }
             }                
 
-            return new IBaseOntology[] { personWebLink };
+            return new IOntologyInstance[] { personWebLink };
         }
 
-        public override Dictionary<string, object> GetKeysFromSource(IBaseOntology[] deserializedSource)
+        public override Dictionary<string, object> GetKeysFromSource(IOntologyInstance[] deserializedSource)
         {
             Uri subjectUri = deserializedSource.OfType<IPersonWebLink>()
                 .SingleOrDefault()
@@ -64,11 +64,11 @@ namespace Functions.TransformationWebLink
             };
         }
 
-        public override IBaseOntology[] SynchronizeIds(IBaseOntology[] source, Uri subjectUri, IBaseOntology[] target)
+        public override IOntologyInstance[] SynchronizeIds(IOntologyInstance[] source, Uri subjectUri, IOntologyInstance[] target)
         {
             IPersonWebLink personWebLink = source.OfType<IPersonWebLink>().SingleOrDefault();
 
-            return new IBaseOntology[] { personWebLink };
+            return new IOntologyInstance[] { personWebLink };
         }
     }
 }

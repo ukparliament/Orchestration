@@ -44,22 +44,22 @@ namespace Functions
             return req.CreateResponse();
         }
 
-        public virtual IBaseOntology[] TransformSource(string response)
+        public virtual IOntologyInstance[] TransformSource(string response)
         {
             throw new NotImplementedException();
         }
 
-        public virtual Dictionary<string, object> GetKeysFromSource(IBaseOntology[] deserializedSource)
+        public virtual Dictionary<string, object> GetKeysFromSource(IOntologyInstance[] deserializedSource)
         {
             throw new NotImplementedException();
         }
 
-        public virtual Dictionary<string, object> GetKeysForTarget(IBaseOntology[] deserializedSource)
+        public virtual Dictionary<string, object> GetKeysForTarget(IOntologyInstance[] deserializedSource)
         {
             return new Dictionary<string, object> { };
         }
 
-        public virtual IBaseOntology[] SynchronizeIds(IBaseOntology[] source, Uri subjectUri, IBaseOntology[] deserializedTarget)
+        public virtual IOntologyInstance[] SynchronizeIds(IOntologyInstance[] source, Uri subjectUri, IOntologyInstance[] deserializedTarget)
         {
             throw new NotImplementedException();
         }
@@ -80,7 +80,7 @@ namespace Functions
             return new Uri(id);
         }
 
-        private IGraph serializeSource(IBaseOntology[] source)
+        private IGraph serializeSource(IOntologyInstance[] source)
         {
             Graph result = null;
             try
@@ -174,9 +174,9 @@ namespace Functions
                 }
         }
 
-        private IEnumerable<IBaseOntology> deserializeTarget(IGraph target)
+        private IEnumerable<IOntologyInstance> deserializeTarget(IGraph target)
         {
-            IEnumerable<IBaseOntology> result = null;
+            IEnumerable<IOntologyInstance> result = null;
             try
             {
                 logger.Verbose("Deserialize target");
@@ -196,7 +196,7 @@ namespace Functions
             if (string.IsNullOrWhiteSpace(response))
                 return await communicateBack(callbackUrl, "Problem while getting source data");
 
-            IBaseOntology[] deserializedSource;
+            IOntologyInstance[] deserializedSource;
             try
             {
                 logger.Verbose("Deserializing source");
@@ -231,12 +231,12 @@ namespace Functions
             if (existingGraph == null)
                 return await communicateBack(callbackUrl, $"Problem while retrieving old graph for {subjectUri}");
 
-            IBaseOntology[] deserializedTarget;
+            IOntologyInstance[] deserializedTarget;
             deserializedTarget = deserializeTarget(existingGraph).ToArray();
             if (deserializedTarget == null)
                 return await communicateBack(callbackUrl, $"Problem while deserializing target");
 
-            IBaseOntology[] deserializedSourceWithIds;
+            IOntologyInstance[] deserializedSourceWithIds;
             try
             {
                 logger.Verbose("Assigning ids");

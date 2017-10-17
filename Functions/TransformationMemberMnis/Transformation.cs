@@ -15,7 +15,7 @@ namespace Functions.TransformationMemberMnis
         private XNamespace d = "http://schemas.microsoft.com/ado/2007/08/dataservices";
         private XNamespace m = "http://schemas.microsoft.com/ado/2007/08/dataservices/metadata";
 
-        public override IBaseOntology[] TransformSource(string response)
+        public override IOntologyInstance[] TransformSource(string response)
         {
             IMember member = new Member();
             XDocument doc = XDocument.Parse(response);
@@ -52,12 +52,12 @@ namespace Functions.TransformationMemberMnis
             incumbencies.AddRange(generateSeatIncumbencies(doc));
             member.MemberHasParliamentaryIncumbency = incumbencies.ToArray();
 
-            IBaseOntology[] governmentIncumbencies = generateGovernmentIncumbencies(doc).ToArray();
+            IOntologyInstance[] governmentIncumbencies = generateGovernmentIncumbencies(doc).ToArray();
 
-            return new IBaseOntology[] { member, mnisPerson, dodsPerson, pimsPerson, deceasedPerson, partyMember }.Concat(governmentIncumbencies).ToArray();
+            return new IOntologyInstance[] { member, mnisPerson, dodsPerson, pimsPerson, deceasedPerson, partyMember }.Concat(governmentIncumbencies).ToArray();
         }
 
-        public override Dictionary<string, object> GetKeysFromSource(IBaseOntology[] deserializedSource)
+        public override Dictionary<string, object> GetKeysFromSource(IOntologyInstance[] deserializedSource)
         {
             string personMnisId = deserializedSource.OfType<IMnisPerson>()
                 .SingleOrDefault()
@@ -68,7 +68,7 @@ namespace Functions.TransformationMemberMnis
             };
         }
 
-        public override Dictionary<string, object> GetKeysForTarget(IBaseOntology[] deserializedSource)
+        public override Dictionary<string, object> GetKeysForTarget(IOntologyInstance[] deserializedSource)
         {
             Uri genderUri = deserializedSource.OfType<IMember>()
                 .SingleOrDefault()
@@ -82,7 +82,7 @@ namespace Functions.TransformationMemberMnis
             };
         }
 
-        public override IBaseOntology[] SynchronizeIds(IBaseOntology[] source, Uri subjectUri, IBaseOntology[] target)
+        public override IOntologyInstance[] SynchronizeIds(IOntologyInstance[] source, Uri subjectUri, IOntologyInstance[] target)
         {
             IMember member = source.OfType<IMember>().SingleOrDefault();
             if ((member.PersonHasGenderIdentity != null) && (member.PersonHasGenderIdentity.Any()))
@@ -149,7 +149,7 @@ namespace Functions.TransformationMemberMnis
                 }
             }
 
-            IBaseOntology[] people = source.OfType<IPerson>().ToArray();
+            IOntologyInstance[] people = source.OfType<IPerson>().ToArray();
             return people.Concat(governmentIncumbencies).Concat(associatedIncumbencies).ToArray();
         }
 

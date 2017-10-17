@@ -10,7 +10,7 @@ namespace Functions.TransformationEPetition
     public class Transformation : BaseTransformation<Settings>
     {
 
-        public override IBaseOntology[] TransformSource(string response)
+        public override IOntologyInstance[] TransformSource(string response)
         {
             Rootobject sourceEPetition = JsonConvert.DeserializeObject<Rootobject>(response, new JsonSerializerSettings() { DateTimeZoneHandling = DateTimeZoneHandling.Utc });
             DateTime petitionRetrievalTimestamp = DateTime.UtcNow;
@@ -42,10 +42,10 @@ namespace Functions.TransformationEPetition
                 ukgapEPetition.EPetitionHasLocatedSignatureCount = signatures;
             }
 
-            return new IBaseOntology[] { ukgapEPetition };
+            return new IOntologyInstance[] { ukgapEPetition };
         }
 
-        public override Dictionary<string, object> GetKeysFromSource(IBaseOntology[] deserializedSource)
+        public override Dictionary<string, object> GetKeysFromSource(IOntologyInstance[] deserializedSource)
         {
             string ePetitionUkgapId = deserializedSource.OfType<IUkgapEPetition>()
                 .SingleOrDefault()
@@ -56,7 +56,7 @@ namespace Functions.TransformationEPetition
             };
         }
 
-        public override IBaseOntology[] SynchronizeIds(IBaseOntology[] source, Uri subjectUri, IBaseOntology[] target)
+        public override IOntologyInstance[] SynchronizeIds(IOntologyInstance[] source, Uri subjectUri, IOntologyInstance[] target)
         {
             IUkgapEPetition ePetition = source.OfType<IUkgapEPetition>().SingleOrDefault();
             ePetition.SubjectUri = subjectUri;
@@ -105,7 +105,7 @@ namespace Functions.TransformationEPetition
                 }
             }
 
-            return new IBaseOntology[] { ePetition };
+            return new IOntologyInstance[] { ePetition };
         }
 
         private IGovernmentResponse generateGovernmentResponse(Government_Response sourceGovernmentResponse)

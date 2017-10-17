@@ -14,7 +14,7 @@ namespace Functions
         protected XNamespace d = "http://schemas.microsoft.com/ado/2007/08/dataservices";
         protected XNamespace m = "http://schemas.microsoft.com/ado/2007/08/dataservices/metadata";
 
-        public override IBaseOntology[] SynchronizeIds(IBaseOntology[] source, Uri subjectUri, IBaseOntology[] target)
+        public override IOntologyInstance[] SynchronizeIds(IOntologyInstance[] source, Uri subjectUri, IOntologyInstance[] target)
         {
             IMnisContactPoint contactPoint = source.OfType<IMnisContactPoint>().SingleOrDefault();
             contactPoint.SubjectUri = subjectUri;
@@ -22,10 +22,10 @@ namespace Functions
             if ((postalAddress != null) && (contactPoint.ContactPointHasPostalAddress != null))
                 contactPoint.ContactPointHasPostalAddress.SubjectUri = postalAddress.SubjectUri;
 
-            return new IBaseOntology[] { contactPoint };
+            return new IOntologyInstance[] { contactPoint };
         }
 
-        public override Dictionary<string, object> GetKeysFromSource(IBaseOntology[] deserializedSource)
+        public override Dictionary<string, object> GetKeysFromSource(IOntologyInstance[] deserializedSource)
         {
             string contactPointMnisId = deserializedSource.OfType<IMnisContactPoint>()
                 .SingleOrDefault()

@@ -9,7 +9,7 @@ namespace Functions.TransformationConstituencyOSNI
 {
     public class Transformation : BaseTransformation<Settings>
     {
-        public override IBaseOntology[] TransformSource(string response)
+        public override IOntologyInstance[] TransformSource(string response)
         {
             Rootobject sourceConstituency = JsonConvert.DeserializeObject<Rootobject>(response);
             IOnsConstituencyGroup constituency = new OnsConstituencyGroup();
@@ -20,10 +20,10 @@ namespace Functions.TransformationConstituencyOSNI
                 if ((feature.geometry != null) && (feature.geometry.rings != null) && (feature.geometry.rings.Any()))
                     constituency.ConstituencyGroupHasConstituencyArea = generateConstituencyArea(feature.geometry.rings);
             }
-            return new IBaseOntology[] { constituency };
+            return new IOntologyInstance[] { constituency };
         }
 
-        public override Dictionary<string, object> GetKeysFromSource(IBaseOntology[] deserializedSource)
+        public override Dictionary<string, object> GetKeysFromSource(IOntologyInstance[] deserializedSource)
         {
             string constituencyGroupOnsCode = deserializedSource.OfType<IOnsConstituencyGroup>()
                 .SingleOrDefault()
@@ -34,7 +34,7 @@ namespace Functions.TransformationConstituencyOSNI
             };
         }
 
-        public override IBaseOntology[] SynchronizeIds(IBaseOntology[] source, Uri subjectUri, IBaseOntology[] target)
+        public override IOntologyInstance[] SynchronizeIds(IOntologyInstance[] source, Uri subjectUri, IOntologyInstance[] target)
         {
             IOnsConstituencyGroup constituency = source.OfType<IOnsConstituencyGroup>().SingleOrDefault();
             constituency.SubjectUri = subjectUri;
@@ -42,7 +42,7 @@ namespace Functions.TransformationConstituencyOSNI
             if ((constituencyArea != null) && (constituency.ConstituencyGroupHasConstituencyArea != null))
                 constituency.ConstituencyGroupHasConstituencyArea.SubjectUri = constituencyArea.SubjectUri;
 
-            return new IBaseOntology[] { constituency };
+            return new IOntologyInstance[] { constituency };
         }
 
         private IConstituencyArea generateConstituencyArea(decimal[][][] rings)

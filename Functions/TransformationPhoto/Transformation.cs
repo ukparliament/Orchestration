@@ -11,7 +11,7 @@ namespace Functions.TransformationPhoto
     public class Transformation : BaseTransformation<Settings>
     {
         private static string idNamespace = Environment.GetEnvironmentVariable("IdNamespace", EnvironmentVariableTarget.Process);
-        public override IBaseOntology[] TransformSource(string response)
+        public override IOntologyInstance[] TransformSource(string response)
         {
             IMemberImage memberImage = new MemberImage();
             JObject jsonResponse = (JObject)JsonConvert.DeserializeObject(response);
@@ -28,7 +28,7 @@ namespace Functions.TransformationPhoto
             if (photoTakenDown == true)
             {
                 logger.Verbose("Image information marked as removed");
-                return new IBaseOntology[] { memberImage };
+                return new IOntologyInstance[] { memberImage };
             }
 
             var mnisId = ((JValue)jsonResponse.SelectToken("Person_x0020_MnisId"))?.Value;
@@ -69,10 +69,10 @@ namespace Functions.TransformationPhoto
                 string.Format("POINT({0} {1})", midXStr, midYStr)
             };
 
-            return new IBaseOntology[] { memberImage };
+            return new IOntologyInstance[] { memberImage };
         }
 
-        public override Dictionary<string, object> GetKeysFromSource(IBaseOntology[] deserializedSource)
+        public override Dictionary<string, object> GetKeysFromSource(IOntologyInstance[] deserializedSource)
         {
             Uri subjectUri = deserializedSource.OfType<IMemberImage>()
                 .SingleOrDefault()
@@ -83,11 +83,11 @@ namespace Functions.TransformationPhoto
             };
         }
 
-        public override IBaseOntology[] SynchronizeIds(IBaseOntology[] source, Uri subjectUri, IBaseOntology[] target)
+        public override IOntologyInstance[] SynchronizeIds(IOntologyInstance[] source, Uri subjectUri, IOntologyInstance[] target)
         {
             IMemberImage memberImage = source.OfType<IMemberImage>().SingleOrDefault();
 
-            return new IBaseOntology[] { memberImage };
+            return new IOntologyInstance[] { memberImage };
         }
         
     }

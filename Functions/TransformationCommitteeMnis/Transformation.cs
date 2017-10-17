@@ -13,7 +13,7 @@ namespace Functions.TransformationCommitteeMnis
         private XNamespace d = "http://schemas.microsoft.com/ado/2007/08/dataservices";
         private XNamespace m = "http://schemas.microsoft.com/ado/2007/08/dataservices/metadata";
 
-        public override IBaseOntology[] TransformSource(string response)
+        public override IOntologyInstance[] TransformSource(string response)
         {
             IMnisFormalBody formalBody = new MnisFormalBody();
             XDocument doc = XDocument.Parse(response);
@@ -28,7 +28,7 @@ namespace Functions.TransformationCommitteeMnis
             IPastFormalBody pastFormalBody = new PastFormalBody();
             pastFormalBody.FormalBodyEndDate = formalBodyElement.Element(d + "EndDate").GetDate();
 
-            return new IBaseOntology[] { formalBody, pastFormalBody };
+            return new IOntologyInstance[] { formalBody, pastFormalBody };
         }
 
         private List<IHouse> generateHouseMembership(XElement formalBodyElement)
@@ -56,7 +56,7 @@ namespace Functions.TransformationCommitteeMnis
             return houses;
         }
 
-        public override Dictionary<string, object> GetKeysFromSource(IBaseOntology[] deserializedSource)
+        public override Dictionary<string, object> GetKeysFromSource(IOntologyInstance[] deserializedSource)
         {
             string formalBodyMnisId = deserializedSource.OfType<IMnisFormalBody>()
                 .SingleOrDefault()
@@ -67,7 +67,7 @@ namespace Functions.TransformationCommitteeMnis
             };
         }
 
-        public override IBaseOntology[] SynchronizeIds(IBaseOntology[] source, Uri subjectUri, IBaseOntology[] target)
+        public override IOntologyInstance[] SynchronizeIds(IOntologyInstance[] source, Uri subjectUri, IOntologyInstance[] target)
         {
             foreach (IFormalBody formalBody in source.OfType<IFormalBody>())
                 formalBody.SubjectUri = subjectUri;

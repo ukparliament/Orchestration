@@ -10,7 +10,7 @@ namespace Functions.TransformationCountry
 {
     public class Transformation : BaseTransformation<Settings>
     {
-        public override IBaseOntology[] TransformSource(string response)
+        public override IOntologyInstance[] TransformSource(string response)
         {
             IGovRegisterCountry country = new GovRegisterCountry();
             JObject jsonResponse = (JObject)JsonConvert.DeserializeObject(response);
@@ -28,10 +28,10 @@ namespace Functions.TransformationCountry
             jValue = (JValue)jsonResponse.First.First.SelectToken("item[0].end-date");
             country.GovRegisterCountryEndDate = DeserializerHelper.GiveMeSingleDateValue(jValue.GetDate());
 
-            return new IBaseOntology[] { country };
+            return new IOntologyInstance[] { country };
         }
 
-        public override Dictionary<string, object> GetKeysFromSource(IBaseOntology[] deserializedSource)
+        public override Dictionary<string, object> GetKeysFromSource(IOntologyInstance[] deserializedSource)
         {
             string countryGovRegisterId = deserializedSource.OfType<IGovRegisterCountry>()
                 .SingleOrDefault()
@@ -42,12 +42,12 @@ namespace Functions.TransformationCountry
             };
         }
 
-        public override IBaseOntology[] SynchronizeIds(IBaseOntology[] source, Uri subjectUri, IBaseOntology[] target)
+        public override IOntologyInstance[] SynchronizeIds(IOntologyInstance[] source, Uri subjectUri, IOntologyInstance[] target)
         {
             IGovRegisterCountry country = source.OfType<IGovRegisterCountry>().SingleOrDefault();
             country.SubjectUri = subjectUri;
 
-            return new IBaseOntology[] { country };
+            return new IOntologyInstance[] { country };
         }
     }
 }

@@ -11,7 +11,7 @@ namespace Functions.TransformationTerritory
     public class Transformation : BaseTransformation<Settings>
     {
 
-        public override IBaseOntology[] TransformSource(string response)
+        public override IOntologyInstance[] TransformSource(string response)
         {
             IGovRegisterTerritory territory = new GovRegisterTerritory();
             JObject jsonResponse = (JObject)JsonConvert.DeserializeObject(response);
@@ -27,10 +27,10 @@ namespace Functions.TransformationTerritory
             jValue = (JValue)jsonResponse.First.First.SelectToken("item[0].end-date");
             territory.GovRegisterTerritoryEndDate = DeserializerHelper.GiveMeSingleDateValue(jValue.GetDate());
 
-            return new IBaseOntology[] { territory };
+            return new IOntologyInstance[] { territory };
         }
 
-        public override Dictionary<string, object> GetKeysFromSource(IBaseOntology[] deserializedSource)
+        public override Dictionary<string, object> GetKeysFromSource(IOntologyInstance[] deserializedSource)
         {
             string territoryGovRegisterId = deserializedSource.OfType<IGovRegisterTerritory>()
                 .SingleOrDefault()
@@ -41,12 +41,12 @@ namespace Functions.TransformationTerritory
             };
         }
 
-        public override IBaseOntology[] SynchronizeIds(IBaseOntology[] source, Uri subjectUri, IBaseOntology[] target)
+        public override IOntologyInstance[] SynchronizeIds(IOntologyInstance[] source, Uri subjectUri, IOntologyInstance[] target)
         {
             IGovRegisterTerritory territory = source.OfType<IGovRegisterTerritory>().SingleOrDefault();
             territory.SubjectUri = subjectUri;
 
-            return new IBaseOntology[] { territory };
+            return new IOntologyInstance[] { territory };
         }
     }
 }

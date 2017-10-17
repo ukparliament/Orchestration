@@ -12,7 +12,7 @@ namespace Functions.TransformationConstituencyOS
 {
     public class Transformation : BaseTransformation<Settings>
     {
-        public override IBaseOntology[] TransformSource(string response)
+        public override IOntologyInstance[] TransformSource(string response)
         {
             RDF sourceConstituency = new RDF();
             using (StringReader reader = new StringReader(response))
@@ -27,10 +27,10 @@ namespace Functions.TransformationConstituencyOS
                 if (sourceConstituency.Description.asGML != null)
                     constituency.ConstituencyGroupHasConstituencyArea = generateConstituencyArea(sourceConstituency.Description);
             }
-            return new IBaseOntology[] { constituency };
+            return new IOntologyInstance[] { constituency };
         }
 
-        public override Dictionary<string, object> GetKeysFromSource(IBaseOntology[] deserializedSource)
+        public override Dictionary<string, object> GetKeysFromSource(IOntologyInstance[] deserializedSource)
         {
             string constituencyGroupOnsCode = deserializedSource.OfType<IOnsConstituencyGroup>()
                 .SingleOrDefault()
@@ -41,7 +41,7 @@ namespace Functions.TransformationConstituencyOS
             };
         }
 
-        public override IBaseOntology[] SynchronizeIds(IBaseOntology[] source, Uri subjectUri, IBaseOntology[] target)
+        public override IOntologyInstance[] SynchronizeIds(IOntologyInstance[] source, Uri subjectUri, IOntologyInstance[] target)
         {
             IOnsConstituencyGroup constituency = source.OfType<IOnsConstituencyGroup>().SingleOrDefault();
             constituency.SubjectUri = subjectUri;
@@ -49,7 +49,7 @@ namespace Functions.TransformationConstituencyOS
             if ((constituencyArea != null) && (constituency.ConstituencyGroupHasConstituencyArea != null))
                 constituency.ConstituencyGroupHasConstituencyArea.SubjectUri = constituencyArea.SubjectUri;
 
-            return new IBaseOntology[] { constituency };
+            return new IOntologyInstance[] { constituency };
         }
 
         private IConstituencyArea generateConstituencyArea(RDFDescription description)

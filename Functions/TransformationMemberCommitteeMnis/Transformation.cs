@@ -13,7 +13,7 @@ namespace Functions.TransformationMemberCommitteeMnis
         private XNamespace d = "http://schemas.microsoft.com/ado/2007/08/dataservices";
         private XNamespace m = "http://schemas.microsoft.com/ado/2007/08/dataservices/metadata";
 
-        public override IBaseOntology[] TransformSource(string response)
+        public override IOntologyInstance[] TransformSource(string response)
         {
             IMnisFormalBodyMembership mnisFormalBodyMembership = new MnisFormalBodyMembership();
             XDocument doc = XDocument.Parse(response);
@@ -28,7 +28,7 @@ namespace Functions.TransformationMemberCommitteeMnis
             pastFormalBodyMembership.FormalBodyMembershipEndDate = formalBodyElement.Element(d + "EndDate").GetDate();
             IFormalBodyMembership formalBodyMembership = generateMembershipMember(formalBodyElement);
 
-            return new IBaseOntology[] { mnisFormalBodyMembership, pastFormalBodyMembership, formalBodyMembership };
+            return new IOntologyInstance[] { mnisFormalBodyMembership, pastFormalBodyMembership, formalBodyMembership };
         }
 
         private IFormalBodyMembership generateMembershipMember(XElement formalBodyElement)
@@ -85,7 +85,7 @@ namespace Functions.TransformationMemberCommitteeMnis
             return formalBody;
         }
 
-        public override Dictionary<string, object> GetKeysFromSource(IBaseOntology[] deserializedSource)
+        public override Dictionary<string, object> GetKeysFromSource(IOntologyInstance[] deserializedSource)
         {
             string formalBodyMembershipMnisId = deserializedSource.OfType<IMnisFormalBodyMembership>()
                 .SingleOrDefault()
@@ -96,7 +96,7 @@ namespace Functions.TransformationMemberCommitteeMnis
             };
         }
 
-        public override IBaseOntology[] SynchronizeIds(IBaseOntology[] source, Uri subjectUri, IBaseOntology[] target)
+        public override IOntologyInstance[] SynchronizeIds(IOntologyInstance[] source, Uri subjectUri, IOntologyInstance[] target)
         {
             foreach (IFormalBodyMembership formalBodyMembership in source.OfType<IFormalBodyMembership>())
                 formalBodyMembership.SubjectUri = subjectUri;

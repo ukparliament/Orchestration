@@ -9,7 +9,7 @@ namespace Functions.TransformationPartyMnis
 {
     public class Transformation : BaseTransformation<Settings>
     {
-        public override IBaseOntology[] TransformSource(string response)
+        public override IOntologyInstance[] TransformSource(string response)
         {
             IMnisParty party = new MnisParty();
             XDocument doc = XDocument.Parse(response);
@@ -20,10 +20,10 @@ namespace Functions.TransformationPartyMnis
             party.PartyMnisId = element.Element(d + "Party_Id").GetText();
             party.PartyName = element.Element(d + "Name").GetText();
 
-            return new IBaseOntology[] { party };
+            return new IOntologyInstance[] { party };
         }
 
-        public override Dictionary<string, object> GetKeysFromSource(IBaseOntology[] deserializedSource)
+        public override Dictionary<string, object> GetKeysFromSource(IOntologyInstance[] deserializedSource)
         {
             string partyMnisId = deserializedSource.OfType<IMnisParty>()
                 .SingleOrDefault()
@@ -34,12 +34,12 @@ namespace Functions.TransformationPartyMnis
             };
         }
 
-        public override IBaseOntology[] SynchronizeIds(IBaseOntology[] source, Uri subjectUri, IBaseOntology[] target)
+        public override IOntologyInstance[] SynchronizeIds(IOntologyInstance[] source, Uri subjectUri, IOntologyInstance[] target)
         {
             IMnisParty party = source.OfType<IMnisParty>().SingleOrDefault();
             party.SubjectUri = subjectUri;
 
-            return new IBaseOntology[] { party };
+            return new IOntologyInstance[] { party };
         }
     }
 }

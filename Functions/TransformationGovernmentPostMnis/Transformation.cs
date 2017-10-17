@@ -9,7 +9,7 @@ namespace Functions.TransformationGovernmentPostMnis
 {
     public class Transformation : BaseTransformation<Settings>
     {
-        public override IBaseOntology[] TransformSource(string response)
+        public override IOntologyInstance[] TransformSource(string response)
         {
             IMnisGovernmentPosition governmentPosition = new MnisGovernmentPosition();
             XDocument doc = XDocument.Parse(response);
@@ -20,10 +20,10 @@ namespace Functions.TransformationGovernmentPostMnis
             governmentPosition.GovernmentPositionMnisId = element.Element(d + "GovernmentPost_Id").GetText();
             governmentPosition.PositionName = element.Element(d + "Name").GetText();
 
-            return new IBaseOntology[] { governmentPosition };
+            return new IOntologyInstance[] { governmentPosition };
         }
 
-        public override Dictionary<string, object> GetKeysFromSource(IBaseOntology[] deserializedSource)
+        public override Dictionary<string, object> GetKeysFromSource(IOntologyInstance[] deserializedSource)
         {
             string governmentPositionMnisId = deserializedSource.OfType<IMnisGovernmentPosition>()
                 .SingleOrDefault()
@@ -34,12 +34,12 @@ namespace Functions.TransformationGovernmentPostMnis
             };
         }
 
-        public override IBaseOntology[] SynchronizeIds(IBaseOntology[] source, Uri subjectUri, IBaseOntology[] target)
+        public override IOntologyInstance[] SynchronizeIds(IOntologyInstance[] source, Uri subjectUri, IOntologyInstance[] target)
         {
             IMnisGovernmentPosition governmentPosition = source.OfType<IMnisGovernmentPosition>().SingleOrDefault();
             governmentPosition.SubjectUri = subjectUri;
 
-            return new IBaseOntology[] { governmentPosition };
+            return new IOntologyInstance[] { governmentPosition };
         }
 
     }

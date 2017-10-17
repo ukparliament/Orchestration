@@ -8,7 +8,7 @@ namespace Functions.TransformationContactPointSeatMnis
 {
     public class Transformation : BaseTransformationContactPoint<Settings>
     {
-        public override IBaseOntology[] TransformSource(string response)
+        public override IOntologyInstance[] TransformSource(string response)
         {
             IMnisContactPoint contactPoint = new MnisContactPoint();
             XDocument doc = XDocument.Parse(response);
@@ -25,7 +25,7 @@ namespace Functions.TransformationContactPointSeatMnis
             if (incumbency != null)
                 contactPoint.ContactPointHasParliamentaryIncumbency = new IParliamentaryIncumbency[] { incumbency };
 
-            return new IBaseOntology[] { contactPoint };
+            return new IOntologyInstance[] { contactPoint };
         }
 
         private IParliamentaryIncumbency generateIncumbency(XElement contactPointElement)

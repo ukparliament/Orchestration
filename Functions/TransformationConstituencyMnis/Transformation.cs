@@ -14,7 +14,7 @@ namespace Functions.TransformationConstituencyMnis
         protected XNamespace d = "http://schemas.microsoft.com/ado/2007/08/dataservices";
         protected XNamespace m = "http://schemas.microsoft.com/ado/2007/08/dataservices/metadata";
 
-        public override IBaseOntology[] TransformSource(string response)
+        public override IOntologyInstance[] TransformSource(string response)
         {
             IMnisConstituencyGroup mnisConstituency = new MnisConstituencyGroup();
             XDocument doc = XDocument.Parse(response);
@@ -32,10 +32,10 @@ namespace Functions.TransformationConstituencyMnis
             IPastConstituencyGroup pastConstituencyGroup = new PastConstituencyGroup();
             pastConstituencyGroup.ConstituencyGroupEndDate = constituencyElement.Element(d + "EndDate").GetDate();
 
-            return new IBaseOntology[] { mnisConstituency, onsConstituencyGroup, pastConstituencyGroup };
+            return new IOntologyInstance[] { mnisConstituency, onsConstituencyGroup, pastConstituencyGroup };
         }
 
-        public override Dictionary<string, object> GetKeysFromSource(IBaseOntology[] deserializedSource)
+        public override Dictionary<string, object> GetKeysFromSource(IOntologyInstance[] deserializedSource)
         {
             string constituencyGroupMnisId = deserializedSource.OfType<IMnisConstituencyGroup>()
                 .SingleOrDefault()
@@ -50,7 +50,7 @@ namespace Functions.TransformationConstituencyMnis
             };
         }
 
-        public override IBaseOntology[] SynchronizeIds(IBaseOntology[] source, Uri subjectUri, IBaseOntology[] target)
+        public override IOntologyInstance[] SynchronizeIds(IOntologyInstance[] source, Uri subjectUri, IOntologyInstance[] target)
         {
             IMnisConstituencyGroup constituency = source.OfType<IMnisConstituencyGroup>().SingleOrDefault();
             IHouseSeat houseSeat= target.OfType<IHouseSeat>().SingleOrDefault();

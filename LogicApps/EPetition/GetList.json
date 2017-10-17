@@ -105,7 +105,7 @@
                   "inputs": {
                     "body": {
                       "batchId": "@{outputs('Get_BatchId')}",
-                      "maxUpdatedAt": "@body('GetMaxUpdatedAt')[0]['http://id.ukpds.org/schema/maxUpdatedAt'][0]['@value']",
+                      "maxUpdatedAt": "@body('GetMaxUpdatedAt')[0]['https://id.parliament.uk/schema/maxUpdatedAt'][0]['@value']",
                       "pageNo": "@item()"
                     },
                     "host": {
@@ -133,7 +133,7 @@
             },
             "GetMaxUpdatedAt": {
               "inputs": {
-                "body": "construct{[] <http://id.ukpds.org/schema/maxUpdatedAt> ?date}where{{select (max(?updatedAt) as ?maxUpdatedAt) where{?s <http://id.ukpds.org/schema/ePetitionUkgapId> ?ePetitionUkgapId;<http://id.ukpds.org/schema/updatedAt> ?updatedAt.}}bind(coalesce(?maxUpdatedAt,'1900-01-01T01:01:01Z') as ?date)} ",
+                "body": "construct{[] <https://id.parliament.uk/schema/maxUpdatedAt> ?date}where{{select (max(?updatedAt) as ?maxUpdatedAt) where{?s <https://id.parliament.uk/schema/ePetitionUkgapId> ?ePetitionUkgapId;<https://id.parliament.uk/schema/updatedAt> ?updatedAt.}}bind(coalesce(?maxUpdatedAt,'1900-01-01T01:01:01Z') as ?date)} ",
                 "headers": {
                   "Accept": "application/ld+json",
                   "Content-Type": "application/sparql-query",

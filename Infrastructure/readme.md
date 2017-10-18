@@ -8,9 +8,9 @@ These files complete the configuration of the Inrastructure, creating the:
 * ServiceBus
 * Sharepoint (connector)
 
-The use of `Scheduler.json` is described in `LogicApps\Readme.md` ... **WRONG**
- 
-The ServiceBus includes the creatiog of mutiple queues, currently 18.  These can be seen in the
-`LogicApps\Setting.ps1` file.
+`ServiceBus.json` includes the creating mutiple queues, currently 18.  These 18 can be seen in the
+`LogicApps\Setting.ps1` file with each being used by a Get- and Tranpose- function.
 
-The 
+
+
+

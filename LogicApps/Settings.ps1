@@ -136,7 +136,7 @@ $logicAppVariable=@(
     }
 	New-Object -TypeName PSObject -Property @{
         "name"="governmentincumbencymnis";
-        "listUri"="http://data.parliament.uk/membersdataplatform/open/OData.svc/Members?`$select=Member_Id";
+        "listUri"="http://data.parliament.uk/membersdataplatform/open/OData.svc/MemberGovernmentPosts?`$select=MemberGovernmentPost_Id";
         "listAcceptHeader"="application/atom+xml";
         "foreachObject"="@json(body('Get_List')).feed.entry";
         "idObject"="@{item().id}";
@@ -147,7 +147,7 @@ $logicAppVariable=@(
     }
 	New-Object -TypeName PSObject -Property @{
         "name"="houseincumbencymnis";
-        "listUri"="http://data.parliament.uk/membersdataplatform/open/OData.svc/Members?`$select=Member_Id";
+        "listUri"="http://data.parliament.uk/membersdataplatform/open/OData.svc/MemberLordsMembershipTypes?`$select=MemberLordsMembershipType_Id";
         "listAcceptHeader"="application/atom+xml";
         "foreachObject"="@json(body('Get_List')).feed.entry";
         "idObject"="@{item().id}";
@@ -158,7 +158,7 @@ $logicAppVariable=@(
     }
 	New-Object -TypeName PSObject -Property @{
         "name"="partymembershipmnis";
-        "listUri"="http://data.parliament.uk/membersdataplatform/open/OData.svc/Members?`$select=Member_Id";
+        "listUri"="http://data.parliament.uk/membersdataplatform/open/OData.svc/MemberParties?`$select=MemberParty_Id";
         "listAcceptHeader"="application/atom+xml";
         "foreachObject"="@json(body('Get_List')).feed.entry";
         "idObject"="@{item().id}";
@@ -169,7 +169,7 @@ $logicAppVariable=@(
     }
 	New-Object -TypeName PSObject -Property @{
         "name"="seatincumbencymnis";
-        "listUri"="http://data.parliament.uk/membersdataplatform/open/OData.svc/Members?`$select=Member_Id";
+        "listUri"="http://data.parliament.uk/membersdataplatform/open/OData.svc/MemberConstituencies?`$select=MemberConstituency_Ids";
         "listAcceptHeader"="application/atom+xml";
         "foreachObject"="@json(body('Get_List')).feed.entry";
         "idObject"="@{item().id}";

@@ -169,7 +169,7 @@ $logicAppVariable=@(
     }
 	New-Object -TypeName PSObject -Property @{
         "name"="seatincumbencymnis";
-        "listUri"="http://data.parliament.uk/membersdataplatform/open/OData.svc/MemberConstituencies?`$select=MemberConstituency_Ids";
+        "listUri"="http://data.parliament.uk/membersdataplatform/open/OData.svc/MemberConstituencies?`$select=MemberConstituency_Id";
         "listAcceptHeader"="application/atom+xml";
         "foreachObject"="@json(body('Get_List')).feed.entry";
         "idObject"="@{item().id}";

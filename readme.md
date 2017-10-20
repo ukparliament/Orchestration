@@ -57,14 +57,17 @@ LogicApps collect data required from a variety of sources, including the Governm
 already published elsewhere by Parliament.  The data retrieved is stored in the GraphDB by the *Functions* 
 in a consistent format for further use.
 
-Control of execution is managed by an `Logic app` defined in Azure.  Each `Logic app` is defined through a JSON file which
+Control of execution is managed by an `Logic app` (also called a Workflow) defined in Azure.  Each `Logic app` is defined through a JSON file which
 uses an ARM template to implement the desired functionality.  The `Logic app` is exported
-from Azure using the *Logic App Code View* operation.  This JSON file is saved in VSTS and implemented in Azure using a *Step*.
-For instance:
-* The `Logic app` *getlist-membermnis* reads the list of Members from data.parliament.uk/membersdataplatform/open/OData.svc/Members
-* The *getlist-membermnis* `Logic app` processes each of the entries returned by the external call
-* *getlist-membermnis* sends a message for each of the Members ...
+from Azure using the *Logic App Code View* operation.  This JSON file is saved in VSTS and deployed in Azure
+within a *Step* of a deployment.
+
+For example:
+* The `Logic app` *getlist-membermnis* reads the list of Members from [here](http://data.parliament.uk/membersdataplatform/open/OData.svc/Members)
+* The *getlist-membermnis* `Logic app` processes each of the Members returned by the *external* data source
+* *getlist-membermnis* sends a message to the MessageBus for each Member ...
 * ... which are subscribed to by *processlist-membermnis* in the latest `data-orchestration_yyyymmss_` Resource Group
+
 The deployment of these components can be seen under `Deploy Logic Apps code`
 [here](https://data-parliament.visualstudio.com/Platform/_release?releaseId=952&definitionId=16&_a=release-logs)
 

@@ -1,31 +1,39 @@
 ## Orhestration \ Functions
 
-Functions provide processing capabilities to support the Orchestrations and the platform more generalyl.  Some
-functions are following a consistent naming pattern which is described here.  Others not following this pattern 
-have helpful function names .
+Functions provide processing capabilities to support the Orchestrations and, more generally, the platform.  Some
+functions are following a consistent naming pattern, which is described below.  Others not following this pattern 
+have suitable and helpful function names .
 
-**Path**:   Functions\\Transform*Message*
+**Path**: `Transformation*Message*`
 
-**Description**: Functions conforming to the Transform*Message* convention follow the same pattern.  *Message*
-has been created by it's corresponding getlist-*Message* function in **Logic Apps**.  Transformations:
-* use a consistent language defined by Parliament's ontology in the *Message* 
-* avoid creating duplicates; rather duplicates will return the original *Message*.
+**Description**: Functions conforming to the __Transformation*Message*__ convention follow the same pattern.  *Message*
+has been created within the appropriate **Logic App** and eritten to the ServiceBus.  Transformations then:
+* use a consistent language in the *Message* defined by Parliament's ontology
+* avoid creating duplicates by returning the original *Message* if a duplicate would result.
 
-**Input**: Messages from the MessageBus
+__DO THEY WRITE THE MSG TO GRAPHDB??__
+
+**Input**: Messages from the **MessageBus**
 
 **Output**: Transformed *Message* in a standard form based on the ontology.
 
+The processing of these messages are defined in the **Logic Apps** of the
+__data-orchestration*YYYYMMDD*__ **Resource Group** in their **Logic App Designer**.  The __data-orchestration__
+resource groups include the date **and time** of their deployment in their names.
+
 ----
-**Path**: `GraphDBBackup`
+**Path**: `Functions\GraphDBBackup`
 
 **Description**: Backs up this database to the data storage platform.
-The backup is run daily at 5am to Azure's backup data platform resource. This is scheduled in the `SchedulerJobLoop.json` file in the `LogicApps` folder.
-Currently retention is permanent but will be reduced if an expected enhancement from Microsoft can manage this retention better and automatically.
+The backup is currently run daily at 5am to Azure's backup data platform resource. This is scheduled
+in the `SchedulerJobLoop.json` file in the `LogicApps` folder.  This schedule is subject to change.
+Currently retention is permanent but is expected to be reduced if an enhancement from Microsoft 
+can manage retention automatically.
 
 ---
 **Path**: `GraphDBConnector.cs`
 
-**Description** Returns the connector to the GraphDB on the environment this is being execuited on.
+**Description** Returns the connector to the GraphDB on the environment it is called.
 
 ---
 
@@ -46,4 +54,4 @@ Logs are managed by Operations Management Suite (OMS) on the platform. Through O
 
 * log analysis 
 * raising of alerts
-* historic storage
+* historic storage of events

@@ -46,19 +46,19 @@ These components include:
 * Network Clusters
 * Network Interface Cards
 
-NSGs protect the componets they safeguard by restricting the network traffic that is permitted to pass through them.  
+NSGs protect the components they are associated with by restricting the network traffic permitted to pass through them.  
 NSGs define Inbound and Outbound rules which allow (and deny) access to components.  Rules follow Microsoft's recommendations
-for the components used on the platform.
+for their associated components.
 
-The network components show those which are conneted to the Internet and those which aren't;  NSGs are protecting those that are.
+The network components show those conneted to the Internet and those which aren't; NSGs are protecting those that are.
 
 ## LogicApps ##
 LogicApps collect data required from a variety of sources, including the Government registers and publications 
 already published elsewhere by Parliament.  The data retrieved is stored in the GraphDB by the *Functions* 
 in a consistent format for further use.
 
-Control of execution is managed by an `Logic app` (also called a Workflow) defined in Azure.  Each `Logic app` is defined through a JSON file which
-uses an ARM template to implement the desired functionality.  The `Logic app` is exported
+Control of execution is managed by a `Logic app` (also called a Workflow) defined in Azure.  Each `Logic app` is defined through a JSON file which
+uses an ARM template to implement the prescribed functionality.  The `Logic app` is exported
 from Azure using the *Logic App Code View* operation.  This JSON file is saved in VSTS and deployed in Azure
 within a *Step* of a deployment.
 

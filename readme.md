@@ -66,7 +66,10 @@ For example:
 * The `Logic app` *getlist-membermnis* reads the list of Members from [here](http://data.parliament.uk/membersdataplatform/open/OData.svc/Members)
 * The *getlist-membermnis* `Logic app` processes each of the Members returned by the *external* data source
 * *getlist-membermnis* sends a message to the MessageBus for each Member ...
-* ... which are subscribed to by *processlist-membermnis* in the latest `data-orchestration_yyyymmss_` Resource Group
+* ... which are subscribed to by *processlist-membermnis* in the latest `data-orchestration_yyyymmdd_` Resource Group
+* For each Member message another message with the Member's MNIS details is posted and consumed by the *update-membermnis* workflow 
+* This calls the *Transformationmembermnis* function in *Orchestration/Functions/TransformationMemberMnis/TransformationMemberMnis.cs* ...
+* ... and *TransformationMemberMnis.cs* inherits *BaseTransformtation.cs* to write or update the data in GraphDB
 
 The deployment of these components can be seen under `Deploy Logic Apps code`
 [here](https://data-parliament.visualstudio.com/Platform/_release?releaseId=952&definitionId=16&_a=release-logs)

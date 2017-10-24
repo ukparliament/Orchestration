@@ -74,7 +74,6 @@ For example:
 The deployment of these components can be seen under `Deploy Logic Apps code`
 [here](https://data-parliament.visualstudio.com/Platform/_release?releaseId=952&definitionId=16&_a=release-logs)
 
-
 `Settings.ps1` script generates task variables that are used by ARM templates (*loop.json) to create
 workflows. Name property is reused accross Logic Apps,
 scheduler jobs and Azure Functions. There are some additional workflows that override default ones.

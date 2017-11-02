@@ -53,30 +53,38 @@ for their associated components.
 The network components show those conneted to the Internet and those which aren't; NSGs are protecting those that are.
 
 ## LogicApps ##
-LogicApps collect data required from a variety of sources, including the Government registers and publications 
-already published elsewhere by Parliament.  The data retrieved is stored in the GraphDB by the *Functions* 
-in a consistent format for further use.
+`LogicApps` collect data required from a variety of sources, including:
+* Government registers, and
+* data already published elsewhere by Parliament.
 
-Control of execution is managed by a `Logic app` (also called a Workflow) defined in Azure.  Each `Logic app` is defined through a JSON file which
-uses an ARM template to implement the prescribed functionality.  The `Logic app` is exported
-from Azure using the *Logic App Code View* operation.  This JSON file is saved in VSTS and deployed in Azure
+Data retrieved is stored in the `GraphDB` by `Functions` in a consistent and predictable format aiding its reuse.
+
+Control of execution is managed by a `LogicApp` (also called a Workflow) defined in Azure.  Each `LogicApp` is defined through a JSON file which
+uses an ARM template to implement the prescribed functionality.  The `LogicApp` is exported
+from Azure using the *Logic App Code View* operation.  This JSON file is saved in VSTS and deployed to Azure
 within a *Step* of a deployment.
 
 For example:
-* The `Logic app` *getlist-membermnis* reads the list of Members from [here](http://data.parliament.uk/membersdataplatform/open/OData.svc/Members)
-* The *getlist-membermnis* `Logic app` processes each of the Members returned by the *external* data source
-* *getlist-membermnis* sends a message to the MessageBus for each Member ...
-* ... which are subscribed to by *processlist-membermnis* in the latest `data-orchestration_yyyymmdd_` Resource Group
-* For each Member message another message with the Member's MNIS details is posted and consumed by the *update-membermnis* workflow 
-* This calls the *Transformationmembermnis* function in *Orchestration/Functions/TransformationMemberMnis/TransformationMemberMnis.cs* ...
-* ... and *TransformationMemberMnis.cs* inherits *BaseTransformtation.cs* to write or update the data in GraphDB
+* The `LogicApp` *getlist-membermnis* reads the list of Members from [here](http://data.parliament.uk/membersdataplatform/open/OData.svc/Members) ...
+* ... and processes each of the Members returned from this data source.
+* *getlist-membermnis* sends a message to the `MessageBus` for each Member ...
+* ... which are subscribed to by *processlist-membermnis*, found in the latest `data-orchestration_yyyymmdd_` Resource Group
+* For each Member message another message with the Member's MNIS details is posted on the `MessageBus` and consumed by the *update-membermnis* `LogicApp` 
+* These messages are subscribed to by the *update-membermnis* `LogicApp` ...
+* ... which uses the *Orchestration\Functions\TransformationMemberMnis\TransformationMemberMnis.cs* function to save this data.
+* *TransformationMemberMnis.cs* inherits *BaseTransformtation.cs* which provides the writing or updating of the data in GraphDB.
 
-The deployment of these components can be seen under `Deploy Logic Apps code`
+The deployment of these components can be seen under `Deploy Logic Apps code`, 
 [here](https://data-parliament.visualstudio.com/Platform/_release?releaseId=952&definitionId=16&_a=release-logs)
+.ps1` script generates task variables that are used by ARM templates (in the `*something* loop.json` files) to create
+each `LogicApp`.  Name property is reused accross:
+* the `LogicApps`
+* the scheduler jobs and
+* the Azure Functions.
 
-`Settings.ps1` script generates task variables that are used by ARM templates (*loop.json) to create
-workflows. Name property is reused accross Logic Apps,
-scheduler jobs and Azure Functions. There are some additional workflows that override default ones.
+There are some additional workflows that override default ones.  For instance ...???
+
+`Settings
 
 ## Functions ##
 Functions may be associated with a variety of areas, including:

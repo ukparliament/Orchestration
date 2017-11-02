@@ -1,8 +1,8 @@
 | **Function** | **getlist-territory**                                                   |
 |--------------|-------------------------------------------------------------------------|
-| Description  | Logic App that obtains the list of territories from the Government's Register.  This function takes no parameters.  Territories are used in ePetitions when signatories originate from a territory.
+| Description  | *LogicApp* that obtains the list of territories from the Government's Register.  Execution is controlled by the *processlist-territory* *LogicApp*.  This function takes no parameters.  Territories are used in *ePetitions* when signatories originate from a territory.
 | Input        | <https://territory.register.gov.uk/records?page-size=1000&page-index=1> |
-| Output       | For each territory --> territory Message --> ServiceBus                     |
+| Output       | For each territory --> territory Message --> *ServiceBus*               |
 
 **See Also**: [GDS Register Documentation](https://registers-docs.cloudapps.digital/#api-documentation-for-registers)
 

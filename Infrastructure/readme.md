@@ -10,7 +10,7 @@ These files complete the configuration of the Inrastructure, creating the:
 * ServiceBus
 * Sharepoint (connector)
 
-`ServiceBus.json` includes creating multiple queues within the ServiceBus, currently 18.  These 18 can be seen in the
+`ServiceBus.json` includes creating multiple queues within the ServiceBus, currently 18.  These can be seen in the
 `LogicApps\Setting.ps1` file with each being used by a Get- and Tranpose- function.
 
 

@@ -12,13 +12,13 @@ of the schedules and the names of their associated *LogicApps*.
 
 *Settings.ps1* defines a generic pattern for the:
 * Schedules
-* Names of ListApp 
-* Message names
+* Names of the ListApps
+* Names of the Messags
 
-This can be overriden where the generic pattern is not suitable, as occues with the processing of Countries.
-This uses `Orchestration\LogicApps\Country\GetList.json` to deploy the specific settings
-required to process Countries.  This defines an ARM template which is deployed in the `Create workflow - Country list`
-task within the `Data Platform: Logic Apps code` task group.
+This can be overriden where the generic pattern is not suitable, as occurs with the processing of Countries.  This
+uses `Orchestration\LogicApps\Country\GetList.json` to deploy the specific settings required to process
+Countries.  This defines an ARM template which is deployed in the `Create workflow - Country list`
+task within the `Data Platform: Logic Apps code` task group.  This concept applies to alarge number of the GetList-* LogicApps.
 
 When *Settings.ps1* is compiled within its task group it writes a log detailing the compilation.  These log files can be viewed in VSTS
 although doing so is beyond the scope of this description.  Should this be considered

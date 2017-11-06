@@ -72,7 +72,7 @@ For example:
 * For each Member message another message with the Member's MNIS details is posted on the `MessageBus` and consumed by the *update-membermnis* `LogicApp` 
 * These messages are subscribed to by the *update-membermnis* `LogicApp` ...
 * ... which uses the *Orchestration\Functions\TransformationMemberMnis\TransformationMemberMnis.cs* function to save this data.
-* *TransformationMemberMnis.cs* inherits *BaseTransformtation.cs* which provides the writing or updating of the data in GraphDB.
+* *TransformationMemberMnis.cs* inherits *BaseTransformtation.cs* which provides the writing or updating of this data in GraphDB.
 
 The deployment of these components can be seen under `Deploy Logic Apps code`, 
 [here](https://data-parliament.visualstudio.com/Platform/_release?releaseId=952&definitionId=16&_a=release-logs)

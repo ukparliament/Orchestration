@@ -92,7 +92,6 @@
                 "method": "get",
                 "path": "/datasets/@{encodeURIComponent(encodeURIComponent('https://hopuk.sharepoint.com/sites/datateam/datasources'))}/tables/@{encodeURIComponent('7cb6d78b-5f45-49d2-bb77-009f71a83390')}/items",
                 "queries": {
-                  "$filter": "x/Id eq 6 or x/Id eq 7 or x/Id eq 8",
                   "$top": 10000
                 }
               },

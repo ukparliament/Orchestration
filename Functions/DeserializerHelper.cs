@@ -7,6 +7,15 @@ namespace Functions
 {
     public static class DeserializerHelper
     {
+        public static int? GetInteger(this JValue value)
+        {
+            if ((value != null) && (value.Type == JTokenType.Integer &&
+                (value.Value != null) && (int.TryParse(value.Value.ToString(), out int number))))
+                return number;
+            else
+                return null;
+        }
+
         public static string GetText(this XElement value)
         {
             if ((value != null) && (value.Value != null) && (string.IsNullOrWhiteSpace(value.Value) == false))

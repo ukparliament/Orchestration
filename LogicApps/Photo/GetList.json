@@ -26,9 +26,9 @@
   },
   "resources": [
     {
-      "comments": "Logic App that obtains list of web links from sharepoint.",
+      "comments": "Logic App that obtains list of photos from sharepoint.",
       "type": "Microsoft.Logic/workflows",
-      "name": "getlist-weblink",
+      "name": "getlist-photo",
       "apiVersion": "2016-06-01",
       "location": "[resourceGroup().location]",
       "tags": {
@@ -58,7 +58,7 @@
                       }
                     },
                     "method": "post",
-                    "path": "/weblink/messages",
+                    "path": "/photo/messages",
                     "retryPolicy": {
                       "count": 2,
                       "interval": "PT20S",

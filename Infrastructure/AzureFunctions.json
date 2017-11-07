@@ -20,12 +20,6 @@
         "description": "Name of the Application Insights."
       }
     },
-    "serviceBusName": {
-      "type": "string",
-      "metadata": {
-        "description": "Name of the Service Bus."
-      }
-    },
     "schemaNamespace": {
       "type": "string",
       "metadata": {
@@ -161,10 +155,6 @@
           "properties": {
             "Data": {
               "value": "",
-              "type": "Custom"
-            },
-            "ServiceBus": {
-              "value": "[listKeys(resourceId('Microsoft.ServiceBus/namespaces/authorizationRules',parameters('serviceBusName'),'RootManageSharedAccessKey'),'2015-08-01').primaryConnectionString]",
               "type": "Custom"
             },
             "BackupStorage": {

@@ -20,6 +20,12 @@
         "description": "Name of the Azure Functions."
       }
     },
+    "serviceBusName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the Service Bus."
+      }
+    },
     "releaseId": {
       "type": "int",
       "metadata": {
@@ -47,140 +53,148 @@
         "definition": {
           "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
           "actions": {
-            "Condition": {
+            "For_each": {
               "actions": {
-                "For_each": {
-                  "actions": {
-                    "Complete_the_message_in_a_queue": {
-                      "inputs": {
-                        "host": {
-                          "connection": {
-                            "name": "@parameters('$connections')['servicebus']['connectionId']"
-                          }
-                        },
-                        "method": "delete",
-                        "path": "[concat('/',parameters('logicAppsSetting_name')[copyIndex()],'/messages/complete')]",
-                        "queries": {
-                          "lockToken": "@items('For_each')?['LockToken']",
-                          "queueType": "Main"
-                        }
-                      },
-                      "runAfter": {},
-                      "type": "ApiConnection"
-                    },
-                    "HTTP_Webhook": {
-                      "inputs": {
-                        "subscribe": {
-                          "body": {
-                            "batchId": "@items('For_each')?['Properties']?['batchId']",
-                            "callbackUrl": "@listCallbackUrl()",
-                            "url": "@items('For_each')?['Properties']?['url']"
-                          },
-                          "method": "POST",
-                          "uri": "[listsecrets(concat(resourceId('Microsoft.Web/sites',parameters('azureFunctionsName')),concat('/functions/Transformation',parameters('logicAppsSetting_name')[copyIndex()])),'2015-08-01').trigger_url]"
-                        },
-                        "unsubscribe": {}
-                      },
-                      "runAfter": {
-                        "Complete_the_message_in_a_queue": [
-                          "Succeeded"
-                        ]
-                      },
-                      "type": "HttpWebhook"
-                    },
-                    "On_error": {
-                      "actions": {
-                        "LogicAppsErrorMessageLog": {
-                          "inputs": {
-                            "body": {
-                              "action": "@actions('HTTP_Webhook')",
-                              "workflow": "@workflow()"
-                            },
-                            "function": {
-                              "id": "[concat(subscription().id,'/resourceGroups/',resourceGroup().name,'/providers/Microsoft.Web/sites/',parameters('azureFunctionsName'),'/functions/LogicAppsErrorMessageLog')]"
-                            },
-                            "retryPolicy": {
-                              "type": "none"
-                            }
-                          },
-                          "runAfter": {},
-                          "type": "Function"
-                        },
-                        "Send_message": {
-                          "inputs": {
-                            "body": {
-                              "Properties": "@items('For_each')?['Properties']"
-                            },
-                            "host": {
-                              "connection": {
-                                "name": "@parameters('$connections')['servicebus']['connectionId']"
-                              }
-                            },
-                            "method": "post",
-                            "path": "[concat('/',parameters('logicAppsSetting_name')[copyIndex()],'/messages')]",
-                            "queries": {
-                              "systemProperties": "None"
-                            }
-                          },
-                          "runAfter": {
-                            "LogicAppsErrorMessageLog": [
-                              "Succeeded"
-                            ]
-                          },
-                          "type": "ApiConnection"
-                        }
-                      },
-                      "runAfter": {
-                        "HTTP_Webhook": [
-                          "Failed"
-                        ]
-                      },
-                      "type": "Scope"
-                    }
-                  },
-                  "foreach": "@body('Get_messages_from_a_queue_(peek-lock)')",
-                  "runAfter": {
-                    "Get_messages_from_a_queue_(peek-lock)": [
-                      "Succeeded"
-                    ]
-                  },
-                  "type": "Foreach"
-                },
-                "Get_messages_from_a_queue_(peek-lock)": {
+                "Complete_the_message_in_a_queue": {
                   "inputs": {
                     "host": {
                       "connection": {
                         "name": "@parameters('$connections')['servicebus']['connectionId']"
                       }
                     },
-                    "method": "get",
-                    "path": "[concat('/',parameters('logicAppsSetting_name')[copyIndex()],'/messages/batch/peek')]",
+                    "method": "delete",
+                    "path": "[concat('/',parameters('logicAppsSetting_name')[copyIndex()],'/messages/complete')]",
                     "queries": {
-                      "maxMessageCount": "[parameters('logicAppsSetting_queueReadBatchSize')[copyIndex()]]",
+                      "lockToken": "@items('For_each')?['LockToken']",
                       "queueType": "Main"
                     }
                   },
                   "runAfter": {},
                   "type": "ApiConnection"
-                }
-
-              },
-              "contentVersion": "1.0.0.0",
-              "outputs": {},
-              "parameters": {},
-              "triggers": {
-                "Recurrence": {
-                  "recurrence": {
-                    "frequency": "Second",
-                    "interval": 20
+                },
+                "HTTP_Webhook": {
+                  "inputs": {
+                    "subscribe": {
+                      "body": {
+                        "batchId": "@items('For_each')?['Properties']?['batchId']",
+                        "callbackUrl": "@listCallbackUrl()",
+                        "url": "@items('For_each')?['Properties']?['url']"
+                      },
+                      "method": "POST",
+                      "uri": "[listsecrets(concat(resourceId('Microsoft.Web/sites',parameters('azureFunctionsName')),concat('/functions/Transformation',parameters('logicAppsSetting_name')[copyIndex()])),'2015-08-01').trigger_url]"
+                    },
+                    "unsubscribe": {}
                   },
-                  "type": "Recurrence"
+                  "runAfter": {
+                    "Complete_the_message_in_a_queue": [
+                      "Succeeded"
+                    ]
+                  },
+                  "type": "HttpWebhook"
+                },
+                "On_error": {
+                  "actions": {
+                    "LogicAppsErrorMessageLog": {
+                      "inputs": {
+                        "body": {
+                          "action": "@actions('HTTP_Webhook')",
+                          "workflow": "@workflow()"
+                        },
+                        "function": {
+                          "id": "[concat(subscription().id,'/resourceGroups/',resourceGroup().name,'/providers/Microsoft.Web/sites/',parameters('azureFunctionsName'),'/functions/LogicAppsErrorMessageLog')]"
+                        },
+                        "retryPolicy": {
+                          "type": "none"
+                        }
+                      },
+                      "runAfter": {},
+                      "type": "Function"
+                    },
+                    "Send_message": {
+                      "inputs": {
+                        "body": {
+                          "Properties": "@items('For_each')?['Properties']"
+                        },
+                        "host": {
+                          "connection": {
+                            "name": "@parameters('$connections')['servicebus']['connectionId']"
+                          }
+                        },
+                        "method": "post",
+                        "path": "[concat('/',parameters('logicAppsSetting_name')[copyIndex()],'/messages')]",
+                        "queries": {
+                          "systemProperties": "None"
+                        }
+                      },
+                      "runAfter": {
+                        "LogicAppsErrorMessageLog": [
+                          "Succeeded"
+                        ]
+                      },
+                      "type": "ApiConnection"
+                    }
+                  },
+                  "runAfter": {
+                    "HTTP_Webhook": [
+                      "Failed"
+                    ]
+                  },
+                  "type": "Scope"
+                }
+              },
+              "foreach": "@body('Get_messages_from_a_queue_(peek-lock)')",
+              "runAfter": {
+                "Get_messages_from_a_queue_(peek-lock)": [
+                  "Succeeded"
+                ]
+              },
+              "type": "Foreach"
+            },
+            "Get_messages_from_a_queue_(peek-lock)": {
+              "inputs": {
+                "host": {
+                  "connection": {
+                    "name": "@parameters('$connections')['servicebus']['connectionId']"
+                  }
+                },
+                "method": "get",
+                "path": "[concat('/',parameters('logicAppsSetting_name')[copyIndex()],'/messages/batch/peek')]",
+                "queries": {
+                  "maxMessageCount": "[parameters('logicAppsSetting_queueReadBatchSize')[copyIndex()]]",
+                  "queueType": "Main"
+                }
+              },
+              "runAfter": {},
+              "type": "ApiConnection"
+            }
+
+          },
+          "contentVersion": "1.0.0.0",
+          "outputs": {},
+          "parameters": {
+            "$connections": {
+              "value": {
+                "servicebus": {
+                  "connectionId": "[concat(subscription().id,'/resourceGroups/',resourceGroup().name,'/providers/Microsoft.Web/connections/',parameters('serviceBusName'))]",
+                  "connectionName": "[parameters('serviceBusName')]",
+                  "id": "[concat(subscription().id,'/providers/Microsoft.Web/locations/',resourceGroup().location,'/managedApis/servicebus')]"
                 }
               }
             }
           },
-          "resources": [],
-          "dependsOn": []
+          "triggers": {
+            "Recurrence": {
+              "recurrence": {
+                "frequency": "Second",
+                "interval": 20
+              },
+              "type": "Recurrence"
+            }
+          }
         }
-        ]
-      }
+      },
+      "resources": [],
+      "dependsOn": []
+    }
+  ]
+}

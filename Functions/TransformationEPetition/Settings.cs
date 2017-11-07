@@ -102,12 +102,12 @@
                         parl:locatedSignatureCountHasPlace ?locatedSignatureCountHasPlace ;
                         parl:signatureCountRetrievedAt ?signatureCountRetrievedAt .
                     {
-                        SELECT ?ePetition ?locatedSignatureCountHasPlace (MAX(?signatureCountRetrievedAt) AS ?signatureCountRetrievedAt)
+                        SELECT ?ePetition ?locatedSignatureCountHasPlace (MAX(?signatureCountRetrievedAt2) AS ?signatureCountRetrievedAt)
                         WHERE {
                             ?locatedSignatureCount 
                                 a parl:LocatedSignatureCount ;
                                 ^parl:ePetitionHasLocatedSignatureCount ?ePetition ;
-                                parl:signatureCountRetrievedAt ?signatureCountRetrievedAt ;
+                                parl:signatureCountRetrievedAt ?signatureCountRetrievedAt2 ;
                                 parl:locatedSignatureCountHasPlace ?locatedSignatureCountHasPlace .
                         }
                         GROUP BY ?ePetition ?locatedSignatureCountHasPlace

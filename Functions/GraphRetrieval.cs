@@ -44,7 +44,7 @@ namespace Functions
         private static IGraph executeGraphQuery(string sparql, string infer)
         {
             IGraph result = new Graph();
-            using (GraphDBConnector connector = new GraphDBConnector($"?infer={infer}"))
+            using (GraphDBConnector connector = new GraphDBConnector($"infer={infer}"))
             {
                 connector.Timeout = 180 * 1000;
                 GraphHandler rdfHandler = new GraphHandler(result);

@@ -1,27 +1,17 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Net;
 using VDS.RDF.Storage;
 
 namespace Functions
 {
-    public class GraphDBConnector : SesameHttpProtocolVersion6Connector
+    public class GraphDBConnector : ReadWriteSparqlConnector
     {
         private static readonly string dataAPI = Environment.GetEnvironmentVariable("CUSTOMCONNSTR_Data", EnvironmentVariableTarget.Process);
         private static readonly string subscriptionKey = Environment.GetEnvironmentVariable("SubscriptionKey", EnvironmentVariableTarget.Process);
+        private static readonly string dataEndpoint = $"{dataAPI}/repositories/Master";            
 
         public GraphDBConnector(string queryString)
-            : base(dataAPI, $"Master{queryString}")
+            : base(new Uri($"{dataEndpoint}?Subscription-Key={subscriptionKey}&{queryString}"), new Uri($"{dataEndpoint}/statements?Subscription-Key={subscriptionKey}"))
         {
         }
-
-        protected override HttpWebRequest CreateRequest(String servicePath, String accept, String method, Dictionary<String, String> queryParams)
-        {
-            HttpWebRequest originalRequest = base.CreateRequest(servicePath, accept, method, queryParams);
-            originalRequest.Headers.Add("Ocp-Apim-Subscription-Key", subscriptionKey);
-
-            return originalRequest;
-        }
-
     }
 }

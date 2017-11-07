@@ -167,21 +167,10 @@
               "runAfter": {},
               "type": "ApiConnection"
             }
-
           },
           "contentVersion": "1.0.0.0",
           "outputs": {},
-          "parameters": {
-            "$connections": {
-              "value": {
-                "servicebus": {
-                  "connectionId": "[concat(subscription().id,'/resourceGroups/',resourceGroup().name,'/providers/Microsoft.Web/connections/',parameters('serviceBusName'))]",
-                  "connectionName": "[parameters('serviceBusName')]",
-                  "id": "[concat(subscription().id,'/providers/Microsoft.Web/locations/',resourceGroup().location,'/managedApis/servicebus')]"
-                }
-              }
-            }
-          },
+          "parameters": {},
           "triggers": {
             "Recurrence": {
               "recurrence": {
@@ -189,6 +178,17 @@
                 "interval": 20
               },
               "type": "Recurrence"
+            }
+          }
+        },
+        "parameters": {
+          "$connections": {
+            "value": {
+              "servicebus": {
+                "connectionId": "[concat(subscription().id,'/resourceGroups/',resourceGroup().name,'/providers/Microsoft.Web/connections/',parameters('serviceBusName'))]",
+                "connectionName": "[parameters('serviceBusName')]",
+                "id": "[concat(subscription().id,'/providers/Microsoft.Web/locations/',resourceGroup().location,'/managedApis/servicebus')]"
+              }
             }
           }
         }

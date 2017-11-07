@@ -170,7 +170,12 @@
           },
           "contentVersion": "1.0.0.0",
           "outputs": {},
-          "parameters": {},
+          "parameters": {
+            "$connections": {
+              "defaultValue": {},
+              "type": "Object"
+            }
+          },
           "triggers": {
             "Recurrence": {
               "recurrence": {

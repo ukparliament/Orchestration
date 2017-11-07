@@ -53,15 +53,15 @@ for their associated components.
 The network components show those conneted to the Internet and those which aren't; NSGs are protecting those that are.
 
 ## LogicApps ##
-`LogicApps` collect data required from a variety of sources, including:
-* Government registers, and
+`LogicApps` (which can also be called *Workflows*) collect data from a variety of sources, including:
+* Government registers
 * data already published elsewhere by Parliament.
 
-Data retrieved is stored in the `GraphDB` by `Functions` in a consistent and predictable format aiding its reuse.
+The data retrieved is stored in `GraphDB` by `Functions`.  This data is stored in a consistent and predictable format, aiding its reuse.
 
-Control of execution is managed by a `LogicApp` (also called a Workflow) defined in Azure.  Each `LogicApp` is defined through a JSON file which
+Control of execution is managed by a `LogicApp` defined and editable in Azure, resulting in a JSON file which
 uses an ARM template to implement the prescribed functionality.  The `LogicApp` is exported
-from Azure using the *Logic App Code View* operation.  This JSON file is saved in VSTS and deployed to Azure
+from Azure using the *Logic App Code View* operation.  This JSON file is stored in VSTS and deployed to Azure
 within a *Step* of a deployment.
 
 For example:
@@ -75,16 +75,18 @@ For example:
 * *TransformationMemberMnis.cs* inherits *BaseTransformtation.cs* which provides the writing or updating of this data in GraphDB.
 
 The deployment of these components can be seen under `Deploy Logic Apps code`, 
-[here](https://data-parliament.visualstudio.com/Platform/_release?releaseId=952&definitionId=16&_a=release-logs)
-.ps1` script generates task variables that are used by ARM templates (in the `*something* loop.json` files) to create
-each `LogicApp`.  Name property is reused accross:
+[here](https://data-parliament.visualstudio.com/Platform/_release?releaseId=952&definitionId=16&_a=release-logs).
+The script generates task variables that are used by ARM templates (in the `*something* loop.json` files) to create
+each `LogicApp`.  The *name* property is reused accross:
 * the `LogicApps`
 * the scheduler jobs and
 * the Azure Functions.
 
-There are some additional workflows that override default ones.  For instance ...???
-
-`Settings
+There are some additional workflows that override the default ones.  Default `LogicApps` are created using the
+`Orchestration\LogicApps\Settings.ps1` file.  Any `LogicApp` can then by overriden, as happens
+with the `getlist-country` `LogicApp` which is overriden by the `Orchestration\LogicApps\Country\GetList.json` `LogicApp`.
+The override occurs through the deployment by deploying the all of the defaults followed by deploying an
+override.
 
 ## Functions ##
 Functions may be associated with a variety of areas, including:
@@ -93,7 +95,7 @@ Functions may be associated with a variety of areas, including:
 * providing a consistent way tasks are performed, as with `LogicAppsErrorMessageLog` or `QueueMessagesRetrieval`
 * the data, as with `TransformationTerritory`.
 
-Code (C#) that extends functionality of LogicApps. In order to run it locally *local.settings.json* file 
+C# code extends functionality of `LogicApps`. In order to run it locally *local.settings.json* file 
 has to be added to the project.  Below is the layout of the file:
 
 ```json

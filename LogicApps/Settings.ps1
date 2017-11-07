@@ -44,7 +44,7 @@ $logicAppVariable=@(
         "frequency"="hour";
         "interval"=24;
         "triggerTime"="17:00";
-        "queueReadBatchSize"=50;
+        "queueReadBatchSize"=25;
     }     
     New-Object  -TypeName PSObject -Property @{
         "name"="constituencyos";
@@ -55,7 +55,7 @@ $logicAppVariable=@(
         "frequency"="hour";
         "interval"=24;
         "triggerTime"="18:30";
-        "queueReadBatchSize"=50;
+        "queueReadBatchSize"=25;
     }
     New-Object  -TypeName PSObject -Property @{
         "name"="constituencyosni";
@@ -66,7 +66,7 @@ $logicAppVariable=@(
         "frequency"="hour";
         "interval"=24;
         "triggerTime"="18:45";
-        "queueReadBatchSize"=50;
+        "queueReadBatchSize"=25;
     }
     New-Object  -TypeName PSObject -Property @{
         "name"="contactpointseatmnis";
@@ -77,7 +77,7 @@ $logicAppVariable=@(
         "frequency"="hour";
         "interval"=24;
         "triggerTime"="18:50";
-        "queueReadBatchSize"=50;
+        "queueReadBatchSize"=25;
     }
     New-Object  -TypeName PSObject -Property @{
         "name"="contactpointelectoralmnis";
@@ -88,7 +88,7 @@ $logicAppVariable=@(
         "frequency"="hour";
         "interval"=24;
         "triggerTime"="19:45";
-        "queueReadBatchSize"=50;
+        "queueReadBatchSize"=25;
     }
     New-Object  -TypeName PSObject -Property @{
         "name"="contactpointpersonmnis";
@@ -99,7 +99,7 @@ $logicAppVariable=@(
         "frequency"="hour";
         "interval"=24;
         "triggerTime"="20:15";
-        "queueReadBatchSize"=50;
+        "queueReadBatchSize"=25;
     }
     New-Object -TypeName PSObject -Property @{
         "name"="lordstypemnis";
@@ -110,7 +110,7 @@ $logicAppVariable=@(
         "frequency"="hour";
         "interval"=24;
         "triggerTime"="20:15";
-        "queueReadBatchSize"=50;
+        "queueReadBatchSize"=25;
     }
     New-Object -TypeName PSObject -Property @{
         "name"="partymnis";
@@ -121,7 +121,7 @@ $logicAppVariable=@(
         "frequency"="hour";
         "interval"=24;
         "triggerTime"="20:20";
-        "queueReadBatchSize"=50;
+        "queueReadBatchSize"=25;
     }
     New-Object -TypeName PSObject -Property @{
         "name"="membermnis";
@@ -132,7 +132,7 @@ $logicAppVariable=@(
         "frequency"="hour";
         "interval"=24;
         "triggerTime"="20:30";
-        "queueReadBatchSize"=50;
+        "queueReadBatchSize"=25;
     }
 	New-Object -TypeName PSObject -Property @{
         "name"="governmentincumbencymnis";
@@ -143,7 +143,7 @@ $logicAppVariable=@(
         "frequency"="hour";
         "interval"=24;
         "triggerTime"="17:30";
-        "queueReadBatchSize"=50;
+        "queueReadBatchSize"=25;
     }
 	New-Object -TypeName PSObject -Property @{
         "name"="houseincumbencymnis";
@@ -165,7 +165,7 @@ $logicAppVariable=@(
         "frequency"="hour";
         "interval"=24;
         "triggerTime"="18:00";
-        "queueReadBatchSize"=50;
+        "queueReadBatchSize"=25;
     }
 	New-Object -TypeName PSObject -Property @{
         "name"="seatincumbencymnis";
@@ -176,7 +176,7 @@ $logicAppVariable=@(
         "frequency"="hour";
         "interval"=24;
         "triggerTime"="18:15";
-        "queueReadBatchSize"=50;
+        "queueReadBatchSize"=25;
     }
     New-Object -TypeName PSObject -Property @{
         "name"="epetition";
@@ -187,7 +187,7 @@ $logicAppVariable=@(
         "frequency"="hour";
         "interval"=24;
         "triggerTime"="22:10";
-        "queueReadBatchSize"=50;
+        "queueReadBatchSize"=25;
     }
 	New-Object -TypeName PSObject -Property @{
         "name"="territory";
@@ -198,7 +198,7 @@ $logicAppVariable=@(
         "frequency"="hour";
         "interval"=24;
         "triggerTime"="21:01:01";
-        "queueReadBatchSize"=50;
+        "queueReadBatchSize"=25;
     }
 	New-Object -TypeName PSObject -Property @{
         "name"="country";
@@ -209,7 +209,7 @@ $logicAppVariable=@(
         "frequency"="hour";
         "interval"=24;
         "triggerTime"="21:02:01";
-        "queueReadBatchSize"=50;
+        "queueReadBatchSize"=25;
     }
 	New-Object -TypeName PSObject -Property @{
         "name"="committeemnis";
@@ -220,7 +220,7 @@ $logicAppVariable=@(
         "frequency"="hour";
         "interval"=24;
         "triggerTime"="21:05";
-        "queueReadBatchSize"=50;
+        "queueReadBatchSize"=25;
     }
 	New-Object -TypeName PSObject -Property @{
         "name"="membercommitteemnis";
@@ -231,7 +231,7 @@ $logicAppVariable=@(
         "frequency"="hour";
         "interval"=24;
         "triggerTime"="21:25";
-        "queueReadBatchSize"=50;
+        "queueReadBatchSize"=25;
     }
 	New-Object -TypeName PSObject -Property @{
         "name"="weblink";
@@ -242,7 +242,7 @@ $logicAppVariable=@(
         "frequency"="hour";
         "interval"=24;
         "triggerTime"="21:30";
-        "queueReadBatchSize"=50;
+        "queueReadBatchSize"=25;
     }
 	New-Object -TypeName PSObject -Property @{
         "name"="photo";
@@ -253,7 +253,7 @@ $logicAppVariable=@(
         "frequency"="hour";
         "interval"=24;
         "triggerTime"="21:35";
-        "queueReadBatchSize"=50;
+        "queueReadBatchSize"=25;
     }
 	New-Object -TypeName PSObject -Property @{
         "name"="governmentpostmnis";
@@ -264,7 +264,7 @@ $logicAppVariable=@(
         "frequency"="hour";
         "interval"=24;
         "triggerTime"="20:20";
-        "queueReadBatchSize"=50;
+        "queueReadBatchSize"=25;
     }
 )
 

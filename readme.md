@@ -1,6 +1,6 @@
 #Orchestrations for Parliamentary Data Service
 
-> Problem: Previewing this page **always** jumps to the **LogicApps** heading which is unhelpful and unwanted.  Any thoughts??
+> Problem: Previewing this page **always** jumps to the **LogicApps** heading which is unhelpful and unwanted.  Its using an Anchor link.  Any thoughts??
 
 ##Overview
 All artefacts are designed for the Azure Platform Repository consisting
@@ -17,7 +17,7 @@ settings defined under **Infrastructure**, setting up:
 * Storage Devices
 * Schedules
 
-Deploment is initiated through `Tasks` defined within the `Build and Release` section in VSTS.  These use **ARM templates**
+Deplopment is initiated through `Tasks` defined within the `Build and Release` section in VSTS.  These use **ARM templates**
 defined in the [Infrastructure](https://data-parliament.visualstudio.com/Platform/_git/Orchestration?path=%2FInfrastructure&version=GBmaster&_a=contents) folder
 which are configured using JSON files, such as `Scheduler.json` which sets up the scheduled tasks
 required by the data collection functions.

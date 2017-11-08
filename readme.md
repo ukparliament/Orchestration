@@ -19,7 +19,7 @@ required by data collection functions.
 
 ### Environments ###
 
-Components of the infrastructure are organised into the following major environments:
+Components of the infrastructure are organised into the following environments:
 * Staging
 * Live
 
@@ -32,14 +32,14 @@ migrating existing legacy services to the Azure platform.
 
 ### Components of the Infrastructure ###
 
-VMs perform the computational role for the infrastructure running the Logic Apps and Functions.  Clustering provides the
+VMs perform the computational role for the infrastructure running the `LogicApps` and `Functions`.  Clustering provides the
 means to continue processing should one VM fail.  This is to be expected if, for instance, Microsoft perform maintence on
 their physical computers hosting these VMs.
 
 #### Network components ####
 
 These components include:
-* Network Security Groups (NSGs), comprising of:
+* Network Security Groups [(NSGs)](https://docs.microsoft.com/en-us/azure/virtual-network/virtual-networks-nsg), comprising of:
   * Inbound rules; and
   * Outbound rule
 * Virtual Networks
@@ -47,10 +47,11 @@ These components include:
 * Network Interface Cards
 
 NSGs protect the components they are associated with by restricting the network traffic permitted to pass through them.  
-NSGs define Inbound and Outbound rules which allow (and deny) access to components.  Rules follow Microsoft's recommendations
+NSGs define inbound and outbound rules which allow (or deny) access to components.  These rules follow
+[Microsoft's recommendations](https://docs.microsoft.com/en-us/azure/api-management/api-management-using-with-vnet)
 for their associated components.
 
-The network components show those conneted to the Internet and those which aren't; NSGs are protecting those that are.
+The network components show those connected to the Internet and those that aren't; NSGs are protecting those that are.
 
 ## LogicApps ##
 `LogicApps` (which can also be called *Workflows*) collect data from a variety of sources, including:
@@ -76,7 +77,7 @@ For example:
 
 The deployment of these components can be seen under `Deploy Logic Apps code`, 
 [here](https://data-parliament.visualstudio.com/Platform/_release?releaseId=952&definitionId=16&_a=release-logs).
-The script generates task variables that are used by ARM templates (in the `*something* loop.json` files) to create
+The script generates task variables that are used by ARM templates (in the <*name*>loop.json files) to create
 each `LogicApp`.  The *name* property is reused accross:
 * the `LogicApps`
 * the scheduler jobs and
@@ -87,6 +88,15 @@ There are some additional workflows that override the default ones.  Default `Lo
 with the `getlist-country` `LogicApp` which is overriden by the `Orchestration\LogicApps\Country\GetList.json` `LogicApp`.
 The override occurs through the deployment by deploying the all of the defaults followed by deploying an
 override.
+
+Testing:
+> These are insert picture tests - none work ATM
+
+Rel Path ![My picture label A](./Platform/_git/Orchestration?_a=contents&path=%2FInfrastructure%2FDiagrams%2FNSGs.jpg)
+Abs Path ![My picture label B](https://data-parliament.visualstudio.com/Platform/_git/Orchestration?_a=contents&path=%2FInfrastructure%2FDiagrams%2FNSGs.jpg)
+Abs Path ![My picture label C]($/project/Orchestration?_a=contents&path=%2FInfrastructure%2FDiagrams%2FNSGs.jpg)
+https://data-parliament.visualstudio.com/Platform/_git/Orchestration?_a=preview&path=%2Freadme.md
+https://data-parliament.visualstudio.com/DefaultCollection/_git/Platform/Orchestration?_a=preview&path=%2Freadme.md
 
 ## Functions ##
 Functions may be associated with a variety of areas, including:

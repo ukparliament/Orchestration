@@ -2,10 +2,14 @@
 
 ## Overview ##
 
-All artefacts are designed for the Azure Platform Repository consisting of [Logic Apps](https://docs.microsoft.com/en-gb/azure/logic-apps/) and [Azure Functions](https://docs.microsoft.com/en-us/azure/azure-functions/functions-overview) that are deployed using combination of [ARM templates](https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-manager-template-walkthrough) and powershell scripts.
+All artefacts are designed for the Azure Platform Repository consisting
+of [Logic Apps](https://docs.microsoft.com/en-gb/azure/logic-apps/) and
+[Azure Functions](https://docs.microsoft.com/en-us/azure/azure-functions/functions-overview) that
+are deployed using combination of [ARM templates](https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-manager-template-walkthrough)
+and powershell scripts.
 
 ## Infrastructure ##
-**Infrastructure** sets up the platform on which **Functions** and **LogicApps** operate.  This is deployed using
+**Infrastructure** sets up the platform on which **Functions** and **LogicApps** [LogicAppsLabel](#logicapps) operate.  This is deployed using
 settings defined under **Infrasture** setting up:
 * the Virtual Machines (VMs) and clustered VMs
 * the Network components and Firewalls
@@ -54,6 +58,9 @@ for their associated components.
 The network components show those connected to the Internet and those that aren't; NSGs are protecting those that are.
 
 ## LogicApps ##
+
+See also [LogicApps](https://docs.microsoft.com/en-gb/azure/logic-apps/)
+
 `LogicApps` (which can also be called *Workflows*) collect data from a variety of sources, including:
 * Government registers
 * data already published elsewhere by Parliament.

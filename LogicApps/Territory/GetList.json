@@ -55,25 +55,22 @@
                     "actions": {
                         "Response": {
                             "inputs": {
-                                "headers": {
-                                    "batchId": "@{outputs('Get_BatchId')}"
-                                },
+                              "headers": {
+                                "batchId": "@triggerOutputs()['headers']['x-ms-client-request-id']"
+                              },
                                 "statusCode": 202
                             },
-                            "runAfter": {
-                                "Get_BatchId": [
-                                    "Succeeded"
-                                ]
+                            "runAfter": {                                
                             },
                             "type": "Response"
                         },
                         "LogicAppsErrorMessageLog": {
                             "inputs": {
-                                "body": {
-                                    "action": "@actions('Get_List')",
-                                    "workflow": "@workflow()",
-                                    "batchId": "@{outputs('Get_BatchId')}"
-                                },
+                              "body": {
+                                "action": "@actions('Get_List')",
+                                "workflow": "@workflow()",
+                                "batchId": "@triggerOutputs()['headers']['x-ms-client-request-id']"
+                              },
                                 "function": {
                                     "id": "[concat(subscription().id,'/resourceGroups/',resourceGroup().name,'/providers/Microsoft.Web/sites/',parameters('azureFunctionsName'),'/functions/LogicAppsErrorMessageLog')]"
                                 },
@@ -96,10 +93,10 @@
                                     "type": "ApiConnection",
                                     "inputs": {
                                         "body": {
-                                            "Properties": {
-                                                "url": "@{item()}",
-                                                "batchId": "@{outputs('Get_BatchId')}"
-                                            }
+                                          "Properties": {
+                                            "url": "@{item()}",
+                                            "batchId": "@triggerOutputs()['headers']['x-ms-client-request-id']"
+                                          }
                                         },
                                         "host": {
                                             "api": {
@@ -144,12 +141,7 @@
                                 ]
                             },
                             "type": "Function"
-                        },
-                        "Get_BatchId": {
-                            "inputs": "@triggerOutputs()['headers']['x-ms-client-request-id']",
-                            "runAfter": {},
-                            "type": "Compose"
-                        }
+                        }                        
                     },
                     "outputs": {}
                 },

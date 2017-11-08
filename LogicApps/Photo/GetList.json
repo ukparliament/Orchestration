@@ -45,7 +45,7 @@
                   "inputs": {
                     "body": {
                       "Properties": {
-                        "batchId": "@{outputs('Get_BatchId')}",
+                        "batchId": "@triggerOutputs()['headers']['x-ms-client-request-id']",
                         "url": "@{items('For_each')?['ID']}"
                       }
                     },
@@ -77,11 +77,6 @@
               },
               "type": "Foreach"
             },
-            "Get_BatchId": {
-              "inputs": "@triggerOutputs()['headers']['x-ms-client-request-id']",
-              "runAfter": {},
-              "type": "Compose"
-            },
             "Get_items": {
               "inputs": {
                 "host": {
@@ -106,7 +101,7 @@
               "inputs": {
                 "body": {
                   "action": "@actions('Get_items')",
-                  "batchId": "@{outputs('Get_BatchId')}",
+                  "batchId": "@triggerOutputs()['headers']['x-ms-client-request-id']",
                   "workflow": "@workflow()"
                 },
                 "function": {
@@ -126,14 +121,11 @@
             "Response": {
               "inputs": {
                 "headers": {
-                  "batchId": "@{outputs('Get_BatchId')}"
+                  "batchId": "@triggerOutputs()['headers']['x-ms-client-request-id']"
                 },
                 "statusCode": 202
               },
               "runAfter": {
-                "Get_BatchId": [
-                  "Succeeded"
-                ]
               },
               "type": "Response"
             }

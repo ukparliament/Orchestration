@@ -14,6 +14,18 @@
         "description": "Number of messages to be read from the Service Bus queues."
       }
     },
+    "logicAppsSetting_queueReadInterval": {
+      "type": "array",
+      "metadata": {
+        "description": "Interval for the type of the frequency of for the Service Bus queues."
+      }
+    },
+    "logicAppsSetting_queueReadFrequency": {
+      "type": "array",
+      "metadata": {
+        "description": "ype of the frequency of the Service Bus queues."
+      }
+    },
     "azureFunctionsName": {
       "type": "string",
       "metadata": {
@@ -179,8 +191,8 @@
           "triggers": {
             "Recurrence": {
               "recurrence": {
-                "frequency": "Second",
-                "interval": 20
+                "frequency": "[parameters('logicAppsSetting_queueReadFrequency')]",
+                "interval": "[parameters('logicAppsSetting_queueReadInterval')]"
               },
               "type": "Recurrence"
             }

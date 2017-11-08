@@ -66,14 +66,11 @@
             "Response": {
               "inputs": {
                 "headers": {
-                  "batchId": "@{outputs('Get_BatchId')}"
+                  "batchId": "@triggerOutputs()['headers']['x-ms-client-request-id']"
                 },
                 "statusCode": 202
               },
-              "runAfter": {
-                "Get_BatchId": [
-                  "Succeeded"
-                ]
+              "runAfter": {                
               },
               "type": "Response"
             },
@@ -82,7 +79,7 @@
                 "body": {
                   "action": "@actions('Get_List')",
                   "workflow": "@workflow()",
-                  "batchId": "@{outputs('Get_BatchId')}"
+                  "batchId": "@triggerOutputs()['headers']['x-ms-client-request-id']"
                 },
                 "function": {
                   "id": "[concat(subscription().id,'/resourceGroups/',resourceGroup().name,'/providers/Microsoft.Web/sites/',parameters('azureFunctionsName'),'/functions/LogicAppsErrorMessageLog')]"
@@ -104,7 +101,7 @@
                 "Get_list_page": {
                   "inputs": {
                     "body": {
-                      "batchId": "@{outputs('Get_BatchId')}",
+                      "batchId": "@triggerOutputs()['headers']['x-ms-client-request-id']",
                       "maxUpdatedAt": "@body('GetMaxUpdatedAt')[0]['https://id.parliament.uk/schema/maxUpdatedAt'][0]['@value']",
                       "pageNo": "@item()"
                     },
@@ -168,12 +165,7 @@
                 ]
               },
               "type": "Http"
-            },
-            "Get_BatchId": {
-              "inputs": "@triggerOutputs()['headers']['x-ms-client-request-id']",
-              "runAfter": {},
-              "type": "Compose"
-            }
+            }            
           },
           "outputs": {}
         },

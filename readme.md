@@ -89,16 +89,21 @@ with the `getlist-country` `LogicApp` which is overriden by the `Orchestration\L
 The override occurs through the deployment by deploying the all of the defaults followed by deploying an
 override.
 
-Testing:
-> These are insert picture tests - none work ATM
+#Testing
 
-Rel Path ![My picture label A](./Platform/_git/Orchestration?_a=contents&path=%2FInfrastructure%2FDiagrams%2FNSGs.jpg)
-Abs Path ![My picture label B](https://data-parliament.visualstudio.com/Platform/_git/Orchestration?_a=contents&path=%2FInfrastructure%2FDiagrams%2FNSGs.jpg)
-Abs Path ![My picture label C]($/project/Orchestration?_a=contents&path=%2FInfrastructure%2FDiagrams%2FNSGs.jpg)
-https://data-parliament.visualstudio.com/Platform/_git/Orchestration?_a=preview&path=%2Freadme.md
-https://data-parliament.visualstudio.com/DefaultCollection/_git/Platform/Orchestration?_a=preview&path=%2Freadme.md
+Nearly of works - I get my diagram but not my "MMMMMMMMMMy NSGs" label.  Good enough.
+See https://blogs.msmvps.com/molausson/2014/12/28/use-visual-studio-online-markdown-as-your-wiki/
+![MMMMMMMMMMy NSGs](/Infrastructure%2FDiagrams%2FNSGs.jpg)
 
-## Functions ##
+> These are insert picture tests - without success so don't use this style - use the one above
+
+> Rel Path ![My picture label A](./Platform/_git/Orchestration?_a=contents&path=%2FInfrastructure%2FDiagrams%2FNSGs.jpg)
+> Abs Path ![My picture label B](https://data-parliament.visualstudio.com/Platform/_git/Orchestration?_a=contents&path=%2FInfrastructure%2FDiagrams%2FNSGs.jpg)
+> Abs Path ![My picture label C]($/project/Orchestration?_a=contents&path=%2FInfrastructure%2FDiagrams%2FNSGs.jpg)
+> https://data-parliament.visualstudio.com/Platform/_git/Orchestration?_a=preview&path=%2Freadme.md
+> https://data-parliament.visualstudio.com/DefaultCollection/_git/Platform/Orchestration?_a=preview&path=%2Freadme.md
+
+##Functions
 Functions may be associated with a variety of areas, including:
 * the infrastructure, as with `GraphDBBackup`;
 * helping to process the data retrieved, as with `JsonKeyToArrayConverter`;

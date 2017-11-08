@@ -36,18 +36,19 @@
             "tags": {
                 "ReleaseId": "[parameters('releaseId')]"
             },
-            "properties": {
-                "maxSizeInMegabytes": 1024,
-                "requiresDuplicateDetection": false,
-                "requiresSession": false,
-                "defaultMessageTimeToLive": "7.00:00:00",
-                "deadLetteringOnMessageExpiration": false,
-                "enableBatchedOperations": true,
-                "isAnonymousAccessible": false,
-                "supportOrdering": false,
-                "enablePartitioning": true,
-                "enableExpress": false
-            },
+          "properties": {
+            "maxSizeInMegabytes": 1024,
+            "requiresDuplicateDetection": false,
+            "requiresSession": false,
+            "defaultMessageTimeToLive": "P7D",
+            "lockDuration": "PT2M",
+            "deadLetteringOnMessageExpiration": false,
+            "enableBatchedOperations": true,
+            "isAnonymousAccessible": false,
+            "supportOrdering": false,
+            "enablePartitioning": true,
+            "enableExpress": false
+          },
             "resources": [],
             "dependsOn": []
         }

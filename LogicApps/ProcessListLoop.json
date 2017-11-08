@@ -191,8 +191,8 @@
           "triggers": {
             "Recurrence": {
               "recurrence": {
-                "frequency": "[parameters('logicAppsSetting_queueReadFrequency')]",
-                "interval": "[parameters('logicAppsSetting_queueReadInterval')]"
+                "frequency": "[parameters('logicAppsSetting_queueReadFrequency')[copyIndex()]]",
+                "interval": "[parameters('logicAppsSetting_queueReadInterval')[copyIndex()]]"
               },
               "type": "Recurrence"
             }

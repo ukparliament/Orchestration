@@ -23,34 +23,34 @@
     },
     "variables": {},
     "resources": [
-        {
-            "comments": "Service Bus queue.",
-            "type": "Microsoft.ServiceBus/namespaces/queues",
-            "copy": {
-                "name": "queuecopy",
-                "count": "[length(parameters('logicAppsSetting_name'))]"
-            },
-            "name": "[concat(parameters('serviceBusName'),'/',parameters('logicAppsSetting_name')[copyIndex()])]",
-            "apiVersion": "2015-08-01",
-            "location": "[resourceGroup().location]",
-            "tags": {
-                "ReleaseId": "[parameters('releaseId')]"
-            },
-          "properties": {
-            "maxSizeInMegabytes": 1024,
-            "requiresDuplicateDetection": false,
-            "requiresSession": false,
-            "defaultMessageTimeToLive": "P7D",
-            "lockDuration": "PT2M",
-            "deadLetteringOnMessageExpiration": false,
-            "enableBatchedOperations": true,
-            "isAnonymousAccessible": false,
-            "supportOrdering": false,
-            "enablePartitioning": true,
-            "enableExpress": false
-          },
-            "resources": [],
-            "dependsOn": []
-        }
+      {
+        "comments": "Service Bus queue.",
+        "type": "Microsoft.ServiceBus/namespaces/queues",
+        "copy": {
+          "name": "queuecopy",
+          "count": "[length(parameters('logicAppsSetting_name'))]"
+        },
+        "name": "[concat(parameters('serviceBusName'),'/',parameters('logicAppsSetting_name')[copyIndex()])]",
+        "apiVersion": "2017-04-01",
+        "location": "[resourceGroup().location]",
+        "tags": {
+          "ReleaseId": "[parameters('releaseId')]"
+        },
+        "properties": {
+          "maxSizeInMegabytes": 1024,
+          "requiresDuplicateDetection": false,
+          "requiresSession": false,
+          "defaultMessageTimeToLive": "P7D",
+          "lockDuration": "PT2M",
+          "deadLetteringOnMessageExpiration": false,
+          "enableBatchedOperations": true,
+          "isAnonymousAccessible": false,
+          "supportOrdering": false,
+          "enablePartitioning": true,
+          "enableExpress": false
+        },
+        "resources": [],
+        "dependsOn": []
+      }
     ]
 }

@@ -1,27 +1,28 @@
-# Orchestration for Parliamentary data service #
+#Orchestrations for Parliamentary Data Service
 
-## Overview ##
+> Problem: Previewing this page **always** jumps to the **LogicApps** heading which is unhelpful and unwanted.  Its using an Anchor link.  Any thoughts??
 
+##Overview
 All artefacts are designed for the Azure Platform Repository consisting
-of [Logic Apps](https://docs.microsoft.com/en-gb/azure/logic-apps/) and
-[Azure Functions](https://docs.microsoft.com/en-us/azure/azure-functions/functions-overview) that
-are deployed using combination of [ARM templates](https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-manager-template-walkthrough)
-and powershell scripts.
+of [LogicApps](https://docs.microsoft.com/en-gb/azure/logic-apps/) and
+[Functions](https://docs.microsoft.com/en-us/azure/azure-functions/functions-overview) that
+are deployed using combinations of [ARM templates](https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-manager-template-walkthrough)
+and PowerShell scripts.
 
-## Infrastructure ##
-**Infrastructure** sets up the platform on which **Functions** and **LogicApps** [LogicAppsLabel](#logicapps) operate.  This is deployed using
-settings defined under **Infrasture** setting up:
+##Infrastructure
+**Infrastructure** sets up the platform on which these **LogicApps** [(here)](#logicapps) and **Functions** [(here)](#functions) operate.  This is deployed using
+settings defined under **Infrastructure**, setting up:
 * the Virtual Machines (VMs) and clustered VMs
 * the Network components and Firewalls
 * Storage Devices
 * Schedules
 
-Deploment is initiated through `Tasks` defined within the `Build and Release` section in VSTS.  These use ARM templates
-defined in the Infastruture folder which are configured using JSON files, such as `Scheduler.json` located in
-the `Orchestration / Infrastructure` folder which sets up the schedulated tasks
-required by data collection functions.
+Deplopment is initiated through `Tasks` defined within the `Build and Release` section in VSTS.  These use **ARM templates**
+defined in the [Infrastructure](https://data-parliament.visualstudio.com/Platform/_git/Orchestration?path=%2FInfrastructure&version=GBmaster&_a=contents) folder
+which are configured using JSON files, such as `Scheduler.json` which sets up the scheduled tasks
+required by the data collection functions.
 
-### Environments ###
+###Environments
 
 Components of the infrastructure are organised into the following environments:
 * Staging
@@ -34,13 +35,13 @@ the Data and Search platform is deployed to `Live` and utilised by the Beta webi
 Additional environments are created by the Data and Search Team to meet specific development objectives such as when 
 migrating existing legacy services to the Azure platform.
 
-### Components of the Infrastructure ###
+###Components of the Infrastructure
 
-VMs perform the computational role for the infrastructure running the `LogicApps` and `Functions`.  Clustering provides the
-means to continue processing should one VM fail.  This is to be expected if, for instance, Microsoft perform maintence on
-their physical computers hosting these VMs.
+`LogicApps` and `Functions` are executed on VMs.  Multiple VMs provide a clustering facility which means
+processing should continue if one VM fails.  This is to be expected if, for instance, Microsoft perform maintence on
+their physical hosts hosting these VMs.
 
-#### Network components ####
+####Network components
 
 These components include:
 * Network Security Groups [(NSGs)](https://docs.microsoft.com/en-us/azure/virtual-network/virtual-networks-nsg), comprising of:
@@ -57,7 +58,7 @@ for their associated components.
 
 The network components show those connected to the Internet and those that aren't; NSGs are protecting those that are.
 
-## LogicApps ##
+##LogicApps
 
 See also [LogicApps](https://docs.microsoft.com/en-gb/azure/logic-apps/)
 

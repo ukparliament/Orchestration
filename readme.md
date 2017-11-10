@@ -66,22 +66,17 @@ See also [LogicApps](https://docs.microsoft.com/en-gb/azure/logic-apps/)
 * Government registers
 * data already published elsewhere by Parliament.
 
-The data retrieved is stored in `GraphDB` by `Functions`.  This data is stored in a consistent and predictable format, aiding its reuse.
-
-Control of execution is managed by a `LogicApp` defined and editable in Azure, resulting in a JSON file which
-uses an ARM template to implement the prescribed functionality.  The `LogicApp` is exported
-from Azure using the *Logic App Code View* operation.  This JSON file is stored in VSTS and deployed to Azure
-within a *Step* of a deployment.
+The data retrieved is stored in `GraphDB` by `Functions`.  This data is stored in a consistent and predictable format, aiding its reuse.  Processing
+follows the same pattern across all `LogicApps`.
 
 For example:
 * The `LogicApp` *getlist-membermnis* reads the list of Members from [here](http://data.parliament.uk/membersdataplatform/open/OData.svc/Members) ...
 * ... and processes each of the Members returned from this data source.
 * *getlist-membermnis* sends a message to the `MessageBus` for each Member ...
 * ... which are subscribed to by *processlist-membermnis*, found in the latest `data-orchestration_yyyymmdd_` Resource Group
-* For each Member message another message with the Member's MNIS details is posted on the `MessageBus` and consumed by the *update-membermnis* `LogicApp` 
-* These messages are subscribed to by the *update-membermnis* `LogicApp` ...
-* ... which uses the *Orchestration\Functions\TransformationMemberMnis\TransformationMemberMnis.cs* function to save this data.
-* *TransformationMemberMnis.cs* inherits *BaseTransformtation.cs* which provides the writing or updating of this data in GraphDB.
+* For each Member message the *processlist-membermnis* `LogicApp` is triggered and reads this message ...
+* ... which writes or updates each Member's data in GraphDB.
+* If an error occurs then the Member message is pushed back to the `MessageBus`.
 
 The deployment of these components can be seen under `Deploy Logic Apps code`, 
 [here](https://data-parliament.visualstudio.com/Platform/_release?releaseId=952&definitionId=16&_a=release-logs).
@@ -91,11 +86,16 @@ each `LogicApp`.  The *name* property is reused accross:
 * the scheduler jobs and
 * the Azure Functions.
 
-There are some additional workflows that override the default ones.  Default `LogicApps` are created using the
+There are some additional workflows that override these default behaviours.  Default `LogicApps` are created using the
 `Orchestration\LogicApps\Settings.ps1` file.  Any `LogicApp` can then by overriden, as happens
 with the `getlist-country` `LogicApp` which is overriden by the `Orchestration\LogicApps\Country\GetList.json` `LogicApp`.
 The override occurs through the deployment by deploying the all of the defaults followed by deploying an
 override.
+
+Control of execution is controlled by `LogicApp` defined and editable in Azure, resulting in a JSON file which
+uses an ARM template to implement the prescribed functionality.  The `LogicApp` is exported
+from Azure using the *Logic App Code View* operation.  This JSON file is stored in VSTS and deployed to Azure
+within a *Step* of a deployment.
 
 #Testing
 

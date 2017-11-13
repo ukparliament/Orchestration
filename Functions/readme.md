@@ -11,8 +11,6 @@ has been created within the appropriate **Logic App** and eritten to the Service
 * use a consistent language in the *Message* defined by Parliament's ontology
 * avoid creating duplicates by returning the original *Message* if a duplicate would result.
 
-__DO THEY WRITE THE MSG TO GRAPHDB??__
-
 **Input**: Messages from the **MessageBus**
 
 **Output**: Transformed *Message* in a standard form based on the ontology.

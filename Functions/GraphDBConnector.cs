@@ -1,26 +1,23 @@
 ﻿using System;
-using System.Linq;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Net;
 using System.Text;
 using VDS.RDF;
-using VDS.RDF.Query;
-using VDS.RDF.Storage;
-using VDS.RDF.Update;
-using VDS.RDF.Writing.Formatting;
 using VDS.RDF.Parsing;
-using System.IO;
+using VDS.RDF.Storage;
+using VDS.RDF.Writing.Formatting;
 
 namespace Functions
 {
-    public class GraphDBConnector : ReadWriteSparqlConnector
+    public class GraphDBConnector : SesameHttpProtocolVersion6Connector
     {
-        private static readonly string dataAPI = Environment.GetEnvironmentVariable("CUSTOMCONNSTR_Data", EnvironmentVariableTarget.Process);        
-        private static readonly string dataEndpoint = $"{dataAPI}/repositories/Master";
+        private static readonly string dataAPI = Environment.GetEnvironmentVariable("CUSTOMCONNSTR_Data", EnvironmentVariableTarget.Process);
         private static readonly string subscriptionKey = Environment.GetEnvironmentVariable("SubscriptionKey", EnvironmentVariableTarget.Process);
 
         public GraphDBConnector(string queryString)
-            : base(new GraphDBRemoteEndpoint(new Uri($"{dataEndpoint}?{queryString}")), new GraphDBUpdateEndpoint(new Uri($"{dataEndpoint}/statements")))
+            : base(dataAPI, $"Master?{queryString}")
         {
         }
 
@@ -49,7 +46,7 @@ namespace Functions
             string sparqlUpdate = sb.ToString();
             SparqlUpdateParser parser = new SparqlUpdateParser();
             parser.ParseFromString(sparqlUpdate);
-            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(UpdateEndpoint.Uri);
+            HttpWebRequest request = (HttpWebRequest)WebRequest.Create($"{BaseUri}{this._repositoriesPrefix}Master{this._updatePath}");
             request.Method = "POST";
             request.ContentType = "application/sparql-update";
             request.Headers.Add("Ocp-Apim-Subscription-Key", subscriptionKey);
@@ -61,39 +58,14 @@ namespace Functions
             response.Dispose();
         }
 
-    }
-
-    public class GraphDBRemoteEndpoint : SparqlRemoteEndpoint
-    {
-        private static readonly string subscriptionKey = Environment.GetEnvironmentVariable("SubscriptionKey", EnvironmentVariableTarget.Process);
-
-        public GraphDBRemoteEndpoint(Uri endpointUri)
-                : base(endpointUri)
-        {            
-            Proxy = new WebProxy(); //workaround for https://github.com/dotnetrdf/dotnetrdf/issues/103
-        }
-
-        protected override void ApplyCustomRequestOptions(HttpWebRequest httpRequest)
-        {            
-            httpRequest.Proxy = null; //workaround for https://github.com/dotnetrdf/dotnetrdf/issues/103
-            httpRequest.Headers.Add("Ocp-Apim-Subscription-Key", subscriptionKey);
-        }
-    }
-
-    public class GraphDBUpdateEndpoint : SparqlRemoteUpdateEndpoint
-    {
-        private static readonly string subscriptionKey = Environment.GetEnvironmentVariable("SubscriptionKey", EnvironmentVariableTarget.Process);
-
-        public GraphDBUpdateEndpoint(Uri endpointUri)
-                : base(endpointUri)
+        protected override HttpWebRequest CreateRequest(String servicePath, String accept, String method, Dictionary<String, String> queryParams)
         {
-            Proxy = new WebProxy(); //workaround for https://github.com/dotnetrdf/dotnetrdf/issues/103
+            HttpWebRequest originalRequest = base.CreateRequest(servicePath, accept, method, queryParams);
+            originalRequest.Headers.Add("Ocp-Apim-Subscription-Key", subscriptionKey);
+
+            return originalRequest;
         }
-        
-        protected override void ApplyCustomRequestOptions(HttpWebRequest httpRequest)
-        {
-            httpRequest.Proxy = null; //workaround for https://github.com/dotnetrdf/dotnetrdf/issues/103
-            httpRequest.Headers.Add("Ocp-Apim-Subscription-Key", subscriptionKey);            
-        }        
+
     }
+
 }

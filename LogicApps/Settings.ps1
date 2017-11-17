@@ -166,6 +166,19 @@ $logicAppVariable=@(
 		"queueReadFrequency"="Second";
     }
 	New-Object -TypeName PSObject -Property @{
+        "name"="oppositionincumbencymnis";
+        "listUri"="http://data.parliament.uk/membersdataplatform/open/OData.svc/MemberOppositionPosts?`$select=MemberOppositionPost_Id";
+        "listAcceptHeader"="application/atom+xml";
+        "foreachObject"="@json(body('Get_List')).feed.entry";
+        "idObject"="@{item().id}";
+        "frequency"="hour";
+        "interval"=24;
+        "triggerTime"="20:01";
+        "queueReadBatchSize"=150;
+		"queueReadInterval"=90;
+		"queueReadFrequency"="Second";
+    }
+	New-Object -TypeName PSObject -Property @{
         "name"="houseincumbencymnis";
         "listUri"="http://data.parliament.uk/membersdataplatform/open/OData.svc/MemberLordsMembershipTypes?`$select=MemberLordsMembershipType_Id";
         "listAcceptHeader"="application/atom+xml";
@@ -304,6 +317,19 @@ $logicAppVariable=@(
         "frequency"="hour";
         "interval"=24;
         "triggerTime"="20:00";
+        "queueReadBatchSize"=150;
+		"queueReadInterval"=90;
+		"queueReadFrequency"="Second";
+    }
+	New-Object -TypeName PSObject -Property @{
+        "name"="oppositionpostmnis";
+        "listUri"="http://data.parliament.uk/membersdataplatform/open/OData.svc/OppositionPosts?`$select=OppositionPost_Id";
+        "listAcceptHeader"="application/atom+xml";
+        "foreachObject"="@json(body('Get_List')).feed.entry";
+        "idObject"="@{item().id}";
+        "frequency"="hour";
+        "interval"=24;
+        "triggerTime"="20:15";
         "queueReadBatchSize"=150;
 		"queueReadInterval"=90;
 		"queueReadFrequency"="Second";

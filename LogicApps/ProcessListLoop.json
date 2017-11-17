@@ -89,6 +89,7 @@
                     "subscribe": {
                       "body": {
                         "batchId": "@items('For_each')?['Properties']?['batchId']",
+                        "workflowId": "@workflow()?['run']?['name']",
                         "callbackUrl": "@listCallbackUrl()",
                         "url": "@items('For_each')?['Properties']?['url']"
                       },

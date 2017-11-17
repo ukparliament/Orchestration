@@ -79,6 +79,12 @@ namespace Functions
         {
             telemetryClient.Context.Properties["BatchId"] = batchId;
         }
+
+        public void SetWorkflowId(string workflowId)
+        {
+            telemetryClient.Context.Properties["WorkflowId"] = workflowId;
+        }
+
         public void SetQueueName(string queueName)
         {
             telemetryClient.Context.Properties["QueueName"] = queueName;

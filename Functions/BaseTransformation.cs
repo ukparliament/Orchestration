@@ -39,6 +39,8 @@ namespace Functions
             logger.SetDataUrl(data.url.ToString());
             if (data.batchId != null)
                 logger.SetBatchId(data.batchId.ToString());
+            if (data.workflowId != null)
+                logger.SetWorkflowId(data.workflowId.ToString());
             new Thread(() => startProcess(data.url.ToString(), data.callbackUrl.ToString(), settings)).Start();
 
             return req.CreateResponse();

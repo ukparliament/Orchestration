@@ -50,6 +50,11 @@ Log "Retrives Logic app trigger - house seat type item"
 $triggerHouseSeatType=Get-AzureRmLogicAppTriggerCallbackUrl -ResourceGroupName $OrchestrationResourceGroupName -Name "getitem-houseseattype" -TriggerName "manual"
 $houseSeatTypeUrl=$triggerHouseSeatType.Value.Replace("?","/ids/{id}?")
 
+Log "Retrives Logic app trigger - lords seat item"
+$triggerLordsSeat=Get-AzureRmLogicAppTriggerCallbackUrl -ResourceGroupName $OrchestrationResourceGroupName -Name "getitem-lordsseat" -TriggerName "manual"
+$lordsSeatItemUrl=$triggerLordsSeat.Value.Replace("?","/ids/{id}?")
+
+
 Log "Gets current app settings"
 $webApp = Get-AzureRmwebApp -ResourceGroupName $OrchestrationResourceGroupName -Name $AzureFunctionsName
 
@@ -78,6 +83,8 @@ Log "Sets new url for photo"
 $connections["PhotoItem"]=@{Type="Custom";Value=$photoUrl}
 Log "Sets new url for house seat type"
 $connections["HouseSeatTypeItem"]=@{Type="Custom";Value=$houseSeatTypeUrl}
+Log "Sets new data connection"
+$connections["LordsSeatItem"]=@{Type="Custom";Value=$lordsSeatItemUrl}
 Log "Sets new data connection"
 $connections["Data"]=@{Type="Custom";Value="https://$APIManagementName.azure-api.net/$APIPrefix/graph-store"}
 Set-AzureRmWebApp -ResourceGroupName $OrchestrationResourceGroupName -Name $AzureFunctionsName -ConnectionStrings $connections

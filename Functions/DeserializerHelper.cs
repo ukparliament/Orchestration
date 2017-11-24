@@ -7,6 +7,15 @@ namespace Functions
 {
     public static class DeserializerHelper
     {
+        public static int? GetFloat(this JValue value)
+        {
+            if ((value != null) && (value.Type == JTokenType.Float &&
+                (value.Value != null) && (int.TryParse(value.Value.ToString(), out int number))))
+                return number;
+            else
+                return null;
+        }
+
         public static int? GetInteger(this JValue value)
         {
             if ((value != null) && (value.Type == JTokenType.Integer &&

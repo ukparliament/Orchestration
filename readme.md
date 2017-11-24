@@ -47,7 +47,6 @@ These components include:
 * Network Security Groups [(NSGs)](https://docs.microsoft.com/en-us/azure/virtual-network/virtual-networks-nsg), comprising of:
   * Inbound rules; and
   * Outbound rule
-  * aTypo
 * Virtual Networks
 * Network Clusters
 * Network Interface Cards

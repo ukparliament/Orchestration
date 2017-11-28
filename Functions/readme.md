@@ -37,7 +37,7 @@ can manage retention automatically.
 
 **Path**: `IdRetrieval.cs`
 
-**Description**: Helper class to read data (Subject and Value) from the triple store with the option to create data when it's not present.
+**Description**: Helper class to read data (Subject and Value) from the triple store, with the option to create data when it's not present.
 
 ---
 

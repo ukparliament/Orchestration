@@ -40,7 +40,7 @@ $subscriptionKey=$subscription.PrimaryKey
 
 Log "Retrives Logic app trigger - sharepoint item"
 $triggerSharepoint=Get-AzureRmLogicAppTriggerCallbackUrl -ResourceGroupName $OrchestrationResourceGroupName -Name "getitem-sharepoint" -TriggerName "manual"
-$sharepointUrl=$triggerSharepoint.Value.Replace("?","lists/{listId}/ids/{id}?")
+$sharepointUrl=$triggerSharepoint.Value.Replace("?","/lists/{listId}/ids/{id}?")
 
 Log "Gets current app settings"
 $webApp = Get-AzureRmwebApp -ResourceGroupName $OrchestrationResourceGroupName -Name $AzureFunctionsName

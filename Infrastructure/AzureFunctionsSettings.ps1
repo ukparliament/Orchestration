@@ -59,7 +59,7 @@ Log "Gets current connection strings"
 $connectionStrings=$webApp.SiteConfig.ConnectionStrings
 $connections = @{}
 foreach($connection in $connectionStrings){
-	if (($connection.Name -ne "Data") -or ($connection.Name -ne "WebLinkItem")) {
+	if (($connection.Name -ne "Data") -or ($connection.Name -ne "SharepointItem")) {
 		$connections[$connection.Name]=@{Type=if ($connection.Type -eq $null){"Custom"}else{$connection.Type.ToString()};Value=$connection.ConnectionString}
 	}
 }

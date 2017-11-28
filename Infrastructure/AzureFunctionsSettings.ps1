@@ -38,22 +38,9 @@ $apiProductOrchestration=Get-AzureRmApiManagementProduct -Context $management -T
 $subscription=Get-AzureRmApiManagementSubscription -Context $management -ProductId $apiProductOrchestration.ProductId
 $subscriptionKey=$subscription.PrimaryKey
 
-Log "Retrives Logic app trigger - web link item"
-$triggerWebLink=Get-AzureRmLogicAppTriggerCallbackUrl -ResourceGroupName $OrchestrationResourceGroupName -Name "getitem-weblink" -TriggerName "manual"
-$weblinkUrl=$triggerWebLink.Value.Replace("?","/ids/{id}?")
-
-Log "Retrives Logic app trigger - photo item"
-$triggerPhoto=Get-AzureRmLogicAppTriggerCallbackUrl -ResourceGroupName $OrchestrationResourceGroupName -Name "getitem-photo" -TriggerName "manual"
-$photoUrl=$triggerPhoto.Value.Replace("?","/ids/{id}?")
-
-Log "Retrives Logic app trigger - house seat type item"
-$triggerHouseSeatType=Get-AzureRmLogicAppTriggerCallbackUrl -ResourceGroupName $OrchestrationResourceGroupName -Name "getitem-houseseattype" -TriggerName "manual"
-$houseSeatTypeUrl=$triggerHouseSeatType.Value.Replace("?","/ids/{id}?")
-
-Log "Retrives Logic app trigger - lords seat item"
-$triggerLordsSeat=Get-AzureRmLogicAppTriggerCallbackUrl -ResourceGroupName $OrchestrationResourceGroupName -Name "getitem-lordsseat" -TriggerName "manual"
-$lordsSeatItemUrl=$triggerLordsSeat.Value.Replace("?","/ids/{id}?")
-
+Log "Retrives Logic app trigger - sharepoint item"
+$triggerSharepoint=Get-AzureRmLogicAppTriggerCallbackUrl -ResourceGroupName $OrchestrationResourceGroupName -Name "getitem-sharepoint" -TriggerName "manual"
+$sharepointUrl=$triggerSharepoint.Value.Replace("?","lists/{listId}/ids/{id}?")
 
 Log "Gets current app settings"
 $webApp = Get-AzureRmwebApp -ResourceGroupName $OrchestrationResourceGroupName -Name $AzureFunctionsName
@@ -77,14 +64,8 @@ foreach($connection in $connectionStrings){
 	}
 }
 
-Log "Sets new url for web link"
-$connections["WebLinkItem"]=@{Type="Custom";Value=$weblinkUrl}
-Log "Sets new url for photo"
-$connections["PhotoItem"]=@{Type="Custom";Value=$photoUrl}
-Log "Sets new url for house seat type"
-$connections["HouseSeatTypeItem"]=@{Type="Custom";Value=$houseSeatTypeUrl}
-Log "Sets new data connection"
-$connections["LordsSeatItem"]=@{Type="Custom";Value=$lordsSeatItemUrl}
+Log "Sets new url for sharepoint"
+$connections["SharepointItem"]=@{Type="Custom";Value=$sharepointUrl}
 Log "Sets new data connection"
 $connections["Data"]=@{Type="Custom";Value="https://$APIManagementName.azure-api.net/$APIPrefix/graph-store"}
 Set-AzureRmWebApp -ResourceGroupName $OrchestrationResourceGroupName -Name $AzureFunctionsName -ConnectionStrings $connections

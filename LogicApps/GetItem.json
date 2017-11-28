@@ -16,7 +16,7 @@
     {
       "comments": "Logic App that obtains item from sharepoint list.",
       "type": "Microsoft.Logic/workflows",
-      "name": "getitem-houseseattype",
+      "name": "getitem-sharepoint",
       "apiVersion": "2016-06-01",
       "location": "[resourceGroup().location]",
       "tags": {
@@ -35,7 +35,7 @@
                   }
                 },
                 "method": "get",
-                "path": "/datasets/@{encodeURIComponent(encodeURIComponent('https://hopuk.sharepoint.com/sites/datateam/datasources'))}/tables/@{encodeURIComponent(encodeURIComponent('85fe54cd-d26a-43af-88a5-9063f747c4a9'))}/items/@{encodeURIComponent(triggerOutputs()['relativePathParameters']['id'])}"
+                "path": "/datasets/@{encodeURIComponent(encodeURIComponent('https://hopuk.sharepoint.com/sites/datateam/datasources'))}/tables/@{encodeURIComponent(encodeURIComponent(triggerOutputs()['relativePathParameters']['listId']))}/items/@{encodeURIComponent(triggerOutputs()['relativePathParameters']['id'])}"
               },
               "runAfter": {},
               "type": "ApiConnection"
@@ -65,20 +65,23 @@
           },
           "triggers": {
             "manual": {
-              "inputs": {
-                "method": "GET",
-                "relativePath": "/ids/{id}",
-                "schema": {
-                  "properties": {
-                    "id": {
-                      "type": "number"
+                "inputs": {
+                    "method": "GET",
+                    "relativePath": "/lists/{listId}/ids/{id}",
+                    "schema": {
+                      "properties": {
+                        "id": {
+                          "type": "number"
+                        },
+                        "listId": {
+                          "type": "string"
+                        }
+                      },
+                        "type": "object"
                     }
-                  },
-                  "type": "object"
-                }
-              },
-              "kind": "Http",
-              "type": "Request"
+                },
+                "kind": "Http",
+                "type": "Request"
             }
           }
         },

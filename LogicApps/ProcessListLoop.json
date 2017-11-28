@@ -98,6 +98,9 @@
                     },
                     "unsubscribe": {}
                   },
+                  "limit": {
+                    "timeout": "PT5M"
+                  },
                   "runAfter": {
                     "Complete_the_message_in_a_queue": [
                       "Succeeded"

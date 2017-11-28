@@ -360,6 +360,19 @@ $logicAppVariable=@(
 		"queueReadInterval"=1;
 		"queueReadFrequency"="Minute";
     }
+	New-Object -TypeName PSObject -Property @{
+        "name"="lordsseatincumbency";
+        "listUri"="";
+        "listAcceptHeader"="";
+        "foreachObject"="@json('')";
+        "idObject"="@json('')";
+        "frequency"="hour";
+        "interval"=24;
+        "triggerTime"="22:55";
+        "queueReadBatchSize"=50;
+		"queueReadInterval"=1;
+		"queueReadFrequency"="Minute";
+    }
 )
 
 $variableNames=@("name","listUri","listAcceptHeader","foreachObject","idObject","frequency","interval","triggerTime","queueReadBatchSize","queueReadInterval","queueReadFrequency")

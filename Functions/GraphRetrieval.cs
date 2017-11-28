@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Linq;
+using System.Collections.Generic;
 using System.Diagnostics;
 using VDS.RDF;
 using VDS.RDF.Parsing.Handlers;
@@ -7,6 +9,16 @@ namespace Functions
 {
     public static class GraphRetrieval
     {
+        public static List<Uri> GetSubjects(string constructQuery, Logger logger, string infer = "false")
+        {
+            IGraph graph = makeCall(constructQuery, logger, infer);
+            if (graph.IsEmpty)
+                return new List<Uri>();
+            if (graph == null)
+                return null;
+            return graph.Triples.SubjectNodes.Select(s => ((IUriNode)s).Uri).ToList();
+        }
+
         public static IGraph GetGraph(string constructQuery, Logger logger, string infer = "false")
         {
             IGraph graph = makeCall(constructQuery, logger, infer);

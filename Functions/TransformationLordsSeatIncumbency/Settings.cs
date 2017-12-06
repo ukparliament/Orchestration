@@ -39,7 +39,7 @@ namespace Functions.TransformationLordsSeatIncumbency
                 parl:parliamentaryIncumbencyStartDate ?parliamentaryIncumbencyStartDate;
                 parl:parliamentaryIncumbencyEndDate ?parliamentaryIncumbencyEndDate;
                 parl:seatIncumbencyHasParliamentPeriod ?seatIncumbencyHasParliamentPeriod;
-                parl:seatIncumbencyMnisId ?seatIncumbencyMnisId.
+                parl:lordsSeatIncumbencyMnisId ?lordsSeatIncumbencyMnisId.
         }
         where {
             bind(@subject as ?seatIncumbency)
@@ -48,7 +48,7 @@ namespace Functions.TransformationLordsSeatIncumbency
             optional {?seatIncumbency parl:parliamentaryIncumbencyStartDate ?parliamentaryIncumbencyStartDate}
             optional {?seatIncumbency parl:parliamentaryIncumbencyEndDate ?parliamentaryIncumbencyEndDate}
             optional {?seatIncumbency parl:seatIncumbencyHasParliamentPeriod ?seatIncumbencyHasParliamentPeriod}
-            optional {?seatIncumbency parl:seatIncumbencyMnisId ?seatIncumbencyMnisId}
+            optional {?seatIncumbency parl:lordsSeatIncumbencyMnisId ?lordsSeatIncumbencyMnisId}
         }";
             }
         }

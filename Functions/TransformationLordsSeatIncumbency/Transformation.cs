@@ -55,7 +55,7 @@ namespace Functions.TransformationLordsSeatIncumbency
 
             float? mnisId=((JValue)jsonResponse.SelectToken("MNIS_x0020_ID")).GetFloat();
             if (mnisId.HasValue)
-                mnisSeatIncumbency.SeatIncumbencyMnisId = Convert.ToInt32(mnisId.Value).ToString();
+                mnisSeatIncumbency.LordsSeatIncumbencyMnisId = Convert.ToInt32(mnisId.Value).ToString();
             mnisSeatIncumbency.ParliamentaryIncumbencyStartDate= ((JValue)jsonResponse.SelectToken("Start_x0020_Date")).GetDate();
 
             IPastParliamentaryIncumbency pastIncumbency = new PastParliamentaryIncumbency();

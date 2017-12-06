@@ -38,7 +38,7 @@ namespace Functions.TransformationSeatIncumbencyMnis
                 SubjectUri = memberUri
             };
             IMnisSeatIncumbency seatIncumbency = new MnisSeatIncumbency();
-            seatIncumbency.SeatIncumbencyMnisId = seatIncumbencyElement.Element(d + "MemberConstituency_Id").GetText();
+            seatIncumbency.CommonsSeatIncumbencyMnisId = seatIncumbencyElement.Element(d + "MemberConstituency_Id").GetText();
             IParliamentPeriod parliamentPeriod = generateSeatIncumbencyParliamentPeriod(incumbency.ParliamentaryIncumbencyStartDate.Value, incumbency.ParliamentaryIncumbencyEndDate);
             if (parliamentPeriod != null)
                 seatIncumbency.SeatIncumbencyHasParliamentPeriod = new IParliamentPeriod[] { parliamentPeriod };
@@ -67,12 +67,12 @@ namespace Functions.TransformationSeatIncumbencyMnis
 
         public override Dictionary<string, object> GetKeysFromSource(IOntologyInstance[] deserializedSource)
         {
-            string seatIncumbencyMnisId = deserializedSource.OfType<IMnisSeatIncumbency>()
+            string commonsSeatIncumbencyMnisId = deserializedSource.OfType<IMnisSeatIncumbency>()
                 .SingleOrDefault()
-                .SeatIncumbencyMnisId;
+                .CommonsSeatIncumbencyMnisId;
             return new Dictionary<string, object>()
             {
-                { "seatIncumbencyMnisId", seatIncumbencyMnisId }
+                { "commonsSeatIncumbencyMnisId", commonsSeatIncumbencyMnisId }
             };
         }
 

@@ -20,7 +20,7 @@
                 ?s a parl:ParliamentaryIncumbency.
             }
             where{
-                ?s parl:seatIncumbencyMnisId @seatIncumbencyMnisId.
+                ?s parl:commonsSeatIncumbencyMnisId @commonsSeatIncumbencyMnisId.
             }";
             }
         }
@@ -32,7 +32,7 @@
                 return @"
         construct {
             ?seatIncumbency a parl:ParliamentaryIncumbency;
-                parl:seatIncumbencyMnisId ?seatIncumbencyMnisId;
+                parl:commonsSeatIncumbencyMnisId ?commonsSeatIncumbencyMnisId;
                 parl:parliamentaryIncumbencyHasMember ?member;
                 parl:seatIncumbencyHasHouseSeat ?seatIncumbencyHasHouseSeat;
                 parl:seatIncumbencyHasParliamentPeriod ?seatIncumbencyHasParliamentPeriod;
@@ -41,7 +41,7 @@
         }
         where {
             bind(@subject as ?seatIncumbency)
-            ?seatIncumbency parl:seatIncumbencyMnisId ?seatIncumbencyMnisId.
+            ?seatIncumbency parl:commonsSeatIncumbencyMnisId ?commonsSeatIncumbencyMnisId.
             optional {?seatIncumbency parl:parliamentaryIncumbencyHasMember ?member}
             optional {?seatIncumbency parl:parliamentaryIncumbencyStartDate ?parliamentaryIncumbencyStartDate}
             optional {?seatIncumbency parl:parliamentaryIncumbencyEndDate ?parliamentaryIncumbencyEndDate}

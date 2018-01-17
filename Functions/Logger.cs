@@ -97,7 +97,7 @@ namespace Functions
 
         public void Metric(string metric, int count)
         {
-            telemetryClient.TrackMetric(metric, count);
+            telemetryClient.TrackMetric(new MetricTelemetry(metric, 0, count, 0, 0, 0));
         }
 
         public void Dependency(string dependencyName, string commandName, DateTime startTime, TimeSpan duration, bool isSuccessful)

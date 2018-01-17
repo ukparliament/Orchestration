@@ -25,23 +25,23 @@ namespace Functions
         {
             StringBuilder sb = new StringBuilder();
             SparqlFormatter sparqlFormatter = new SparqlFormatter();
-            if ((additions != null) && (additions.Any()))
-            {
-                sb.AppendLine("INSERT DATA {");
-                foreach (Triple added in additions)
-                    sb.AppendLine(sparqlFormatter.Format(added));
-                sb.Append("}");
-                if ((removals != null) && (removals.Any()))
-                    sb.AppendLine(";");
-                else
-                    sb.AppendLine();
-            }
             if ((removals != null) && (removals.Any()))
             {
                 sb.AppendLine("DELETE DATA {");
                 foreach (Triple removed in removals)
                     sb.AppendLine(sparqlFormatter.Format(removed));
-                sb.AppendLine("}");
+                sb.Append("}");
+                if ((additions != null) && (additions.Any()))
+                    sb.AppendLine(";");
+                else
+                    sb.AppendLine();
+            }
+            if ((additions != null) && (additions.Any()))
+            {
+                sb.AppendLine("INSERT DATA {");
+                foreach (Triple added in additions)
+                    sb.AppendLine(sparqlFormatter.Format(added));
+                sb.AppendLine("}");                
             }
             string sparqlUpdate = sb.ToString();
             SparqlUpdateParser parser = new SparqlUpdateParser();

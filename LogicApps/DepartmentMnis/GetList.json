@@ -78,7 +78,7 @@
               },
               "foreach": "@json(body('Get_List')).feed.entry",
               "runAfter": {
-                "Get_items": [
+                "Get_list": [
                   "Succeeded"
                 ]
               },

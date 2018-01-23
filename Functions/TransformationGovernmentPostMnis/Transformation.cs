@@ -13,12 +13,36 @@ namespace Functions.TransformationGovernmentPostMnis
         {
             IMnisGovernmentPosition governmentPosition = new MnisGovernmentPosition();
             XDocument doc = XDocument.Parse(response);
+            XNamespace atom = "http://www.w3.org/2005/Atom";
             XNamespace d = "http://schemas.microsoft.com/ado/2007/08/dataservices";
             XNamespace m = "http://schemas.microsoft.com/ado/2007/08/dataservices/metadata";
-            XElement element = doc.Descendants(m + "properties").SingleOrDefault();
+            XElement element = doc.Descendants(d + "GovernmentPost_Id").SingleOrDefault();
+            if ((element == null) || (element.Parent==null))
+                return null;
 
-            governmentPosition.GovernmentPositionMnisId = element.Element(d + "GovernmentPost_Id").GetText();
-            governmentPosition.PositionName = element.Element(d + "Name").GetText();
+            XElement elementPosition = element.Parent;
+            
+            governmentPosition.GovernmentPositionMnisId = elementPosition.Element(d + "GovernmentPost_Id").GetText();
+            governmentPosition.PositionName = elementPosition.Element(d + "Name").GetText();
+
+            element = doc.Descendants(d + "Department_Id").SingleOrDefault();
+            if ((element != null) || (element.Parent != null))
+            {
+                XElement departmentElement = element.Parent;
+                string departmentId=departmentElement.Element(d + "Department_Id").GetText();
+                if (string.IsNullOrWhiteSpace(departmentId) == false)
+                {
+                    Uri departmentUri = IdRetrieval.GetSubject("mnisDepartmentId", departmentId, false, logger);
+                    if (departmentUri != null)
+                        governmentPosition.PositionHasGroup = new List<IGroup>
+                    {
+                        new Group()
+                        {
+                            SubjectUri=departmentUri
+                        }
+                    };
+                }
+            }
 
             return new IOntologyInstance[] { governmentPosition };
         }

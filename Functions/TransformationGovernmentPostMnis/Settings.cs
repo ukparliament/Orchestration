@@ -33,19 +33,21 @@
         construct {
         	?governmentPosition a parl:GovernmentPosition;
                 parl:governmentPositionMnisId ?governmentPositionMnisId;
-                parl:positionName ?positionName.
+                parl:positionName ?positionName;
+                parl:positionHasGroup ?positionHasGroup.
         }
         where {
             bind(@subject as ?governmentPosition)
         	?governmentPosition parl:governmentPositionMnisId ?governmentPositionMnisId.
             optional {?governmentPosition parl:positionName ?positionName}
+            optional {?governmentPosition parl:positionHasGroup ?positionHasGroup}
         }";
             }
         }
 
         public string FullDataUrlParameterizedString(string dataUrl)
         {
-            return $"{dataUrl}?$select=GovernmentPost_Id,Name";
+            return $"{dataUrl}?$select=GovernmentPost_Id,Name,GovernmentPostDepartments/Department_Id&$expand=GovernmentPostDepartments";
         }
     }
 }

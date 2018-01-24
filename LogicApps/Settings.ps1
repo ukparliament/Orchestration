@@ -373,6 +373,19 @@ $logicAppVariable=@(
 		"queueReadInterval"=1;
 		"queueReadFrequency"="Minute";
     }
+	New-Object -TypeName PSObject -Property @{
+        "name"="committeechairincumbencymnis";
+        "listUri"="http://data.parliament.uk/MembersDataPlatform/open/OData.svc/MemberCommitteeChairs?`$select=MemberCommitteeChair_Id";
+        "listAcceptHeader"="application/atom+xml";
+        "foreachObject"="@json(body('Get_List')).feed.entry";
+        "idObject"="@{item().id}";
+        "frequency"="hour";
+        "interval"=24;
+        "triggerTime"="20:40";
+        "queueReadBatchSize"=150;
+		"queueReadInterval"=90;
+		"queueReadFrequency"="Second";
+    }
 )
 
 $variableNames=@("name","listUri","listAcceptHeader","foreachObject","idObject","frequency","interval","triggerTime","queueReadBatchSize","queueReadInterval","queueReadFrequency")

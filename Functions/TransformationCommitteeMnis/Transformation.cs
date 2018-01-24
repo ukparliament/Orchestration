@@ -1,4 +1,5 @@
-﻿using Parliament.Ontology.Base;
+﻿using Functions.IdGenerator;
+using Parliament.Ontology.Base;
 using Parliament.Ontology.Code;
 using System;
 using System.Collections.Generic;
@@ -84,6 +85,18 @@ namespace Functions.TransformationCommitteeMnis
         {
             foreach (IFormalBody formalBody in source.OfType<IFormalBody>())
                 formalBody.SubjectUri = subjectUri;
+            IMnisFormalBody mnisFormalBody = source.OfType<IMnisFormalBody>().SingleOrDefault();
+            FormalBodyChair targetFormalBodyChair = target.OfType<FormalBodyChair>().SingleOrDefault();
+            if ((targetFormalBodyChair != null) && (targetFormalBodyChair.SubjectUri != null))
+                mnisFormalBody.FormalBodyHasFormalBodyChair = new FormalBodyChair()
+                {
+                    SubjectUri = targetFormalBodyChair.SubjectUri
+                };
+            else
+                mnisFormalBody.FormalBodyHasFormalBodyChair = new FormalBodyChair()
+                {
+                    SubjectUri = new Uri(new IdMaker().MakeId())
+                };
             return source.OfType<IFormalBody>().ToArray();
         }
 

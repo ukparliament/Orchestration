@@ -37,7 +37,9 @@
                 parl:formalBodyStartDate ?formalBodyStartDate;
                 parl:formalBodyEndDate ?formalBodyEndDate;
                 parl:formalBodyHasHouse ?formalBodyHasHouse;
-                parl:formalBodyHasParentFormalBody ?formalBodyHasParentFormalBody.
+                parl:formalBodyHasParentFormalBody ?formalBodyHasParentFormalBody;
+                parl:formalBodyHasFormalBodyChair ?formalBodyHasFormalBodyChair.
+            ?formalBodyHasFormalBodyChair a parl:FormalBodyChair.
         }
         where {
             bind(@subject as ?formalBody)
@@ -47,6 +49,7 @@
             optional {?formalBody parl:formalBodyEndDate ?formalBodyEndDate}
             optional {?formalBody parl:formalBodyHasHouse ?formalBodyHasHouse}
             optional {?formalBody parl:formalBodyHasParentFormalBody ?formalBodyHasParentFormalBody}
+            optional {?formalBody parl:formalBodyHasFormalBodyChair ?formalBodyHasFormalBodyChair}
         }";
             }
         }

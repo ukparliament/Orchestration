@@ -24,26 +24,23 @@ namespace Functions.TransformationGovernmentPostMnis
             
             governmentPosition.GovernmentPositionMnisId = elementPosition.Element(d + "GovernmentPost_Id").GetText();
             governmentPosition.PositionName = elementPosition.Element(d + "Name").GetText();
+            List<IGroup> groups = new List<IGroup>();
 
-            element = doc.Descendants(d + "Department_Id").SingleOrDefault();
-            if ((element != null) || (element.Parent != null))
+            foreach (XElement elementLoop in doc.Descendants(d + "Department_Id"))
             {
-                XElement departmentElement = element.Parent;
-                string departmentId=departmentElement.Element(d + "Department_Id").GetText();
-                if (string.IsNullOrWhiteSpace(departmentId) == false)
+                if ((elementLoop != null) || (elementLoop.Parent != null))
                 {
-                    Uri departmentUri = IdRetrieval.GetSubject("mnisDepartmentId", departmentId, false, logger);
-                    if (departmentUri != null)
-                        governmentPosition.PositionHasGroup = new List<IGroup>
+                    XElement departmentElement = elementLoop.Parent;
+                    string departmentId = departmentElement.Element(d + "Department_Id").GetText();
+                    if (string.IsNullOrWhiteSpace(departmentId) == false)
                     {
-                        new Group()
-                        {
-                            SubjectUri=departmentUri
-                        }
-                    };
+                        Uri departmentUri = IdRetrieval.GetSubject("mnisDepartmentId", departmentId, false, logger);
+                        if (departmentUri != null)
+                            groups.Add(new Group() { SubjectUri = departmentUri });                            
+                    }
                 }
             }
-
+            governmentPosition.PositionHasGroup = groups;
             return new IOntologyInstance[] { governmentPosition };
         }
 

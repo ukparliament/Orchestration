@@ -25,6 +25,19 @@ namespace Functions.TransformationCommitteeMnis
             formalBody.FormalBodyName = formalBodyElement.Element(d + "Name").GetText();
             formalBody.FormalBodyStartDate = formalBodyElement.Element(d + "StartDate").GetDate();
             formalBody.FormalBodyHasHouse = generateHouseMembership(formalBodyElement);
+            string parentId = formalBodyElement.Element(d + "ParentCommittee_Id").GetText();
+            if (string.IsNullOrWhiteSpace(parentId) == false)
+            {
+                Uri parentUri = IdRetrieval.GetSubject("formalBodyMnisId", parentId, false, logger);
+                if (parentId != null)
+                    formalBody.FormalBodyHasParentFormalBody = new List<IFormalBody>
+                    {
+                        new FormalBody()
+                        {
+                            SubjectUri=parentUri
+                        }
+                    };
+            }
             IPastFormalBody pastFormalBody = new PastFormalBody();
             pastFormalBody.FormalBodyEndDate = formalBodyElement.Element(d + "EndDate").GetDate();
 

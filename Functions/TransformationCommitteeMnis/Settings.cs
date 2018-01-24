@@ -36,7 +36,8 @@
                 parl:formalBodyName ?formalBodyName;
                 parl:formalBodyStartDate ?formalBodyStartDate;
                 parl:formalBodyEndDate ?formalBodyEndDate;
-                parl:formalBodyHasHouse ?formalBodyHasHouse.
+                parl:formalBodyHasHouse ?formalBodyHasHouse;
+                parl:formalBodyHasParentFormalBody ?formalBodyHasParentFormalBody.
         }
         where {
             bind(@subject as ?formalBody)
@@ -45,13 +46,14 @@
             optional {?formalBody parl:formalBodyStartDate ?formalBodyStartDate}
             optional {?formalBody parl:formalBodyEndDate ?formalBodyEndDate}
             optional {?formalBody parl:formalBodyHasHouse ?formalBodyHasHouse}
+            optional {?formalBody parl:formalBodyHasParentFormalBody ?formalBodyHasParentFormalBody}
         }";
             }
         }
 
         public string FullDataUrlParameterizedString(string dataUrl)
         {
-            return $"{dataUrl}?$select=Committee_Id,StartDate,EndDate,Name,IsCommons,IsLords";
+            return $"{dataUrl}?$select=Committee_Id,StartDate,EndDate,Name,IsCommons,IsLords,ParentCommittee_Id";
         }
     }
 }

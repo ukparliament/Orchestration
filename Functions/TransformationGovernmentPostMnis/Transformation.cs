@@ -28,7 +28,7 @@ namespace Functions.TransformationGovernmentPostMnis
 
             foreach (XElement elementLoop in doc.Descendants(d + "Department_Id"))
             {
-                if ((elementLoop != null) || (elementLoop.Parent != null))
+                if ((elementLoop != null) && (elementLoop.Parent != null))
                 {
                     XElement departmentElement = elementLoop.Parent;
                     string departmentId = departmentElement.Element(d + "Department_Id").GetText();

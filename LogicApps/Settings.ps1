@@ -160,7 +160,7 @@ $logicAppVariable=@(
         "idObject"="@{item().id}";
         "frequency"="hour";
         "interval"=24;
-        "triggerTime"="22:01";
+        "triggerTime"="23:55";
         "queueReadBatchSize"=150;
 		"queueReadInterval"=90;
 		"queueReadFrequency"="Second";
@@ -342,7 +342,7 @@ $logicAppVariable=@(
         "idObject"="@json('')";
         "frequency"="hour";
         "interval"=24;
-        "triggerTime"="22:55";
+        "triggerTime"="20:05";
         "queueReadBatchSize"=50;
 		"queueReadInterval"=1;
 		"queueReadFrequency"="Minute";
@@ -382,6 +382,19 @@ $logicAppVariable=@(
         "frequency"="hour";
         "interval"=24;
         "triggerTime"="20:40";
+        "queueReadBatchSize"=150;
+		"queueReadInterval"=90;
+		"queueReadFrequency"="Second";
+    }
+	New-Object -TypeName PSObject -Property @{
+        "name"="committeelaymembermnis";
+        "listUri"="http://data.parliament.uk/MembersDataPlatform/open/OData.svc/CommitteeLayMembers?`$select=CommitteeLayMember_Id";
+        "listAcceptHeader"="application/atom+xml";
+        "foreachObject"="@json(body('Get_List')).feed.entry";
+        "idObject"="@{item().id}";
+        "frequency"="hour";
+        "interval"=24;
+        "triggerTime"="21:03";
         "queueReadBatchSize"=150;
 		"queueReadInterval"=90;
 		"queueReadFrequency"="Second";

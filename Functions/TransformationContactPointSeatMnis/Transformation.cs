@@ -38,7 +38,7 @@ namespace Functions.TransformationContactPointSeatMnis
         where {
             ?id parl:parliamentaryIncumbencyHasMember ?parliamentaryIncumbencyHasMember;
                 parl:parliamentaryIncumbencyStartDate ?parliamentaryIncumbencyStartDate.
-            ?parliamentaryIncumbencyHasMember parl:personMnisId @personMnisId.
+            ?parliamentaryIncumbencyHasMember parl:memberMnisId @memberMnisId.
         } order by desc(?parliamentaryIncumbencyStartDate) limit 1";
             Uri incumbencyUri;
 
@@ -50,7 +50,7 @@ namespace Functions.TransformationContactPointSeatMnis
             }
             SparqlParameterizedString incumbencySparql = new SparqlParameterizedString(incumbencyCommand);
             incumbencySparql.Namespaces.AddNamespace("parl", new Uri(schemaNamespace));
-            incumbencySparql.SetLiteral("personMnisId", mnisId);
+            incumbencySparql.SetLiteral("memberMnisId", mnisId);
             incumbencyUri = IdRetrieval.GetSubject(incumbencySparql.ToString(), false, logger);
             if (incumbencyUri != null)
                 incumbency = new ParliamentaryIncumbency()

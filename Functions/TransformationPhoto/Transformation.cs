@@ -40,7 +40,7 @@ namespace Functions.TransformationPhoto
 
             string mnisIdStr = Convert.ToInt32(Convert.ToDouble(mnisId)).ToString();
 
-            Uri personUri = IdRetrieval.GetSubject("personMnisId", mnisIdStr, false, logger);
+            Uri personUri = IdRetrieval.GetSubject("memberMnisId", mnisIdStr, false, logger);
             if (personUri != null)
             {
                 memberImage.MemberImageHasMember = new List<IMember>

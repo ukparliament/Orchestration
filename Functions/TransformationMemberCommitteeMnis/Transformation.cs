@@ -34,10 +34,10 @@ namespace Functions.TransformationMemberCommitteeMnis
         private IFormalBodyMembership generateMembershipMember(XElement formalBodyElement)
         {
             IFormalBodyMembership formalBodyMembership = null;
-            string personMnisId = formalBodyElement.Element(d + "Member_Id").GetText();
-            if (string.IsNullOrWhiteSpace(personMnisId) == false)
+            string memberMnisId = formalBodyElement.Element(d + "Member_Id").GetText();
+            if (string.IsNullOrWhiteSpace(memberMnisId) == false)
             {
-                Uri personUri = IdRetrieval.GetSubject("personMnisId", personMnisId, false, logger);
+                Uri personUri = IdRetrieval.GetSubject("memberMnisId", memberMnisId, false, logger);
                 if (personUri != null)
                 {
                     if (formalBodyElement.Element(d + "ExOfficio").GetBoolean() == true)
@@ -58,7 +58,7 @@ namespace Functions.TransformationMemberCommitteeMnis
                         };
                 }
                 else
-                    logger.Warning($"No member found for id {personMnisId}");
+                    logger.Warning($"No member found for id {memberMnisId}");
             }
             else
                 logger.Warning("No member data");

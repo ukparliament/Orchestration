@@ -37,7 +37,7 @@ namespace Functions.TransformationGovernmentIncumbencyMnis
                 SubjectUri = governmentPostUri
             };
             string memberId = governmentIncumbencyElement.Element(d + "Member_Id").GetText();
-            Uri memberUri = IdRetrieval.GetSubject("personMnisId", memberId, false, logger);
+            Uri memberUri = IdRetrieval.GetSubject("memberMnisId", memberId, false, logger);
             if (memberUri == null)
             {
                 logger.Warning($"No member found for {memberId}");

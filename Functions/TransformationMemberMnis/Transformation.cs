@@ -26,8 +26,8 @@ namespace Functions.TransformationMemberMnis
             member.PersonGivenName = personElement.Element(d + "Forename").GetText();
             member.PersonOtherNames = personElement.Element(d + "MiddleNames").GetText();
             member.PersonFamilyName = personElement.Element(d + "Surname").GetText();
-            IMnisPerson mnisPerson = new MnisPerson();
-            mnisPerson.PersonMnisId = personElement.Element(d + "Member_Id").GetText();
+            IMnisMember mnisMember = new MnisMember();
+            mnisMember.MemberMnisId = personElement.Element(d + "Member_Id").GetText();
             IDodsPerson dodsPerson = new DodsPerson();
             dodsPerson.PersonDodsId = personElement.Element(d + "Dods_Id").GetText();
             IPimsPerson pimsPerson = new PimsPerson();
@@ -42,17 +42,17 @@ namespace Functions.TransformationMemberMnis
                 member.PersonHasGenderIdentity = new IGenderIdentity[] { genderIdentity };
             }
 
-            return new IOntologyInstance[] { member, mnisPerson, dodsPerson, pimsPerson, deceasedPerson};
+            return new IOntologyInstance[] { member, mnisMember, dodsPerson, pimsPerson, deceasedPerson};
         }
 
         public override Dictionary<string, object> GetKeysFromSource(IOntologyInstance[] deserializedSource)
         {
-            string personMnisId = deserializedSource.OfType<IMnisPerson>()
+            string memberMnisId = deserializedSource.OfType<IMnisMember>()
                 .SingleOrDefault()
-                .PersonMnisId;
+                .MemberMnisId;
             return new Dictionary<string, object>()
             {
-                { "personMnisId", personMnisId }
+                { "memberMnisId", memberMnisId }
             };
         }
 

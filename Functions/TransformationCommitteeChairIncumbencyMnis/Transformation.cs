@@ -61,7 +61,7 @@ namespace Functions.TransformationCommitteeChairIncumbencyMnis
             string memberId = elementMemberCommittee.Parent.Element(d + "Member_Id").GetText();
             if (string.IsNullOrWhiteSpace(memberId) == false)
             {
-                Uri memberUri = IdRetrieval.GetSubject("personMnisId", memberId, false, logger);
+                Uri memberUri = IdRetrieval.GetSubject("memberMnisId", memberId, false, logger);
                 mnisIncumbency.IncumbencyHasPerson = new Person()
                 {
                     SubjectUri = memberUri

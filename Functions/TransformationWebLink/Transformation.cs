@@ -45,7 +45,7 @@ namespace Functions.TransformationWebLink
                 return null;
             }
             mnisId = Convert.ToInt32(Convert.ToDouble(mnisId)).ToString();
-            Uri personUri = IdRetrieval.GetSubject("personMnisId", mnisId, false, logger);
+            Uri personUri = IdRetrieval.GetSubject("memberMnisId", mnisId, false, logger);
             if (personUri != null)
                 personWebLink.PersonWebLinkHasPerson = new List<IPerson>
                 {

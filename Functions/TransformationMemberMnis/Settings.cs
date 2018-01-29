@@ -20,7 +20,7 @@
                 ?s a parl:Person.
             }
             where{
-                ?s parl:personMnisId @personMnisId.
+                ?s parl:memberMnisId @memberMnisId.
             }";
             }
         }
@@ -37,7 +37,7 @@
         		parl:personOtherNames ?personOtherNames;
         		parl:personFamilyName ?personFamilyName;
         		parl:personDateOfDeath ?personDateOfDeath;
-        		parl:personMnisId ?personMnisId;
+        		parl:memberMnisId ?memberMnisId;
                 parl:personPimsId ?personPimsId;
                 parl:personDodsId ?personDodsId;
                 <http://example.com/F31CBD81AD8343898B49DC65743F0BDF> ?personNameDisplayAs;
@@ -49,7 +49,7 @@
         }
         where {
             bind(@subject as ?person)
-            ?person parl:personMnisId ?personMnisId.
+            ?person parl:memberMnisId ?memberMnisId.
             optional {?person parl:personPimsId ?personPimsId}
             optional {?person parl:personDodsId ?personDodsId}
             optional {?person parl:personDateOfBirth ?personDateOfBirth}

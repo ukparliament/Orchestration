@@ -27,7 +27,7 @@ namespace Functions.TransformationSeatIncumbencyMnis
             incumbency.ParliamentaryIncumbencyStartDate = seatIncumbencyElement.Element(d + "StartDate").GetDate();
             incumbency.ParliamentaryIncumbencyEndDate = seatIncumbencyElement.Element(d + "EndDate").GetDate();
             string memberId = seatIncumbencyElement.Element(d + "Member_Id").GetText();
-            Uri memberUri = IdRetrieval.GetSubject("personMnisId", memberId, false, logger);
+            Uri memberUri = IdRetrieval.GetSubject("memberMnisId", memberId, false, logger);
             if (memberUri == null)
             {
                 logger.Warning($"No member found for {memberId}");

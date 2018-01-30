@@ -35,7 +35,6 @@ namespace Functions.TransformationContactPointHouse
             ?contactPoint a parl:ContactPoint;
         	    parl:contactPointHasHouse ?contactPointHasHouse;
                 parl:contactPointHasPostalAddress ?contactPointHasPostalAddress.
-            ?contactPointHasHouse a parl:House.
             ?contactPointHasPostalAddress a parl:PostalAddress;
                 parl:addressLine1 ?addressLine1;
                 parl:addressLine2 ?addressLine2;

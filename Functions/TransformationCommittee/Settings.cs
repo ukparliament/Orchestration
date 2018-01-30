@@ -35,6 +35,7 @@ namespace Functions.TransformationCommittee
                 return @"
         construct {
         	?formalBody a parl:FormalBody;
+                parl:formalBodyHasFormalBodyType ?formalBodyHasFormalBodyType;
                 parl:formalBodyRemit ?formalBodyRemit;
                 parl:formalBodyHasLeadHouse ?formalBodyHasLeadHouse;
                 parl:formalBodyHasContactPoint ?formalBodyHasContactPoint.
@@ -44,6 +45,7 @@ namespace Functions.TransformationCommittee
         }
         where {
             bind(@subject as ?formalBody)
+            optional {?formalBody parl:formalBodyHasFormalBodyType ?formalBodyHasFormalBodyType}
             optional {?formalBody parl:formalBodyRemit ?formalBodyRemit}
             optional {?formalBody parl:formalBodyHasLeadHouse ?formalBodyHasLeadHouse}
             optional {

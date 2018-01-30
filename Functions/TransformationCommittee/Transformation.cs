@@ -31,6 +31,22 @@ namespace Functions.TransformationCommittee
                     return null;
                 }
             }
+
+            List<IFormalBodyType> formalBodyTypes = new List<IFormalBodyType>();
+            Uri committeeTypeUri;
+            foreach (JObject commiteeType in (JArray)jsonResponse.SelectToken("CommitteeType_x003a_TripleStoreI"))
+            {
+                string committeeTypeId = commiteeType["Value"].ToString();
+                if (string.IsNullOrWhiteSpace(committeeTypeId))
+                    continue;
+                if (Uri.TryCreate($"{idNamespace}{committeeTypeId}", UriKind.Absolute, out committeeTypeUri))
+                    formalBodyTypes.Add(new FormalBodyType()
+                    {
+                        SubjectUri = committeeTypeUri
+                    });
+            }
+            formalBody.FormalBodyHasFormalBodyType = formalBodyTypes;
+
             bool? isCommons = ((JValue)jsonResponse.SelectToken("IsCommons")).GetBoolean();
             bool? isLords = ((JValue)jsonResponse.SelectToken("IsLords")).GetBoolean();
             if ((isCommons == true) && (isLords == true))

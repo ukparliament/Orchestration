@@ -10,8 +10,7 @@ namespace Functions.TransformationLordsSeat
 {
     public class Transformation : BaseTransformation<Settings>
     {
-        private readonly string idNamespace = Environment.GetEnvironmentVariable("IdNamespace", EnvironmentVariableTarget.Process);
-
+        
         public override IOntologyInstance[] TransformSource(string response)
         {
             IHouseSeat houseSeat = new HouseSeat();

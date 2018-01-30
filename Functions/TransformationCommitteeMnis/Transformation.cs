@@ -95,7 +95,7 @@ namespace Functions.TransformationCommitteeMnis
             else
                 mnisFormalBody.FormalBodyHasFormalBodyChair = new FormalBodyChair()
                 {
-                    SubjectUri = new Uri(new IdMaker().MakeId())
+                    SubjectUri = GenerateNewId()
                 };
             return source.OfType<IFormalBody>().ToArray();
         }

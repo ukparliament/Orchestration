@@ -14,8 +14,7 @@ namespace Functions.TransformationHouseSeatType
         {
             IMnisHouseSeatType houseSeatType = new MnisHouseSeatType();
             JObject jsonResponse = (JObject)JsonConvert.DeserializeObject(response);
-            string idNamespace = Environment.GetEnvironmentVariable("IdNamespace", EnvironmentVariableTarget.Process);
-
+            
             string id = ((JValue)jsonResponse.SelectToken("ID0")).GetText();
             Uri uri = null;
             if (string.IsNullOrWhiteSpace(id))

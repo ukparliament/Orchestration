@@ -10,7 +10,6 @@ namespace Functions.TransformationPhoto
 {
     public class Transformation : BaseTransformation<Settings>
     {
-        private static string idNamespace = Environment.GetEnvironmentVariable("IdNamespace", EnvironmentVariableTarget.Process);
         public override IOntologyInstance[] TransformSource(string response)
         {
             IMemberImage memberImage = new MemberImage();

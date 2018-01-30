@@ -21,6 +21,7 @@ namespace Functions
         protected Microsoft.Azure.WebJobs.ExecutionContext functionExecutionContext;
 
         protected static readonly string schemaNamespace = Environment.GetEnvironmentVariable("SchemaNamespace", EnvironmentVariableTarget.Process);
+        protected static readonly string idNamespace = Environment.GetEnvironmentVariable("IdNamespace", EnvironmentVariableTarget.Process);
 
         public async Task<object> Run(HttpRequestMessage req, T settings, Microsoft.Azure.WebJobs.ExecutionContext executionContext)
         {

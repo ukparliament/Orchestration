@@ -11,8 +11,7 @@ namespace Functions.TransformationLordsSeatIncumbency
 {
     public class Transformation : BaseTransformation<Settings>
     {
-        private readonly string idNamespace = Environment.GetEnvironmentVariable("IdNamespace", EnvironmentVariableTarget.Process);
-
+        
         public override IOntologyInstance[] TransformSource(string response)
         {
             IMnisSeatIncumbency mnisSeatIncumbency = new MnisSeatIncumbency();

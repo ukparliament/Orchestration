@@ -39,12 +39,9 @@ namespace Functions.TransformationCommittee
                 if (string.IsNullOrWhiteSpace(houseId) == false)
                 {
                     if (Uri.TryCreate($"{idNamespace}{houseId}", UriKind.Absolute, out Uri houseUri))
-                        formalBody.FormalBodyHasLeadHouse = new IHouse[]
-                        {
-                        new House()
+                        formalBody.FormalBodyHasLeadHouse = new House()
                         {
                             SubjectUri=houseUri
-                        }
                         };
                     else
                     {

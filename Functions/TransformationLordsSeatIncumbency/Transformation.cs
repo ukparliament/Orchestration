@@ -122,8 +122,8 @@ namespace Functions.TransformationLordsSeatIncumbency
         }";
             SparqlParameterizedString sparql = new SparqlParameterizedString(sparqlCommand);
             sparql.Namespaces.AddNamespace("parl", new Uri(schemaNamespace));
-            sparql.SetLiteral("startDate", startDate.ToString("yyyy-MM-dd"), new Uri("http://www.w3.org/2001/XMLSchema#date"));
-            sparql.SetLiteral("endDate", endDate.HasValue ? endDate.Value.ToString("yyyy-MM-dd") : string.Empty, new Uri("http://www.w3.org/2001/XMLSchema#date"));
+            sparql.SetLiteral("startDate", startDate.ToString("yyyy-MM-dd+00:00"), new Uri("http://www.w3.org/2001/XMLSchema#date"));
+            sparql.SetLiteral("endDate", endDate.HasValue ? endDate.Value.ToString("yyyy-MM-dd+00:00") : string.Empty, new Uri("http://www.w3.org/2001/XMLSchema#date"));
             sparql.SetLiteral("hasEndDate", endDate.HasValue);
             List<Uri> parliamentPeriodUris = null;
             parliamentPeriodUris = GraphRetrieval.GetSubjects(sparql.ToString(), logger);

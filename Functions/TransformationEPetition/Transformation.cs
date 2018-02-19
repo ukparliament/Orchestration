@@ -95,13 +95,12 @@ namespace Functions.TransformationEPetition
             foreach (ILocatedSignatureCount signature in signatures)
             {
                 ILocatedSignatureCount foundLocatedSignatureCount = ePetition.EPetitionHasLocatedSignatureCount
-                    .SingleOrDefault(s =>
-                        (s.LocatedSignatureCountHasPlace.Id == signature.LocatedSignatureCountHasPlace.Id) &&
-                        (s.SignatureCount.SingleOrDefault() == signature.SignatureCount.SingleOrDefault()));
+                    .SingleOrDefault(s => s.LocatedSignatureCountHasPlace.Id == signature.LocatedSignatureCountHasPlace.Id);
                 if (foundLocatedSignatureCount != null)
                 {
                     foundLocatedSignatureCount.Id = signature.Id;
-                    foundLocatedSignatureCount.SignatureCountRetrievedAt = signature.SignatureCountRetrievedAt;
+                    if (foundLocatedSignatureCount.SignatureCount.SingleOrDefault() == signature.SignatureCount.SingleOrDefault())
+                        foundLocatedSignatureCount.SignatureCountRetrievedAt = signature.SignatureCountRetrievedAt;
                 }
             }
 

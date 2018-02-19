@@ -15,6 +15,7 @@ namespace Functions
     {
         private static readonly string dataAPI = Environment.GetEnvironmentVariable("CUSTOMCONNSTR_Data", EnvironmentVariableTarget.Process);
         private static readonly string subscriptionKey = Environment.GetEnvironmentVariable("SubscriptionKey", EnvironmentVariableTarget.Process);
+        private static readonly string apiVersion = Environment.GetEnvironmentVariable("ApiVersion", EnvironmentVariableTarget.Process);
 
         public GraphDBConnector(string queryString)
             : base(dataAPI, $"Master?{queryString}")
@@ -50,6 +51,7 @@ namespace Functions
             request.Method = "POST";
             request.ContentType = "application/sparql-update";
             request.Headers.Add("Ocp-Apim-Subscription-Key", subscriptionKey);
+            request.Headers.Add("Api-Version", apiVersion);
             using (StreamWriter writer = new StreamWriter(request.GetRequestStream(), new UTF8Encoding(Options.UseBomForUtf8)))
             {
                 writer.Write(sparqlUpdate);
@@ -62,6 +64,7 @@ namespace Functions
         {
             HttpWebRequest originalRequest = base.CreateRequest(servicePath, accept, method, queryParams);
             originalRequest.Headers.Add("Ocp-Apim-Subscription-Key", subscriptionKey);
+            originalRequest.Headers.Add("Api-Version", apiVersion);
 
             return originalRequest;
         }

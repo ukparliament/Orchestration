@@ -20,6 +20,7 @@ namespace Functions.GraphDBBackup
         private static readonly string storageAccountConnectionString = Environment.GetEnvironmentVariable("CUSTOMCONNSTR_BackupStorage", EnvironmentVariableTarget.Process);
         private static readonly string dataAPI = Environment.GetEnvironmentVariable("CUSTOMCONNSTR_Data", EnvironmentVariableTarget.Process);
         private static readonly string subscriptionKey = Environment.GetEnvironmentVariable("SubscriptionKey", EnvironmentVariableTarget.Process);
+        private static readonly string apiVersion = Environment.GetEnvironmentVariable("ApiVersion", EnvironmentVariableTarget.Process);
 
         [FunctionName("GraphDBBackup")]
         public static async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = null)]HttpRequestMessage req, TraceWriter log, Microsoft.Azure.WebJobs.ExecutionContext executionContext)
@@ -101,6 +102,7 @@ namespace Functions.GraphDBBackup
             using (HttpClient client = new HttpClient())
             {
                 client.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", subscriptionKey);
+                client.DefaultRequestHeaders.Add("Api-Version", apiVersion);
                 client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/x-trig"));
                 using (HttpResponseMessage response = await client.GetAsync(graphDBBackupUrl, HttpCompletionOption.ResponseHeadersRead))
                 {

@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Parliament.Ontology.Base;
-using Parliament.Ontology.Code;
+using Parliament.Rdf;
+using Parliament.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +10,7 @@ namespace Functions.TransformationDepartmentGovernmentOrganisation
 {
     public class Transformation : BaseTransformation<Settings>
     {
-        public override IOntologyInstance[] TransformSource(string response)
+        public override IResource[] TransformSource(string response)
         {
             IGovRegisterGovernmentOrganisation department = new GovRegisterGovernmentOrganisation();            
             JObject jsonResponse = (JObject)JsonConvert.DeserializeObject(response);
@@ -24,29 +24,29 @@ namespace Functions.TransformationDepartmentGovernmentOrganisation
                 if (departmentUri == null)
                     return null;
                 else
-                    department.SubjectUri = departmentUri;
+                    department.Id = departmentUri;
             }
             else
                 return null;
-            return new IOntologyInstance[] { department };
+            return new IResource[] { department };
         }
 
-        public override Dictionary<string, object> GetKeysFromSource(IOntologyInstance[] deserializedSource)
+        public override Dictionary<string, object> GetKeysFromSource(IResource[] deserializedSource)
         {
             Uri subjectUri = deserializedSource.OfType<IGovRegisterGovernmentOrganisation>()
                 .SingleOrDefault()
-                .SubjectUri;
+                .Id;
             return new Dictionary<string, object>()
             {
                 { "subjectUri", subjectUri }
             };
         }
 
-        public override IOntologyInstance[] SynchronizeIds(IOntologyInstance[] source, Uri subjectUri, IOntologyInstance[] target)
+        public override IResource[] SynchronizeIds(IResource[] source, Uri subjectUri, IResource[] target)
         {
             IGovRegisterGovernmentOrganisation department = source.OfType<IGovRegisterGovernmentOrganisation>().SingleOrDefault();
             
-            return new IOntologyInstance[] { department };
+            return new IResource[] { department };
         }
     }
 }

@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Parliament.Ontology.Base;
-using Parliament.Ontology.Code;
+using Parliament.Rdf;
+using Parliament.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +10,7 @@ namespace Functions.TransformationCountry
 {
     public class Transformation : BaseTransformation<Settings>
     {
-        public override IOntologyInstance[] TransformSource(string response)
+        public override IResource[] TransformSource(string response)
         {
             IGovRegisterCountry country = new GovRegisterCountry();
             JObject jsonResponse = (JObject)JsonConvert.DeserializeObject(response);
@@ -28,10 +28,10 @@ namespace Functions.TransformationCountry
             jValue = (JValue)jsonResponse.First.First.SelectToken("item[0].end-date");
             country.GovRegisterCountryEndDate = DeserializerHelper.GiveMeSingleDateValue(jValue.GetDate());
 
-            return new IOntologyInstance[] { country };
+            return new IResource[] { country };
         }
 
-        public override Dictionary<string, object> GetKeysFromSource(IOntologyInstance[] deserializedSource)
+        public override Dictionary<string, object> GetKeysFromSource(IResource[] deserializedSource)
         {
             string countryGovRegisterId = deserializedSource.OfType<IGovRegisterCountry>()
                 .SingleOrDefault()
@@ -42,12 +42,12 @@ namespace Functions.TransformationCountry
             };
         }
 
-        public override IOntologyInstance[] SynchronizeIds(IOntologyInstance[] source, Uri subjectUri, IOntologyInstance[] target)
+        public override IResource[] SynchronizeIds(IResource[] source, Uri subjectUri, IResource[] target)
         {
             IGovRegisterCountry country = source.OfType<IGovRegisterCountry>().SingleOrDefault();
-            country.SubjectUri = subjectUri;
+            country.Id = subjectUri;
 
-            return new IOntologyInstance[] { country };
+            return new IResource[] { country };
         }
     }
 }

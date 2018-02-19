@@ -1,6 +1,6 @@
 ﻿using Functions.Transformation;
-using Parliament.Ontology.Base;
-using Parliament.Ontology.Code;
+using Parliament.Rdf;
+using Parliament.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,7 +14,7 @@ namespace Functions.TransformationConstituencyMnis
         protected XNamespace d = "http://schemas.microsoft.com/ado/2007/08/dataservices";
         protected XNamespace m = "http://schemas.microsoft.com/ado/2007/08/dataservices/metadata";
 
-        public override IOntologyInstance[] TransformSource(string response)
+        public override IResource[] TransformSource(string response)
         {
             IMnisConstituencyGroup mnisConstituency = new MnisConstituencyGroup();
             XDocument doc = XDocument.Parse(response);
@@ -32,10 +32,10 @@ namespace Functions.TransformationConstituencyMnis
             IPastConstituencyGroup pastConstituencyGroup = new PastConstituencyGroup();
             pastConstituencyGroup.ConstituencyGroupEndDate = constituencyElement.Element(d + "EndDate").GetDate();
 
-            return new IOntologyInstance[] { mnisConstituency, onsConstituencyGroup, pastConstituencyGroup };
+            return new IResource[] { mnisConstituency, onsConstituencyGroup, pastConstituencyGroup };
         }
 
-        public override Dictionary<string, object> GetKeysFromSource(IOntologyInstance[] deserializedSource)
+        public override Dictionary<string, object> GetKeysFromSource(IResource[] deserializedSource)
         {
             string constituencyGroupMnisId = deserializedSource.OfType<IMnisConstituencyGroup>()
                 .SingleOrDefault()
@@ -50,16 +50,16 @@ namespace Functions.TransformationConstituencyMnis
             };
         }
 
-        public override IOntologyInstance[] SynchronizeIds(IOntologyInstance[] source, Uri subjectUri, IOntologyInstance[] target)
+        public override IResource[] SynchronizeIds(IResource[] source, Uri subjectUri, IResource[] target)
         {
             IMnisConstituencyGroup constituency = source.OfType<IMnisConstituencyGroup>().SingleOrDefault();
             IHouseSeat houseSeat= target.OfType<IHouseSeat>().SingleOrDefault();
             if ((constituency.ConstituencyGroupHasHouseSeat != null) && (constituency.ConstituencyGroupHasHouseSeat.Any()) &&
                 (houseSeat != null))
-                constituency.ConstituencyGroupHasHouseSeat.SingleOrDefault().SubjectUri = houseSeat.SubjectUri;
+                constituency.ConstituencyGroupHasHouseSeat.SingleOrDefault().Id = houseSeat.Id;
             
             foreach (IConstituencyGroup constituencyGroup in source.OfType<IConstituencyGroup>())
-                constituencyGroup.SubjectUri = subjectUri;
+                constituencyGroup.Id = subjectUri;
             return source.OfType<IConstituencyGroup>().ToArray();
         }
 
@@ -67,14 +67,14 @@ namespace Functions.TransformationConstituencyMnis
         private IHouseSeat generateHouseSeat()
         {
             IHouseSeat houseSeat = new HouseSeat();
-            houseSeat.SubjectUri = GenerateNewId();
+            houseSeat.Id = GenerateNewId();
             Uri houseUri = IdRetrieval.GetSubject("houseName", "House of Commons", false, logger);
             if (houseUri == null)
                 logger.Warning("No house found");
             else
                 houseSeat.HouseSeatHasHouse = new House()
                 {
-                    SubjectUri = houseUri
+                    Id = houseUri
                 };
             return houseSeat;
         }

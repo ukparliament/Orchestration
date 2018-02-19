@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Parliament.Ontology.Base;
-using Parliament.Ontology.Code;
+using Parliament.Rdf;
+using Parliament.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,14 +11,14 @@ namespace Functions.TransformationParliamentPeriod
     public class Transformation : BaseTransformation<Settings>
     {
         
-        public override IOntologyInstance[] TransformSource(string response)
+        public override IResource[] TransformSource(string response)
         {
             IPastParliamentPeriod pastParliamentPeriod = new PastParliamentPeriod();
             JObject jsonResponse = (JObject)JsonConvert.DeserializeObject(response);
 
             Uri id = giveMeUri(jsonResponse, "TripleStoreId");
             if (id != null)
-                pastParliamentPeriod.SubjectUri = id;
+                pastParliamentPeriod.Id = id;
             else
                 return null;
             pastParliamentPeriod.ParliamentPeriodNumber = ((JValue)jsonResponse.SelectToken("parliamentPeriodNumber")).GetFloat();
@@ -41,7 +41,7 @@ namespace Functions.TransformationParliamentPeriod
             if (previousId != null)
                 pastParliamentPeriod.ParliamentPeriodHasImmediatelyPreviousParliamentPeriod = new ParliamentPeriod()
                 {
-                    SubjectUri = previousId
+                    Id = previousId
                 };
             Uri followingId = giveMeUri(jsonResponse, "ImmediatelyFollowingParliamentPe");
             if (followingId != null)
@@ -49,36 +49,36 @@ namespace Functions.TransformationParliamentPeriod
                 {
                     new ParliamentPeriod()
                     {
-                        SubjectUri = followingId
+                        Id = followingId
                     }
                 };
 
             IWikidataParliamentPeriod wikidataParliamentPeriod = new WikidataParliamentPeriod();
             wikidataParliamentPeriod.ParliamentPeriodWikidataId = ((JValue)jsonResponse.SelectToken("parliamentPeriodWikidataId")).GetText();
 
-            return new IOntologyInstance[] { pastParliamentPeriod, wikidataParliamentPeriod };
+            return new IResource[] { pastParliamentPeriod, wikidataParliamentPeriod };
         }
 
-        public override Dictionary<string, object> GetKeysFromSource(IOntologyInstance[] deserializedSource)
+        public override Dictionary<string, object> GetKeysFromSource(IResource[] deserializedSource)
         {
             Uri subjectUri = deserializedSource.OfType<IPastParliamentPeriod>()
                 .SingleOrDefault()
-                .SubjectUri;
+                .Id;
             return new Dictionary<string, object>()
             {
                 { "subjectUri", subjectUri }
             };
         }
 
-        public override IOntologyInstance[] SynchronizeIds(IOntologyInstance[] source, Uri subjectUri, IOntologyInstance[] target)
+        public override IResource[] SynchronizeIds(IResource[] source, Uri subjectUri, IResource[] target)
         {
             IParliamentPeriod[] parliamentPeriods = source.OfType<IParliamentPeriod>().ToArray();
             foreach (IParliamentPeriod period in parliamentPeriods)
             {
-                period.SubjectUri = subjectUri;
+                period.Id = subjectUri;
             };
 
-            return parliamentPeriods as IOntologyInstance[];
+            return parliamentPeriods as IResource[];
         }
 
         private Uri giveMeUri(JObject jsonResponse, string tokenName)

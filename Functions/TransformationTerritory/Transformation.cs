@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Parliament.Ontology.Base;
-using Parliament.Ontology.Code;
+using Parliament.Rdf;
+using Parliament.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,7 +11,7 @@ namespace Functions.TransformationTerritory
     public class Transformation : BaseTransformation<Settings>
     {
 
-        public override IOntologyInstance[] TransformSource(string response)
+        public override IResource[] TransformSource(string response)
         {
             IGovRegisterTerritory territory = new GovRegisterTerritory();
             JObject jsonResponse = (JObject)JsonConvert.DeserializeObject(response);
@@ -27,10 +27,10 @@ namespace Functions.TransformationTerritory
             jValue = (JValue)jsonResponse.First.First.SelectToken("item[0].end-date");
             territory.GovRegisterTerritoryEndDate = DeserializerHelper.GiveMeSingleDateValue(jValue.GetDate());
 
-            return new IOntologyInstance[] { territory };
+            return new IResource[] { territory };
         }
 
-        public override Dictionary<string, object> GetKeysFromSource(IOntologyInstance[] deserializedSource)
+        public override Dictionary<string, object> GetKeysFromSource(IResource[] deserializedSource)
         {
             string territoryGovRegisterId = deserializedSource.OfType<IGovRegisterTerritory>()
                 .SingleOrDefault()
@@ -41,12 +41,12 @@ namespace Functions.TransformationTerritory
             };
         }
 
-        public override IOntologyInstance[] SynchronizeIds(IOntologyInstance[] source, Uri subjectUri, IOntologyInstance[] target)
+        public override IResource[] SynchronizeIds(IResource[] source, Uri subjectUri, IResource[] target)
         {
             IGovRegisterTerritory territory = source.OfType<IGovRegisterTerritory>().SingleOrDefault();
-            territory.SubjectUri = subjectUri;
+            territory.Id = subjectUri;
 
-            return new IOntologyInstance[] { territory };
+            return new IResource[] { territory };
         }
     }
 }

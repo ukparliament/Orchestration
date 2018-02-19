@@ -1,5 +1,5 @@
-﻿using Parliament.Ontology.Base;
-using Parliament.Ontology.Code;
+﻿using Parliament.Rdf;
+using Parliament.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,7 +15,7 @@ namespace Functions.TransformationSeatIncumbencyMnis
         private XNamespace d = "http://schemas.microsoft.com/ado/2007/08/dataservices";
         private XNamespace m = "http://schemas.microsoft.com/ado/2007/08/dataservices/metadata";
 
-        public override IOntologyInstance[] TransformSource(string response)
+        public override IResource[] TransformSource(string response)
         {
             IMember member = new Member();
             XDocument doc = XDocument.Parse(response);
@@ -35,7 +35,7 @@ namespace Functions.TransformationSeatIncumbencyMnis
             }
             incumbency.ParliamentaryIncumbencyHasMember = new Member()
             {
-                SubjectUri = memberUri
+                Id = memberUri
             };
             IMnisSeatIncumbency seatIncumbency = new MnisSeatIncumbency();
             seatIncumbency.CommonsSeatIncumbencyMnisId = seatIncumbencyElement.Element(d + "MemberConstituency_Id").GetText();
@@ -59,13 +59,13 @@ namespace Functions.TransformationSeatIncumbencyMnis
             if (houseSeatUri != null)
                 seatIncumbency.SeatIncumbencyHasHouseSeat = new HouseSeat()
                 {
-                    SubjectUri = houseSeatUri
+                    Id = houseSeatUri
                 };
 
-            return new IOntologyInstance[] { incumbency, seatIncumbency };
+            return new IResource[] { incumbency, seatIncumbency };
         }
 
-        public override Dictionary<string, object> GetKeysFromSource(IOntologyInstance[] deserializedSource)
+        public override Dictionary<string, object> GetKeysFromSource(IResource[] deserializedSource)
         {
             string commonsSeatIncumbencyMnisId = deserializedSource.OfType<IMnisSeatIncumbency>()
                 .SingleOrDefault()
@@ -76,10 +76,10 @@ namespace Functions.TransformationSeatIncumbencyMnis
             };
         }
 
-        public override IOntologyInstance[] SynchronizeIds(IOntologyInstance[] source, Uri subjectUri, IOntologyInstance[] target)
+        public override IResource[] SynchronizeIds(IResource[] source, Uri subjectUri, IResource[] target)
         {
             foreach (IParliamentaryIncumbency incumbency in source.OfType<IParliamentaryIncumbency>())
-                incumbency.SubjectUri = subjectUri;
+                incumbency.Id = subjectUri;
             return source.OfType<IParliamentaryIncumbency>().ToArray();
         }
 
@@ -117,7 +117,7 @@ namespace Functions.TransformationSeatIncumbencyMnis
             {
                 return new ParliamentPeriod()
                 {
-                    SubjectUri = parliamentPeriodUri
+                    Id = parliamentPeriodUri
                 };
             }
             else

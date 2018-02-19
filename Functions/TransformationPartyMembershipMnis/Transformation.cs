@@ -1,5 +1,5 @@
-﻿using Parliament.Ontology.Base;
-using Parliament.Ontology.Code;
+﻿using Parliament.Rdf;
+using Parliament.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,7 +13,7 @@ namespace Functions.TransformationPartyMembershipMnis
         private XNamespace d = "http://schemas.microsoft.com/ado/2007/08/dataservices";
         private XNamespace m = "http://schemas.microsoft.com/ado/2007/08/dataservices/metadata";
 
-        public override IOntologyInstance[] TransformSource(string response)
+        public override IResource[] TransformSource(string response)
         {
             IPastPartyMembership partyMembership = new PastPartyMembership();
             XDocument doc = XDocument.Parse(response);
@@ -30,7 +30,7 @@ namespace Functions.TransformationPartyMembershipMnis
             }
             partyMembership.PartyMembershipHasParty = new Party()
             {
-                SubjectUri = partyUri
+                Id = partyUri
             };
             string memberId = partyElement.Element(d + "Member_Id").GetText();
             Uri memberUri = IdRetrieval.GetSubject("memberMnisId", memberId, false, logger);
@@ -41,17 +41,17 @@ namespace Functions.TransformationPartyMembershipMnis
             }
             partyMembership.PartyMembershipHasPartyMember = new PartyMember()
             {
-                SubjectUri = memberUri
+                Id = memberUri
             };
             partyMembership.PartyMembershipStartDate = partyElement.Element(d + "StartDate").GetDate();
             partyMembership.PartyMembershipEndDate = partyElement.Element(d + "EndDate").GetDate();
             IMnisPartyMembership mnisPartyMembership = new MnisPartyMembership();
             mnisPartyMembership.PartyMembershipMnisId = partyElement.Element(d + "MemberParty_Id").GetText();
 
-            return new IOntologyInstance[] { partyMembership, mnisPartyMembership };
+            return new IResource[] { partyMembership, mnisPartyMembership };
         }
 
-        public override Dictionary<string, object> GetKeysFromSource(IOntologyInstance[] deserializedSource)
+        public override Dictionary<string, object> GetKeysFromSource(IResource[] deserializedSource)
         {
             string partyMembershipMnisId = deserializedSource.OfType<IMnisPartyMembership>()
                 .SingleOrDefault()
@@ -62,10 +62,10 @@ namespace Functions.TransformationPartyMembershipMnis
             };
         }
 
-        public override IOntologyInstance[] SynchronizeIds(IOntologyInstance[] source, Uri subjectUri, IOntologyInstance[] target)
+        public override IResource[] SynchronizeIds(IResource[] source, Uri subjectUri, IResource[] target)
         {
             foreach (IPartyMembership partyMembership in source.OfType<IPartyMembership>())
-                partyMembership.SubjectUri = subjectUri;
+                partyMembership.Id = subjectUri;
             return source.OfType<IPartyMembership>().ToArray();
         }
 

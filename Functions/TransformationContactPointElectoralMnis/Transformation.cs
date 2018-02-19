@@ -1,5 +1,5 @@
-﻿using Parliament.Ontology.Base;
-using Parliament.Ontology.Code;
+﻿using Parliament.Rdf;
+using Parliament.Model;
 using System;
 using System.Xml.Linq;
 using VDS.RDF.Query;
@@ -8,7 +8,7 @@ namespace Functions.TransformationContactPointElectoralMnis
 {
     public class Transformation : BaseTransformationContactPoint<Settings>
     {
-        public override IOntologyInstance[] TransformSource(string response)
+        public override IResource[] TransformSource(string response)
         {
             IMnisContactPoint contactPoint = new MnisContactPoint();
             XDocument doc = XDocument.Parse(response);
@@ -25,7 +25,7 @@ namespace Functions.TransformationContactPointElectoralMnis
             if (incumbency != null)
                 contactPoint.ContactPointHasElectoralIncumbency = new IElectoralIncumbency[] { incumbency };
 
-            return new IOntologyInstance[] { contactPoint };
+            return new IResource[] { contactPoint };
         }
 
         private IElectoralIncumbency generateIncumbency(XElement contactPointElement)
@@ -55,7 +55,7 @@ namespace Functions.TransformationContactPointElectoralMnis
             if (incumbencyUri != null)
                 incumbency = new ElectoralIncumbency()
                 {
-                    SubjectUri = incumbencyUri
+                    Id = incumbencyUri
                 };
             else
                 logger.Verbose("No contact found");

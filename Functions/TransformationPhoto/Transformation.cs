@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Parliament.Ontology.Base;
-using Parliament.Ontology.Code;
+using Parliament.Rdf;
+using Parliament.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +10,7 @@ namespace Functions.TransformationPhoto
 {
     public class Transformation : BaseTransformation<Settings>
     {
-        public override IOntologyInstance[] TransformSource(string response)
+        public override IResource[] TransformSource(string response)
         {
             IMemberImage memberImage = new MemberImage();
             JObject jsonResponse = (JObject)JsonConvert.DeserializeObject(response);
@@ -21,13 +21,13 @@ namespace Functions.TransformationPhoto
                 logger.Warning("No image resource uri info found");
                 return null;
             }
-            memberImage.SubjectUri = new Uri($"{idNamespace}{imageResourceUri}");
+            memberImage.Id = new Uri($"{idNamespace}{imageResourceUri}");
 
             bool? photoTakenDown = ((JValue)jsonResponse.SelectToken("Photo_x0020_Taken_x0020_Down")).GetBoolean();
             if (photoTakenDown == true)
             {
                 logger.Verbose("Image information marked as removed");
-                return new IOntologyInstance[] { memberImage };
+                return new IResource[] { memberImage };
             }
 
             var mnisId = ((JValue)jsonResponse.SelectToken("Person_x0020_MnisId"))?.Value;
@@ -46,7 +46,7 @@ namespace Functions.TransformationPhoto
                     {
                         new Member()
                         {
-                            SubjectUri=personUri
+                            Id=personUri
                         }
                     };
             }
@@ -68,25 +68,25 @@ namespace Functions.TransformationPhoto
                 string.Format("POINT({0} {1})", midXStr, midYStr)
             };
 
-            return new IOntologyInstance[] { memberImage };
+            return new IResource[] { memberImage };
         }
 
-        public override Dictionary<string, object> GetKeysFromSource(IOntologyInstance[] deserializedSource)
+        public override Dictionary<string, object> GetKeysFromSource(IResource[] deserializedSource)
         {
             Uri subjectUri = deserializedSource.OfType<IMemberImage>()
                 .SingleOrDefault()
-                .SubjectUri;
+                .Id;
             return new Dictionary<string, object>()
             {
                 { "subjectUri", subjectUri }
             };
         }
 
-        public override IOntologyInstance[] SynchronizeIds(IOntologyInstance[] source, Uri subjectUri, IOntologyInstance[] target)
+        public override IResource[] SynchronizeIds(IResource[] source, Uri subjectUri, IResource[] target)
         {
             IMemberImage memberImage = source.OfType<IMemberImage>().SingleOrDefault();
 
-            return new IOntologyInstance[] { memberImage };
+            return new IResource[] { memberImage };
         }
         
     }

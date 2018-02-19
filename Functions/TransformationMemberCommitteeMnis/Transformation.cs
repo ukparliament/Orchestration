@@ -1,5 +1,5 @@
-﻿using Parliament.Ontology.Base;
-using Parliament.Ontology.Code;
+﻿using Parliament.Rdf;
+using Parliament.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,7 +13,7 @@ namespace Functions.TransformationMemberCommitteeMnis
         private XNamespace d = "http://schemas.microsoft.com/ado/2007/08/dataservices";
         private XNamespace m = "http://schemas.microsoft.com/ado/2007/08/dataservices/metadata";
 
-        public override IOntologyInstance[] TransformSource(string response)
+        public override IResource[] TransformSource(string response)
         {
             IMnisFormalBodyMembership mnisFormalBodyMembership = new MnisFormalBodyMembership();
             XDocument doc = XDocument.Parse(response);
@@ -28,7 +28,7 @@ namespace Functions.TransformationMemberCommitteeMnis
             pastFormalBodyMembership.FormalBodyMembershipEndDate = formalBodyElement.Element(d + "EndDate").GetDate();
             IFormalBodyMembership formalBodyMembership = generateMembershipMember(formalBodyElement);
 
-            return new IOntologyInstance[] { mnisFormalBodyMembership, pastFormalBodyMembership, formalBodyMembership };
+            return new IResource[] { mnisFormalBodyMembership, pastFormalBodyMembership, formalBodyMembership };
         }
 
         private IFormalBodyMembership generateMembershipMember(XElement formalBodyElement)
@@ -45,7 +45,7 @@ namespace Functions.TransformationMemberCommitteeMnis
                         {
                             ExOfficioMembershipHasMember = new Member()
                             {
-                                SubjectUri = personUri
+                                Id = personUri
                             }
                         };
                     else
@@ -53,7 +53,7 @@ namespace Functions.TransformationMemberCommitteeMnis
                         {
                             FormalBodyMembershipHasPerson = new Member()
                             {
-                                SubjectUri = personUri
+                                Id = personUri
                             }
                         };
                 }
@@ -75,7 +75,7 @@ namespace Functions.TransformationMemberCommitteeMnis
                 if (formalBodyUri != null)
                     formalBody = new FormalBody()
                     {
-                        SubjectUri = formalBodyUri
+                        Id = formalBodyUri
                     };
                 else
                     logger.Warning($"No committee found for id {committeeId}");
@@ -85,7 +85,7 @@ namespace Functions.TransformationMemberCommitteeMnis
             return formalBody;
         }
 
-        public override Dictionary<string, object> GetKeysFromSource(IOntologyInstance[] deserializedSource)
+        public override Dictionary<string, object> GetKeysFromSource(IResource[] deserializedSource)
         {
             string formalBodyMembershipMnisId = deserializedSource.OfType<IMnisFormalBodyMembership>()
                 .SingleOrDefault()
@@ -96,10 +96,10 @@ namespace Functions.TransformationMemberCommitteeMnis
             };
         }
 
-        public override IOntologyInstance[] SynchronizeIds(IOntologyInstance[] source, Uri subjectUri, IOntologyInstance[] target)
+        public override IResource[] SynchronizeIds(IResource[] source, Uri subjectUri, IResource[] target)
         {
             foreach (IFormalBodyMembership formalBodyMembership in source.OfType<IFormalBodyMembership>())
-                formalBodyMembership.SubjectUri = subjectUri;
+                formalBodyMembership.Id = subjectUri;
             return source.OfType<IFormalBodyMembership>().ToArray();
         }
 

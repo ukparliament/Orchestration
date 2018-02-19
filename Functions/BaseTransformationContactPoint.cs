@@ -1,5 +1,5 @@
-﻿using Parliament.Ontology.Base;
-using Parliament.Ontology.Code;
+﻿using Parliament.Rdf;
+using Parliament.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,18 +14,18 @@ namespace Functions
         protected XNamespace d = "http://schemas.microsoft.com/ado/2007/08/dataservices";
         protected XNamespace m = "http://schemas.microsoft.com/ado/2007/08/dataservices/metadata";
 
-        public override IOntologyInstance[] SynchronizeIds(IOntologyInstance[] source, Uri subjectUri, IOntologyInstance[] target)
+        public override IResource[] SynchronizeIds(IResource[] source, Uri subjectUri, IResource[] target)
         {
             IMnisContactPoint contactPoint = source.OfType<IMnisContactPoint>().SingleOrDefault();
-            contactPoint.SubjectUri = subjectUri;
+            contactPoint.Id = subjectUri;
             IPostalAddress postalAddress = target.OfType<IPostalAddress>().SingleOrDefault();
             if ((postalAddress != null) && (contactPoint.ContactPointHasPostalAddress != null))
-                contactPoint.ContactPointHasPostalAddress.SubjectUri = postalAddress.SubjectUri;
+                contactPoint.ContactPointHasPostalAddress.Id = postalAddress.Id;
 
-            return new IOntologyInstance[] { contactPoint };
+            return new IResource[] { contactPoint };
         }
 
-        public override Dictionary<string, object> GetKeysFromSource(IOntologyInstance[] deserializedSource)
+        public override Dictionary<string, object> GetKeysFromSource(IResource[] deserializedSource)
         {
             string contactPointMnisId = deserializedSource.OfType<IMnisContactPoint>()
                 .SingleOrDefault()
@@ -50,7 +50,7 @@ namespace Functions
             {
                 postalAddress = new PostalAddress()
                 {
-                    SubjectUri = GenerateNewId()
+                    Id = GenerateNewId()
                 };
                 for (var i = 0; i < addresses.Count; i++)
                     switch (i)
@@ -78,7 +78,7 @@ namespace Functions
                 if (postalAddress == null)
                     postalAddress = new PostalAddress()
                     {
-                        SubjectUri = GenerateNewId()
+                        Id = GenerateNewId()
                     };
                 postalAddress.PostCode = postCode;
             }

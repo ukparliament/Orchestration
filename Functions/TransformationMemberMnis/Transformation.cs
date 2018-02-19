@@ -1,5 +1,5 @@
-﻿using Parliament.Ontology.Base;
-using Parliament.Ontology.Code;
+﻿using Parliament.Rdf;
+using Parliament.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,7 +14,7 @@ namespace Functions.TransformationMemberMnis
         private XNamespace d = "http://schemas.microsoft.com/ado/2007/08/dataservices";
         private XNamespace m = "http://schemas.microsoft.com/ado/2007/08/dataservices/metadata";
 
-        public override IOntologyInstance[] TransformSource(string response)
+        public override IResource[] TransformSource(string response)
         {
             IMember member = new Member();
             XDocument doc = XDocument.Parse(response);
@@ -42,10 +42,10 @@ namespace Functions.TransformationMemberMnis
                 member.PersonHasGenderIdentity = new IGenderIdentity[] { genderIdentity };
             }
 
-            return new IOntologyInstance[] { member, mnisMember, dodsPerson, pimsPerson, deceasedPerson};
+            return new IResource[] { member, mnisMember, dodsPerson, pimsPerson, deceasedPerson};
         }
 
-        public override Dictionary<string, object> GetKeysFromSource(IOntologyInstance[] deserializedSource)
+        public override Dictionary<string, object> GetKeysFromSource(IResource[] deserializedSource)
         {
             string memberMnisId = deserializedSource.OfType<IMnisMember>()
                 .SingleOrDefault()
@@ -56,34 +56,34 @@ namespace Functions.TransformationMemberMnis
             };
         }
 
-        public override Dictionary<string, object> GetKeysForTarget(IOntologyInstance[] deserializedSource)
+        public override Dictionary<string, object> GetKeysForTarget(IResource[] deserializedSource)
         {
             Uri genderUri = deserializedSource.OfType<IMember>()
                 .SingleOrDefault()
                 .PersonHasGenderIdentity
                 .SingleOrDefault()
                 .GenderIdentityHasGender
-                .SubjectUri;
+                .Id;
             return new Dictionary<string, object>()
             {
                 { "gender", genderUri }
             };
         }
 
-        public override IOntologyInstance[] SynchronizeIds(IOntologyInstance[] source, Uri subjectUri, IOntologyInstance[] target)
+        public override IResource[] SynchronizeIds(IResource[] source, Uri subjectUri, IResource[] target)
         {
             IMember member = source.OfType<IMember>().SingleOrDefault();
             if ((member.PersonHasGenderIdentity != null) && (member.PersonHasGenderIdentity.Any()))
             {
                 IGenderIdentity genderIdentity = target.OfType<IGenderIdentity>().SingleOrDefault();
                 if (genderIdentity != null)
-                    member.PersonHasGenderIdentity.SingleOrDefault().SubjectUri = genderIdentity.SubjectUri;
+                    member.PersonHasGenderIdentity.SingleOrDefault().Id = genderIdentity.Id;
             }
             
             foreach (IPerson person in source.OfType<IPerson>())
-                person.SubjectUri = subjectUri; 
+                person.Id = subjectUri; 
             
-            IOntologyInstance[] people = source.OfType<IPerson>().ToArray();
+            IResource[] people = source.OfType<IPerson>().ToArray();
             return people.ToArray();
         }
 
@@ -111,8 +111,8 @@ namespace Functions.TransformationMemberMnis
         {
             IGenderIdentity genderIdentity = new GenderIdentity();
             IGender gender = new Gender();
-            genderIdentity.SubjectUri = GenerateNewId();
-            gender.SubjectUri = IdRetrieval.GetSubject("genderMnisId", currentGenderText, false, logger);
+            genderIdentity.Id = GenerateNewId();
+            gender.Id = IdRetrieval.GetSubject("genderMnisId", currentGenderText, false, logger);
             genderIdentity.GenderIdentityHasGender = gender;
             return genderIdentity;
         }

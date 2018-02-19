@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Parliament.Ontology.Base;
-using Parliament.Ontology.Code;
+using Parliament.Rdf;
+using Parliament.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,7 +12,7 @@ namespace Functions.TransformationLordsSeatIncumbency
     public class Transformation : BaseTransformation<Settings>
     {
         
-        public override IOntologyInstance[] TransformSource(string response)
+        public override IResource[] TransformSource(string response)
         {
             IMnisSeatIncumbency mnisSeatIncumbency = new MnisSeatIncumbency();
             JObject jsonResponse = (JObject)JsonConvert.DeserializeObject(response);
@@ -27,7 +27,7 @@ namespace Functions.TransformationLordsSeatIncumbency
             else
             {
                 if (Uri.TryCreate($"{idNamespace}{id}", UriKind.Absolute, out uri))
-                    mnisSeatIncumbency.SubjectUri = uri;
+                    mnisSeatIncumbency.Id = uri;
                 else
                 {
                     logger.Warning($"Invalid url '{id}' found");
@@ -40,7 +40,7 @@ namespace Functions.TransformationLordsSeatIncumbency
             else
                 mnisSeatIncumbency.SeatIncumbencyHasHouseSeat = new HouseSeat()
                 {
-                    SubjectUri = houseSeatUri
+                    Id = houseSeatUri
                 };
 
             Uri personUri = giveMeUri(jsonResponse, "Person_x0020_ID_x0020__x0028_for");
@@ -49,7 +49,7 @@ namespace Functions.TransformationLordsSeatIncumbency
             else
                 mnisSeatIncumbency.ParliamentaryIncumbencyHasMember = new Member()
                 {
-                    SubjectUri = personUri
+                    Id = personUri
                 };
 
             float? mnisId=((JValue)jsonResponse.SelectToken("MNIS_x0020_ID")).GetFloat();
@@ -58,32 +58,32 @@ namespace Functions.TransformationLordsSeatIncumbency
             mnisSeatIncumbency.ParliamentaryIncumbencyStartDate= ((JValue)jsonResponse.SelectToken("Start_x0020_Date")).GetDate();
 
             IPastParliamentaryIncumbency pastIncumbency = new PastParliamentaryIncumbency();
-            pastIncumbency.SubjectUri = mnisSeatIncumbency.SubjectUri;
+            pastIncumbency.Id = mnisSeatIncumbency.Id;
             pastIncumbency.ParliamentaryIncumbencyEndDate= ((JValue)jsonResponse.SelectToken("End_x0020_Date")).GetDate();
 
             mnisSeatIncumbency.SeatIncumbencyHasParliamentPeriod = giveMeParliamentPeriods(mnisSeatIncumbency.ParliamentaryIncumbencyStartDate.Value, pastIncumbency.ParliamentaryIncumbencyEndDate);
             if (mnisSeatIncumbency.SeatIncumbencyHasParliamentPeriod == null)
                 return null;
 
-            return new IOntologyInstance[] { mnisSeatIncumbency, pastIncumbency };
+            return new IResource[] { mnisSeatIncumbency, pastIncumbency };
         }
 
-        public override Dictionary<string, object> GetKeysFromSource(IOntologyInstance[] deserializedSource)
+        public override Dictionary<string, object> GetKeysFromSource(IResource[] deserializedSource)
         {
             Uri subjectUri = deserializedSource.OfType<IMnisSeatIncumbency>()
                 .SingleOrDefault()
-                .SubjectUri;
+                .Id;
             return new Dictionary<string, object>()
             {
                 { "subjectUri", subjectUri }
             };
         }
 
-        public override IOntologyInstance[] SynchronizeIds(IOntologyInstance[] source, Uri subjectUri, IOntologyInstance[] target)
+        public override IResource[] SynchronizeIds(IResource[] source, Uri subjectUri, IResource[] target)
         {
             IParliamentaryIncumbency[] incumbencies = source.OfType<IParliamentaryIncumbency>().ToArray();
 
-            return incumbencies as IOntologyInstance[];
+            return incumbencies as IResource[];
         }
 
         private Uri giveMeUri(JObject jsonResponse, string tokenName)
@@ -130,7 +130,7 @@ namespace Functions.TransformationLordsSeatIncumbency
             if (parliamentPeriodUris != null)
                 return parliamentPeriodUris.Select(p => new ParliamentPeriod()
                 {
-                    SubjectUri = p
+                    Id = p
                 });
             else
                 return null;

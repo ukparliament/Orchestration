@@ -1,5 +1,5 @@
-﻿using Parliament.Ontology.Base;
-using Parliament.Ontology.Code;
+﻿using Parliament.Rdf;
+using Parliament.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +9,7 @@ namespace Functions.TransformationGovernmentPostMnis
 {
     public class Transformation : BaseTransformation<Settings>
     {
-        public override IOntologyInstance[] TransformSource(string response)
+        public override IResource[] TransformSource(string response)
         {
             IMnisGovernmentPosition governmentPosition = new MnisGovernmentPosition();
             XDocument doc = XDocument.Parse(response);
@@ -36,15 +36,15 @@ namespace Functions.TransformationGovernmentPostMnis
                     {
                         Uri departmentUri = IdRetrieval.GetSubject("mnisDepartmentId", departmentId, false, logger);
                         if (departmentUri != null)
-                            groups.Add(new Group() { SubjectUri = departmentUri });                            
+                            groups.Add(new Group() { Id = departmentUri });                            
                     }
                 }
             }
             governmentPosition.PositionHasGroup = groups;
-            return new IOntologyInstance[] { governmentPosition };
+            return new IResource[] { governmentPosition };
         }
 
-        public override Dictionary<string, object> GetKeysFromSource(IOntologyInstance[] deserializedSource)
+        public override Dictionary<string, object> GetKeysFromSource(IResource[] deserializedSource)
         {
             string governmentPositionMnisId = deserializedSource.OfType<IMnisGovernmentPosition>()
                 .SingleOrDefault()
@@ -55,12 +55,12 @@ namespace Functions.TransformationGovernmentPostMnis
             };
         }
 
-        public override IOntologyInstance[] SynchronizeIds(IOntologyInstance[] source, Uri subjectUri, IOntologyInstance[] target)
+        public override IResource[] SynchronizeIds(IResource[] source, Uri subjectUri, IResource[] target)
         {
             IMnisGovernmentPosition governmentPosition = source.OfType<IMnisGovernmentPosition>().SingleOrDefault();
-            governmentPosition.SubjectUri = subjectUri;
+            governmentPosition.Id = subjectUri;
 
-            return new IOntologyInstance[] { governmentPosition };
+            return new IResource[] { governmentPosition };
         }
 
     }

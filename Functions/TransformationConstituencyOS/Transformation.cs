@@ -1,6 +1,6 @@
 ﻿using Functions.TransformationConstituencyOS.EastingNorthingConversion;
-using Parliament.Ontology.Base;
-using Parliament.Ontology.Code;
+using Parliament.Rdf;
+using Parliament.Model;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -12,7 +12,7 @@ namespace Functions.TransformationConstituencyOS
 {
     public class Transformation : BaseTransformation<Settings>
     {
-        public override IOntologyInstance[] TransformSource(string response)
+        public override IResource[] TransformSource(string response)
         {
             RDF sourceConstituency = new RDF();
             using (StringReader reader = new StringReader(response))
@@ -27,10 +27,10 @@ namespace Functions.TransformationConstituencyOS
                 if (sourceConstituency.Description.asGML != null)
                     constituency.ConstituencyGroupHasConstituencyArea = generateConstituencyArea(sourceConstituency.Description);
             }
-            return new IOntologyInstance[] { constituency };
+            return new IResource[] { constituency };
         }
 
-        public override Dictionary<string, object> GetKeysFromSource(IOntologyInstance[] deserializedSource)
+        public override Dictionary<string, object> GetKeysFromSource(IResource[] deserializedSource)
         {
             string constituencyGroupOnsCode = deserializedSource.OfType<IOnsConstituencyGroup>()
                 .SingleOrDefault()
@@ -41,21 +41,21 @@ namespace Functions.TransformationConstituencyOS
             };
         }
 
-        public override IOntologyInstance[] SynchronizeIds(IOntologyInstance[] source, Uri subjectUri, IOntologyInstance[] target)
+        public override IResource[] SynchronizeIds(IResource[] source, Uri subjectUri, IResource[] target)
         {
             IOnsConstituencyGroup constituency = source.OfType<IOnsConstituencyGroup>().SingleOrDefault();
-            constituency.SubjectUri = subjectUri;
+            constituency.Id = subjectUri;
             IConstituencyArea constituencyArea = target.OfType<IConstituencyArea>().SingleOrDefault();
             if ((constituencyArea != null) && (constituency.ConstituencyGroupHasConstituencyArea != null))
-                constituency.ConstituencyGroupHasConstituencyArea.SubjectUri = constituencyArea.SubjectUri;
+                constituency.ConstituencyGroupHasConstituencyArea.Id = constituencyArea.Id;
 
-            return new IOntologyInstance[] { constituency };
+            return new IResource[] { constituency };
         }
 
         private IConstituencyArea generateConstituencyArea(RDFDescription description)
         {
             IConstituencyArea constituencyArea = new ConstituencyArea();
-            constituencyArea.SubjectUri = GenerateNewId();
+            constituencyArea.Id = GenerateNewId();
             if (description.lat != null)
                 constituencyArea.ConstituencyAreaLatitude = description.lat.Value;
             if (description.@long != null)

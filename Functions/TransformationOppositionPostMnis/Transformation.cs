@@ -1,5 +1,5 @@
-﻿using Parliament.Ontology.Base;
-using Parliament.Ontology.Code;
+﻿using Parliament.Rdf;
+using Parliament.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +9,7 @@ namespace Functions.TransformationOppositionPostMnis
 {
     public class Transformation : BaseTransformation<Settings>
     {
-        public override IOntologyInstance[] TransformSource(string response)
+        public override IResource[] TransformSource(string response)
         {
             IMnisOppositionPosition oppositionPosition = new MnisOppositionPosition();
             XDocument doc = XDocument.Parse(response);
@@ -20,10 +20,10 @@ namespace Functions.TransformationOppositionPostMnis
             oppositionPosition.OppositionPositionMnisId = element.Element(d + "OppositionPost_Id").GetText();
             oppositionPosition.PositionName = element.Element(d + "Name").GetText();
 
-            return new IOntologyInstance[] { oppositionPosition };
+            return new IResource[] { oppositionPosition };
         }
 
-        public override Dictionary<string, object> GetKeysFromSource(IOntologyInstance[] deserializedSource)
+        public override Dictionary<string, object> GetKeysFromSource(IResource[] deserializedSource)
         {
             string oppositionPositionMnisId = deserializedSource.OfType<IMnisOppositionPosition>()
                 .SingleOrDefault()
@@ -34,12 +34,12 @@ namespace Functions.TransformationOppositionPostMnis
             };
         }
 
-        public override IOntologyInstance[] SynchronizeIds(IOntologyInstance[] source, Uri subjectUri, IOntologyInstance[] target)
+        public override IResource[] SynchronizeIds(IResource[] source, Uri subjectUri, IResource[] target)
         {
             IMnisOppositionPosition oppositionPosition = source.OfType<IMnisOppositionPosition>().SingleOrDefault();
-            oppositionPosition.SubjectUri = subjectUri;
+            oppositionPosition.Id = subjectUri;
 
-            return new IOntologyInstance[] { oppositionPosition };
+            return new IResource[] { oppositionPosition };
         }
 
     }

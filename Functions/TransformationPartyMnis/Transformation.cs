@@ -1,5 +1,5 @@
-﻿using Parliament.Ontology.Base;
-using Parliament.Ontology.Code;
+﻿using Parliament.Rdf;
+using Parliament.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +9,7 @@ namespace Functions.TransformationPartyMnis
 {
     public class Transformation : BaseTransformation<Settings>
     {
-        public override IOntologyInstance[] TransformSource(string response)
+        public override IResource[] TransformSource(string response)
         {
             IMnisParty party = new MnisParty();
             XDocument doc = XDocument.Parse(response);
@@ -20,10 +20,10 @@ namespace Functions.TransformationPartyMnis
             party.PartyMnisId = element.Element(d + "Party_Id").GetText();
             party.PartyName = element.Element(d + "Name").GetText();
 
-            return new IOntologyInstance[] { party };
+            return new IResource[] { party };
         }
 
-        public override Dictionary<string, object> GetKeysFromSource(IOntologyInstance[] deserializedSource)
+        public override Dictionary<string, object> GetKeysFromSource(IResource[] deserializedSource)
         {
             string partyMnisId = deserializedSource.OfType<IMnisParty>()
                 .SingleOrDefault()
@@ -34,12 +34,12 @@ namespace Functions.TransformationPartyMnis
             };
         }
 
-        public override IOntologyInstance[] SynchronizeIds(IOntologyInstance[] source, Uri subjectUri, IOntologyInstance[] target)
+        public override IResource[] SynchronizeIds(IResource[] source, Uri subjectUri, IResource[] target)
         {
             IMnisParty party = source.OfType<IMnisParty>().SingleOrDefault();
-            party.SubjectUri = subjectUri;
+            party.Id = subjectUri;
 
-            return new IOntologyInstance[] { party };
+            return new IResource[] { party };
         }
     }
 }

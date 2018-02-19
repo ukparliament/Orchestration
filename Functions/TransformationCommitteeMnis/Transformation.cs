@@ -1,6 +1,6 @@
 ﻿using Functions.IdGenerator;
-using Parliament.Ontology.Base;
-using Parliament.Ontology.Code;
+using Parliament.Rdf;
+using Parliament.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,7 +14,7 @@ namespace Functions.TransformationCommitteeMnis
         private XNamespace d = "http://schemas.microsoft.com/ado/2007/08/dataservices";
         private XNamespace m = "http://schemas.microsoft.com/ado/2007/08/dataservices/metadata";
 
-        public override IOntologyInstance[] TransformSource(string response)
+        public override IResource[] TransformSource(string response)
         {
             IMnisFormalBody formalBody = new MnisFormalBody();
             XDocument doc = XDocument.Parse(response);
@@ -35,14 +35,14 @@ namespace Functions.TransformationCommitteeMnis
                     {
                         new FormalBody()
                         {
-                            SubjectUri=parentUri
+                            Id=parentUri
                         }
                     };
             }
             IPastFormalBody pastFormalBody = new PastFormalBody();
             pastFormalBody.FormalBodyEndDate = formalBodyElement.Element(d + "EndDate").GetDate();
 
-            return new IOntologyInstance[] { formalBody, pastFormalBody };
+            return new IResource[] { formalBody, pastFormalBody };
         }
 
         private List<IHouse> generateHouseMembership(XElement formalBodyElement)
@@ -54,7 +54,7 @@ namespace Functions.TransformationCommitteeMnis
                 if (houseOfCommonsUri != null)
                     houses.Add(new House()
                     {
-                        SubjectUri = houseOfCommonsUri
+                        Id = houseOfCommonsUri
                     });
             }
             if (formalBodyElement.Element(d + "IsLords").GetBoolean() == true)
@@ -63,14 +63,14 @@ namespace Functions.TransformationCommitteeMnis
                 if (houseOfCommonsUri != null)
                     houses.Add(new House()
                     {
-                        SubjectUri = houseOfCommonsUri
+                        Id = houseOfCommonsUri
                     });
             }
 
             return houses;
         }
 
-        public override Dictionary<string, object> GetKeysFromSource(IOntologyInstance[] deserializedSource)
+        public override Dictionary<string, object> GetKeysFromSource(IResource[] deserializedSource)
         {
             string formalBodyMnisId = deserializedSource.OfType<IMnisFormalBody>()
                 .SingleOrDefault()
@@ -81,21 +81,21 @@ namespace Functions.TransformationCommitteeMnis
             };
         }
 
-        public override IOntologyInstance[] SynchronizeIds(IOntologyInstance[] source, Uri subjectUri, IOntologyInstance[] target)
+        public override IResource[] SynchronizeIds(IResource[] source, Uri subjectUri, IResource[] target)
         {
             foreach (IFormalBody formalBody in source.OfType<IFormalBody>())
-                formalBody.SubjectUri = subjectUri;
+                formalBody.Id = subjectUri;
             IMnisFormalBody mnisFormalBody = source.OfType<IMnisFormalBody>().SingleOrDefault();
             FormalBodyChair targetFormalBodyChair = target.OfType<FormalBodyChair>().SingleOrDefault();
-            if ((targetFormalBodyChair != null) && (targetFormalBodyChair.SubjectUri != null))
+            if ((targetFormalBodyChair != null) && (targetFormalBodyChair.Id != null))
                 mnisFormalBody.FormalBodyHasFormalBodyChair = new FormalBodyChair()
                 {
-                    SubjectUri = targetFormalBodyChair.SubjectUri
+                    Id = targetFormalBodyChair.Id
                 };
             else
                 mnisFormalBody.FormalBodyHasFormalBodyChair = new FormalBodyChair()
                 {
-                    SubjectUri = GenerateNewId()
+                    Id = GenerateNewId()
                 };
             return source.OfType<IFormalBody>().ToArray();
         }

@@ -1,5 +1,5 @@
-﻿using Parliament.Ontology.Base;
-using Parliament.Ontology.Code;
+﻿using Parliament.Rdf;
+using Parliament.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,7 +13,7 @@ namespace Functions.TransformationDepartmentMnis
         private XNamespace d = "http://schemas.microsoft.com/ado/2007/08/dataservices";
         private XNamespace m = "http://schemas.microsoft.com/ado/2007/08/dataservices/metadata";
 
-        public override IOntologyInstance[] TransformSource(string response)
+        public override IResource[] TransformSource(string response)
         {
             IMnisDepartmentGroup department = new MnisDepartmentGroup();
 
@@ -28,10 +28,10 @@ namespace Functions.TransformationDepartmentMnis
             IPastGroup pastGroup = new PastGroup();
             pastGroup.GroupEndDate = departmentElement.Element(d + "EndDate").GetDate();
 
-            return new IOntologyInstance[] { department, pastGroup };
+            return new IResource[] { department, pastGroup };
         }
 
-        public override Dictionary<string, object> GetKeysFromSource(IOntologyInstance[] deserializedSource)
+        public override Dictionary<string, object> GetKeysFromSource(IResource[] deserializedSource)
         {
             string mnisDepartmentId = deserializedSource.OfType<IMnisDepartmentGroup>()
                 .SingleOrDefault()
@@ -42,12 +42,12 @@ namespace Functions.TransformationDepartmentMnis
             };
         }
 
-        public override IOntologyInstance[] SynchronizeIds(IOntologyInstance[] source, Uri subjectUri, IOntologyInstance[] target)
+        public override IResource[] SynchronizeIds(IResource[] source, Uri subjectUri, IResource[] target)
         {
             foreach (IGroup group in source.OfType<IGroup>())
-                group.SubjectUri = subjectUri;
+                group.Id = subjectUri;
 
-            IOntologyInstance[] groups = source.OfType<IGroup>().ToArray();
+            IResource[] groups = source.OfType<IGroup>().ToArray();
             return groups.ToArray();
         }
     }

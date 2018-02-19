@@ -1,5 +1,5 @@
-﻿using Parliament.Ontology.Base;
-using Parliament.Ontology.Code;
+﻿using Parliament.Rdf;
+using Parliament.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,7 +15,7 @@ namespace Functions.TransformationGovernmentIncumbencyMnis
         private XNamespace d = "http://schemas.microsoft.com/ado/2007/08/dataservices";
         private XNamespace m = "http://schemas.microsoft.com/ado/2007/08/dataservices/metadata";
 
-        public override IOntologyInstance[] TransformSource(string response)
+        public override IResource[] TransformSource(string response)
         {
             XDocument doc = XDocument.Parse(response);
             XElement governmentIncumbencyElement = doc.Element(atom + "entry")
@@ -34,7 +34,7 @@ namespace Functions.TransformationGovernmentIncumbencyMnis
             }
             governmentIncumbency.GovernmentIncumbencyHasGovernmentPosition = new GovernmentPosition()
             {
-                SubjectUri = governmentPostUri
+                Id = governmentPostUri
             };
             string memberId = governmentIncumbencyElement.Element(d + "Member_Id").GetText();
             Uri memberUri = IdRetrieval.GetSubject("memberMnisId", memberId, false, logger);
@@ -45,16 +45,16 @@ namespace Functions.TransformationGovernmentIncumbencyMnis
             }
             governmentIncumbency.GovernmentIncumbencyHasGovernmentPerson = new GovernmentPerson()
             {
-                SubjectUri = memberUri
+                Id = memberUri
             };
             IPastIncumbency incumbency = new PastIncumbency();
-            incumbency.SubjectUri = governmentIncumbency.SubjectUri;
+            incumbency.Id = governmentIncumbency.Id;
             incumbency.IncumbencyEndDate = governmentIncumbencyElement.Element(d + "EndDate").GetDate();
 
-            return new IOntologyInstance[] { governmentIncumbency, incumbency };
+            return new IResource[] { governmentIncumbency, incumbency };
         }
 
-        public override Dictionary<string, object> GetKeysFromSource(IOntologyInstance[] deserializedSource)
+        public override Dictionary<string, object> GetKeysFromSource(IResource[] deserializedSource)
         {
             string governmentIncumbencyMnisId = deserializedSource.OfType<IMnisGovernmentIncumbency>()
                 .SingleOrDefault()
@@ -65,10 +65,10 @@ namespace Functions.TransformationGovernmentIncumbencyMnis
             };
         }
 
-        public override IOntologyInstance[] SynchronizeIds(IOntologyInstance[] source, Uri subjectUri, IOntologyInstance[] target)
+        public override IResource[] SynchronizeIds(IResource[] source, Uri subjectUri, IResource[] target)
         {
             foreach (IIncumbency incumbency in source.OfType<IIncumbency>())
-                incumbency.SubjectUri = subjectUri;
+                incumbency.Id = subjectUri;
             return source.OfType<IIncumbency>().ToArray();
         }
 

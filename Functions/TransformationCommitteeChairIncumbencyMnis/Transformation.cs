@@ -1,5 +1,5 @@
-﻿using Parliament.Ontology.Base;
-using Parliament.Ontology.Code;
+﻿using Parliament.Model;
+using Parliament.Rdf;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,7 +14,7 @@ namespace Functions.TransformationCommitteeChairIncumbencyMnis
         XNamespace d = "http://schemas.microsoft.com/ado/2007/08/dataservices";
         XNamespace m = "http://schemas.microsoft.com/ado/2007/08/dataservices/metadata";
 
-        public override IOntologyInstance[] TransformSource(string response)
+        public override IResource[] TransformSource(string response)
         {
             IMnisFormalBodyChairIncumbency mnisIncumbency = new MnisFormalBodyChairIncumbency();
             XDocument doc = XDocument.Parse(response);
@@ -34,10 +34,10 @@ namespace Functions.TransformationCommitteeChairIncumbencyMnis
             IPastIncumbency pastIncumbency = new PastIncumbency();
             pastIncumbency.IncumbencyEndDate = elementIncumbency.Element(d + "EndDate").GetDate();
 
-            return new IOntologyInstance[] { mnisIncumbency, pastIncumbency };
+            return new IResource[] { mnisIncumbency, pastIncumbency };
         }
 
-        public override Dictionary<string, object> GetKeysFromSource(IOntologyInstance[] deserializedSource)
+        public override Dictionary<string, object> GetKeysFromSource(IResource[] deserializedSource)
         {
             string formalBodyChairIncumbencyMnisId = deserializedSource.OfType<IMnisFormalBodyChairIncumbency>()
                 .SingleOrDefault()
@@ -48,10 +48,10 @@ namespace Functions.TransformationCommitteeChairIncumbencyMnis
             };
         }
 
-        public override IOntologyInstance[] SynchronizeIds(IOntologyInstance[] source, Uri subjectUri, IOntologyInstance[] target)
+        public override IResource[] SynchronizeIds(IResource[] source, Uri subjectUri, IResource[] target)
         {
             foreach (IIncumbency incumbency in source.OfType<IIncumbency>())
-                incumbency.SubjectUri = subjectUri;
+                incumbency.Id = subjectUri;
 
             return source.OfType<IIncumbency>().ToArray();
         }
@@ -64,7 +64,7 @@ namespace Functions.TransformationCommitteeChairIncumbencyMnis
                 Uri memberUri = IdRetrieval.GetSubject("memberMnisId", memberId, false, logger);
                 mnisIncumbency.IncumbencyHasPerson = new Person()
                 {
-                    SubjectUri = memberUri
+                    Id = memberUri
                 };
             }
             string committeeId = elementMemberCommittee.Parent.Element(d + "Committee_Id").GetText();
@@ -85,7 +85,7 @@ namespace Functions.TransformationCommitteeChairIncumbencyMnis
                 if (positionUri != null)
                     mnisIncumbency.IncumbencyHasPosition = new Position()
                     {
-                        SubjectUri = positionUri
+                        Id = positionUri
                     };
             }
         }

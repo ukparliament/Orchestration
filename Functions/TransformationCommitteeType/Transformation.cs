@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Parliament.Ontology.Base;
-using Parliament.Ontology.Code;
+using Parliament.Rdf;
+using Parliament.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +10,7 @@ namespace Functions.TransformationCommitteeType
 {
     public class Transformation : BaseTransformation<Settings>
     {
-        public override IOntologyInstance[] TransformSource(string response)
+        public override IResource[] TransformSource(string response)
         {
             IFormalBodyType formalBodyType = new FormalBodyType();
             JObject jsonResponse = (JObject)JsonConvert.DeserializeObject(response);
@@ -24,7 +24,7 @@ namespace Functions.TransformationCommitteeType
             else
             {
                 if (Uri.TryCreate($"{idNamespace}{id}", UriKind.Absolute, out Uri idUri))
-                    formalBodyType.SubjectUri = idUri;
+                    formalBodyType.Id = idUri;
                 else
                 {
                     logger.Warning($"Invalid url '{id}' found");
@@ -33,21 +33,21 @@ namespace Functions.TransformationCommitteeType
             }
             formalBodyType.FormalBodyTypeName= ((JValue)jsonResponse.SelectToken("Title")).GetText();
 
-            return new IOntologyInstance[] { formalBodyType };
+            return new IResource[] { formalBodyType };
         }
 
-        public override Dictionary<string, object> GetKeysFromSource(IOntologyInstance[] deserializedSource)
+        public override Dictionary<string, object> GetKeysFromSource(IResource[] deserializedSource)
         {
             Uri subjectUri = deserializedSource.OfType<IFormalBodyType>()
                 .SingleOrDefault()
-                .SubjectUri;
+                .Id;
             return new Dictionary<string, object>()
             {
                 { "subjectUri", subjectUri }
             };
         }
 
-        public override IOntologyInstance[] SynchronizeIds(IOntologyInstance[] source, Uri subjectUri, IOntologyInstance[] target)
+        public override IResource[] SynchronizeIds(IResource[] source, Uri subjectUri, IResource[] target)
         {
             return source.OfType<IFormalBodyType>().ToArray();
         }

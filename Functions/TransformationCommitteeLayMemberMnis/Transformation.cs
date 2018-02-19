@@ -1,5 +1,5 @@
-﻿using Parliament.Ontology.Base;
-using Parliament.Ontology.Code;
+﻿using Parliament.Rdf;
+using Parliament.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,7 +13,7 @@ namespace Functions.TransformationCommitteeLayMemberMnis
         private XNamespace d = "http://schemas.microsoft.com/ado/2007/08/dataservices";
         private XNamespace m = "http://schemas.microsoft.com/ado/2007/08/dataservices/metadata";
 
-        public override IOntologyInstance[] TransformSource(string response)
+        public override IResource[] TransformSource(string response)
         {
             IMnisFormalBodyLayPerson mnisFormalBodyLayPerson = new MnisFormalBodyLayPerson();
             XDocument doc = XDocument.Parse(response);
@@ -35,10 +35,10 @@ namespace Functions.TransformationCommitteeLayMemberMnis
                     {
                         new GenderIdentity()
                         {
-                            SubjectUri= GenerateNewId(),
+                            Id= GenerateNewId(),
                             GenderIdentityHasGender=new Gender()
                             {
-                                SubjectUri= genderUri
+                                Id= genderUri
                             }
                         }
                     };
@@ -53,10 +53,10 @@ namespace Functions.TransformationCommitteeLayMemberMnis
                     {
                         new PastFormalBodyMembership()
                         {
-                            SubjectUri= GenerateNewId(),
+                            Id= GenerateNewId(),
                             FormalBodyMembershipHasFormalBody=new FormalBody()
                             {
-                                SubjectUri= formalBodyUri
+                                Id= formalBodyUri
                             },
                             FormalBodyMembershipStartDate=formalBodyLayPersonElement.Element(d + "StartDate").GetDate(),
                             FormalBodyMembershipEndDate=formalBodyLayPersonElement.Element(d + "EndDate").GetDate()
@@ -64,10 +64,10 @@ namespace Functions.TransformationCommitteeLayMemberMnis
                     };
             }
 
-            return new IOntologyInstance[] { mnisFormalBodyLayPerson };
+            return new IResource[] { mnisFormalBodyLayPerson };
         }
 
-        public override Dictionary<string, object> GetKeysFromSource(IOntologyInstance[] deserializedSource)
+        public override Dictionary<string, object> GetKeysFromSource(IResource[] deserializedSource)
         {
             string formalBodyLayPersonMnisId = deserializedSource.OfType<IMnisFormalBodyLayPerson>()
                 .SingleOrDefault()
@@ -78,35 +78,35 @@ namespace Functions.TransformationCommitteeLayMemberMnis
             };
         }
 
-        public override Dictionary<string, object> GetKeysForTarget(IOntologyInstance[] deserializedSource)
+        public override Dictionary<string, object> GetKeysForTarget(IResource[] deserializedSource)
         {
             Uri genderUri = deserializedSource.OfType<IMnisFormalBodyLayPerson>()
                 .SingleOrDefault()
                 .PersonHasGenderIdentity
                 .SingleOrDefault()
                 .GenderIdentityHasGender
-                .SubjectUri;
+                .Id;
             return new Dictionary<string, object>()
             {
                 { "gender", genderUri }
             };
         }
 
-        public override IOntologyInstance[] SynchronizeIds(IOntologyInstance[] source, Uri subjectUri, IOntologyInstance[] target)
+        public override IResource[] SynchronizeIds(IResource[] source, Uri subjectUri, IResource[] target)
         {
             IMnisFormalBodyLayPerson mnisFormalBodyLayPerson = source.OfType<IMnisFormalBodyLayPerson>().SingleOrDefault();
-            mnisFormalBodyLayPerson.SubjectUri = subjectUri;
+            mnisFormalBodyLayPerson.Id = subjectUri;
             if (mnisFormalBodyLayPerson.PersonHasGenderIdentity != null)
             {
                 IGenderIdentity genderIdentity = target.OfType<IGenderIdentity>().SingleOrDefault();
                 if (genderIdentity != null)
-                    mnisFormalBodyLayPerson.PersonHasGenderIdentity.SingleOrDefault().SubjectUri = genderIdentity.SubjectUri;
+                    mnisFormalBodyLayPerson.PersonHasGenderIdentity.SingleOrDefault().Id = genderIdentity.Id;
             }
             if (mnisFormalBodyLayPerson.PersonHasFormalBodyMembership != null)
             {
                 IFormalBodyMembership formalBodyMembership = target.OfType<IFormalBodyMembership>().SingleOrDefault();
                 if (formalBodyMembership != null)
-                    mnisFormalBodyLayPerson.PersonHasFormalBodyMembership.SingleOrDefault().SubjectUri = formalBodyMembership.SubjectUri;
+                    mnisFormalBodyLayPerson.PersonHasFormalBodyMembership.SingleOrDefault().Id = formalBodyMembership.Id;
             }
             return source.OfType<IMnisFormalBodyLayPerson>().ToArray();
         }

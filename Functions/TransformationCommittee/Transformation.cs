@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Parliament.Ontology.Base;
-using Parliament.Ontology.Code;
+using Parliament.Rdf;
+using Parliament.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +10,7 @@ namespace Functions.TransformationCommittee
 {
     public class Transformation : BaseTransformation<Settings>
     {
-        public override IOntologyInstance[] TransformSource(string response)
+        public override IResource[] TransformSource(string response)
         {
             IFormalBody formalBody = new FormalBody();
             JObject jsonResponse = (JObject)JsonConvert.DeserializeObject(response);
@@ -24,7 +24,7 @@ namespace Functions.TransformationCommittee
             else
             {
                 if (Uri.TryCreate($"{idNamespace}{id}", UriKind.Absolute, out Uri idUri))
-                    formalBody.SubjectUri = idUri;
+                    formalBody.Id = idUri;
                 else
                 {
                     logger.Warning($"Invalid url '{id}' found");
@@ -42,7 +42,7 @@ namespace Functions.TransformationCommittee
                 if (Uri.TryCreate($"{idNamespace}{committeeTypeId}", UriKind.Absolute, out committeeTypeUri))
                     formalBodyTypes.Add(new FormalBodyType()
                     {
-                        SubjectUri = committeeTypeUri
+                        Id = committeeTypeUri
                     });
             }
             formalBody.FormalBodyHasFormalBodyType = formalBodyTypes;
@@ -57,7 +57,7 @@ namespace Functions.TransformationCommittee
                     if (Uri.TryCreate($"{idNamespace}{houseId}", UriKind.Absolute, out Uri houseUri))
                         formalBody.FormalBodyHasLeadHouse = new House()
                         {
-                            SubjectUri=houseUri
+                            Id = houseUri
                         };
                     else
                     {
@@ -71,36 +71,36 @@ namespace Functions.TransformationCommittee
                 {
                     new ContactPoint()
                     {
-                        SubjectUri=GenerateNewId(),
+                        Id=GenerateNewId(),
                         Email=((JValue)jsonResponse.SelectToken("Email")).GetText(),
                         PhoneNumber=((JValue)jsonResponse.SelectToken("Phone")).GetText()
                     }
                 };
 
-            return new IOntologyInstance[] { formalBody };
+            return new IResource[] { formalBody };
         }
 
-        public override Dictionary<string, object> GetKeysFromSource(IOntologyInstance[] deserializedSource)
+        public override Dictionary<string, object> GetKeysFromSource(IResource[] deserializedSource)
         {
             Uri subjectUri = deserializedSource.OfType<IFormalBody>()
                 .SingleOrDefault()
-                .SubjectUri;
+                .Id;
             return new Dictionary<string, object>()
             {
                 { "subjectUri", subjectUri }
             };
         }
 
-        public override IOntologyInstance[] SynchronizeIds(IOntologyInstance[] source, Uri subjectUri, IOntologyInstance[] target)
+        public override IResource[] SynchronizeIds(IResource[] source, Uri subjectUri, IResource[] target)
         {
             IFormalBody formalBody = source.OfType<IFormalBody>().SingleOrDefault();
-            formalBody.SubjectUri = subjectUri;
+            formalBody.Id = subjectUri;
 
             if (formalBody.FormalBodyHasContactPoint != null)
             {
                 IContactPoint contactPoint = target.OfType<IContactPoint>().SingleOrDefault();
                 if (contactPoint != null)
-                    formalBody.FormalBodyHasContactPoint.SingleOrDefault().SubjectUri = contactPoint.SubjectUri;
+                    formalBody.FormalBodyHasContactPoint.SingleOrDefault().Id = contactPoint.Id;
             }
 
             return source.OfType<IFormalBody>().ToArray();

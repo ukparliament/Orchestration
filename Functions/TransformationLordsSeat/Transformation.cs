@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Parliament.Ontology.Base;
-using Parliament.Ontology.Code;
+using Parliament.Rdf;
+using Parliament.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,7 +11,7 @@ namespace Functions.TransformationLordsSeat
     public class Transformation : BaseTransformation<Settings>
     {
         
-        public override IOntologyInstance[] TransformSource(string response)
+        public override IResource[] TransformSource(string response)
         {
             IHouseSeat houseSeat = new HouseSeat();
             JObject jsonResponse = (JObject)JsonConvert.DeserializeObject(response);
@@ -26,7 +26,7 @@ namespace Functions.TransformationLordsSeat
             else
             {
                 if (Uri.TryCreate($"{idNamespace}{id}", UriKind.Absolute, out uri))
-                    houseSeat.SubjectUri = uri;
+                    houseSeat.Id = uri;
                 else
                 {
                     logger.Warning($"Invalid url '{id}' found");
@@ -41,35 +41,35 @@ namespace Functions.TransformationLordsSeat
             else
                 houseSeat.HouseSeatHasHouseSeatType = new HouseSeatType()
                 {
-                    SubjectUri = houseSeatTypeUri
+                    Id = houseSeatTypeUri
                 };
 
 
             Uri houseOfLordsUri = IdRetrieval.GetSubject("houseName", "House of Lords", false, logger);
             houseSeat.HouseSeatHasHouse = new House()
             {
-                SubjectUri = houseOfLordsUri
+                Id = houseOfLordsUri
             };
 
-            return new IOntologyInstance[] { houseSeat };
+            return new IResource[] { houseSeat };
         }
 
-        public override Dictionary<string, object> GetKeysFromSource(IOntologyInstance[] deserializedSource)
+        public override Dictionary<string, object> GetKeysFromSource(IResource[] deserializedSource)
         {
             Uri subjectUri = deserializedSource.OfType<IHouseSeat>()
                 .SingleOrDefault()
-                .SubjectUri;
+                .Id;
             return new Dictionary<string, object>()
             {
                 { "subjectUri", subjectUri }
             };
         }
 
-        public override IOntologyInstance[] SynchronizeIds(IOntologyInstance[] source, Uri subjectUri, IOntologyInstance[] target)
+        public override IResource[] SynchronizeIds(IResource[] source, Uri subjectUri, IResource[] target)
         {
             IHouseSeat houseSeatTypes = source.OfType<IHouseSeat>().SingleOrDefault();
 
-            return new IOntologyInstance[] { houseSeatTypes };
+            return new IResource[] { houseSeatTypes };
         }
 
         private Uri giveMeUri(JObject jsonResponse, string tokenName)

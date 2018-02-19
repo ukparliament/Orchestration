@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
-using Parliament.Ontology.Base;
-using Parliament.Ontology.Serializer;
+using Parliament.Rdf;
+using Parliament.Rdf.Serialization;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -47,32 +47,32 @@ namespace Functions
             return req.CreateResponse();
         }
 
-        public virtual IOntologyInstance[] TransformSource(string response)
+        public virtual IResource[] TransformSource(string response)
         {
             throw new NotImplementedException();
         }
 
-        public virtual Dictionary<string, object> GetKeysFromSource(IOntologyInstance[] deserializedSource)
+        public virtual Dictionary<string, object> GetKeysFromSource(IResource[] deserializedSource)
         {
             throw new NotImplementedException();
         }
 
-        public virtual Dictionary<string, object> GetKeysForTarget(IOntologyInstance[] deserializedSource)
+        public virtual Dictionary<string, object> GetKeysForTarget(IResource[] deserializedSource)
         {
             return new Dictionary<string, object> { };
         }
 
-        public virtual IOntologyInstance[] SynchronizeIds(IOntologyInstance[] source, Uri subjectUri, IOntologyInstance[] deserializedTarget)
+        public virtual IResource[] SynchronizeIds(IResource[] source, Uri id, IResource[] deserializedTarget)
         {
             throw new NotImplementedException();
         }
 
-        public virtual IGraph GenerateNewGraph(XDocument doc, IGraph oldGraph, Uri subjectUri, T settings)
+        public virtual IGraph GenerateNewGraph(XDocument doc, IGraph oldGraph, Uri id, T settings)
         {
             throw new NotImplementedException();
         }
 
-        public virtual IGraph AlterNewGraph(IGraph newGraph, Uri subjectUri, string response)
+        public virtual IGraph AlterNewGraph(IGraph newGraph, Uri id, string response)
         {
             return newGraph;
         }
@@ -83,14 +83,22 @@ namespace Functions
             return new Uri(id);
         }
 
-        private IGraph serializeSource(IOntologyInstance[] source)
+        private Type[] modelTypes
+        {
+            get
+            {
+                return typeof(Parliament.Model.House).Assembly.GetTypes();
+            }
+        }
+
+        private IGraph serializeSource(IResource[] source)
         {
             Graph result = null;
             try
             {
                 logger.Verbose("Serializing source");
-                Serializer serializer = new Serializer();
-                result = serializer.Serialize(source, typeof(Parliament.Ontology.Code.House).Assembly, SerializerOptions.ExcludeRdfType);
+                RdfSerializer serializer = new RdfSerializer();
+                result = serializer.Serialize(source, modelTypes, SerializerOptions.ExcludeRdfType);
                 result.NamespaceMap.AddNamespace("parl", new Uri(schemaNamespace));
             }
             catch (Exception e)
@@ -177,14 +185,14 @@ namespace Functions
                 }
         }
 
-        private IEnumerable<IOntologyInstance> deserializeTarget(IGraph target)
+        private IEnumerable<IResource> deserializeTarget(IGraph target)
         {
-            IEnumerable<IOntologyInstance> result = null;
+            IEnumerable<IResource> result = null;
             try
             {
                 logger.Verbose("Deserialize target");
-                Serializer serializer = new Serializer();
-                result = serializer.Deserialize(target, typeof(Parliament.Ontology.Code.House).Assembly);
+                RdfSerializer serializer = new RdfSerializer();
+                result = serializer.Deserialize(target, modelTypes, new Uri(schemaNamespace));
             }
             catch (Exception e)
             {
@@ -199,12 +207,12 @@ namespace Functions
             if (string.IsNullOrWhiteSpace(response))
                 return await communicateBack(callbackUrl, "Problem while getting source data");
 
-            IOntologyInstance[] deserializedSource;
+            IResource[] deserializedSource;
             try
             {
                 logger.Verbose("Deserializing source");
                 deserializedSource = TransformSource(response);
-                if (deserializedSource==null)
+                if (deserializedSource == null)
                     return await communicateBack(callbackUrl, "Nothing was deserialized from the source");
             }
             catch (Exception e)
@@ -234,12 +242,12 @@ namespace Functions
             if (existingGraph == null)
                 return await communicateBack(callbackUrl, $"Problem while retrieving old graph for {subjectUri}");
 
-            IOntologyInstance[] deserializedTarget;
+            IResource[] deserializedTarget;
             deserializedTarget = deserializeTarget(existingGraph).ToArray();
             if (deserializedTarget == null)
                 return await communicateBack(callbackUrl, $"Problem while deserializing target");
 
-            IOntologyInstance[] deserializedSourceWithIds;
+            IResource[] deserializedSourceWithIds;
             try
             {
                 logger.Verbose("Assigning ids");
@@ -280,7 +288,7 @@ namespace Functions
             bool isGraphUpdated = GraphUpdate.UpdateDifference(difference, logger);
             if (isGraphUpdated == false)
                 return await communicateBack(callbackUrl, $"Problem when updating graph for {subjectUri}");
-            return await communicateBack(callbackUrl);            
+            return await communicateBack(callbackUrl);
         }
 
     }

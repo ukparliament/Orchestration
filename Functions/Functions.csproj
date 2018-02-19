@@ -20,15 +20,6 @@
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="Parliament.Ontology.Base">
-      <HintPath>aaaaa\Parliament.Ontology.Base.dll</HintPath>
-    </Reference>
-    <Reference Include="Parliament.Ontology.Code">
-      <HintPath>aaaaa\Parliament.Ontology.Code.dll</HintPath>
-    </Reference>
-    <Reference Include="Parliament.Ontology.Serializer">
-      <HintPath>aaaaa\Parliament.Ontology.Serializer.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <None Update="host.json">

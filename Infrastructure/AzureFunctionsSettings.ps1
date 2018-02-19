@@ -53,6 +53,8 @@ foreach($set in $webAppSettings){
 
 Log "Sets new subscription key"
 $settings["SubscriptionKey"]=$subscriptionKey
+Log "Sets Api-Version"
+$settings["ApiVersion"]=$APIPrefix
 Set-AzureRmWebApp -ResourceGroupName $OrchestrationResourceGroupName -Name $AzureFunctionsName -AppSettings $settings
 
 Log "Gets current connection strings"
@@ -67,7 +69,7 @@ foreach($connection in $connectionStrings){
 Log "Sets new url for sharepoint"
 $connections["SharepointItem"]=@{Type="Custom";Value=$sharepointUrl}
 Log "Sets new data connection"
-$connections["Data"]=@{Type="Custom";Value="https://$APIManagementName.azure-api.net/$APIPrefix/graph-store"}
+$connections["Data"]=@{Type="Custom";Value="https://$APIManagementName.azure-api.net/rdf4j"}
 Set-AzureRmWebApp -ResourceGroupName $OrchestrationResourceGroupName -Name $AzureFunctionsName -ConnectionStrings $connections
 
 Log "Job well done!"

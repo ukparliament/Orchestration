@@ -54,7 +54,7 @@ namespace Functions
             request.Headers.Add("Api-Version", apiVersion);
             using (StreamWriter writer = new StreamWriter(request.GetRequestStream(), new UTF8Encoding(Options.UseBomForUtf8)))
             {
-                writer.Write(sparqlUpdate);
+                writer.Write(EscapeQuery(sparqlUpdate));
             }
             HttpWebResponse response = (HttpWebResponse)request.GetResponse();
             response.Dispose();

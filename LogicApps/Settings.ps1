@@ -514,6 +514,8 @@ foreach ($kind in [enum]::GetValues([SourceType])) {
         }
     }    
 }
+$json=($logicAppVariable | Select-Object name | ConvertTo-Json -Compress)
+Write-Host "##vso[task.setvariable variable=LogicAppsSetting_name]$json"
 Write-Host "##vso[task.setvariable variable=SubscriptionKeyOrchestration]$subscriptionKey"
 
 Log "Job well done!"

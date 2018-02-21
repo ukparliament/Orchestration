@@ -27,6 +27,12 @@ function Log([Parameter(Mandatory=$true)][string]$LogText){
     Write-Host ("{0} - {1}" -f (Get-Date -Format "HH:mm:ss.fff"), $LogText)
 }
 
+function Set-Base64TaskVariable([Parameter(Mandatory=$true)][string]$VariableName, [Parameter(Mandatory=$true)][Object[]]$VariableValue){
+	$json=ConvertTo-Json @{settings=$VariableValue} -Compress
+	$base64=[Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($json))
+    Write-Host "##vso[task.setvariable variable=$VariableName]$base64"
+}
+
 Log "Get API Management context"
 $management=New-AzureRmApiManagementContext -ResourceGroupName $APIResourceGroupName -ServiceName $APIManagementName
 Log "Retrives subscription"
@@ -502,20 +508,18 @@ foreach ($kind in [enum]::GetValues([SourceType])) {
         }
         "$([SourceType]::External)" {            
             $settings=($logicAppVariable | Where-Object sourceKind -EQ $kind | Select-Object name, listUri, listAcceptHeader, foreachObject, idObject)
-            $json=(ConvertTo-Json @{settings=$settings} -Compress | ConvertTo-Json)
-            Write-Host "##vso[task.setvariable variable=LogicAppsSetting_$kind]$json"
+			Set-Base64TaskVariable -VariableName "LogicAppsSetting_$kind" -VariableValue $settings
             break
         }
         default {
             $settings=($logicAppVariable | Where-Object sourceKind -EQ $kind | Select-Object name, listUri)
-			$json=(ConvertTo-Json @{settings=$settings} -Compress | ConvertTo-Json)
-            Write-Host "##vso[task.setvariable variable=LogicAppsSetting_$kind]$json"
-            break
+			Set-Base64TaskVariable -VariableName "LogicAppsSetting_$kind" -VariableValue $settings
+			break
         }
     }    
 }
-$json=($logicAppVariable | Select-Object name | ConvertTo-Json -Compress | ConvertTo-Json)
-Write-Host "##vso[task.setvariable variable=LogicAppsSetting_name]$json"
+$settings=($logicAppVariable | Select-Object name, frequency, interval, triggerTime, queueReadBatchSize, queueReadInterval, queueReadFrequency)
+Set-Base64TaskVariable -VariableName "LogicAppsSetting_all" -VariableValue $settings
 Write-Host "##vso[task.setvariable variable=SubscriptionKeyOrchestration]$subscriptionKey"
 
 Log "Job well done!"

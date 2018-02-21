@@ -3,20 +3,9 @@
   "contentVersion": "1.0.0.0",
   "parameters": {
     "textSettings": {
-      "defaultValue": {
-        "settings": [
-          {
-            "name": "",
-            "listUri": "",
-            "listAcceptHeader": "",
-            "foreachObject": "",
-            "idObject": ""
-          }
-        ]
-      },
       "type": "string",
       "metadata": {
-        "description": "Object with array of settings send as a text to fool VSTS."
+        "description": "Object with array of settings sent as base64 to fool VSTS."
       }
     },
     "serviceBusName": {
@@ -39,7 +28,7 @@
     }
   },
   "variables": {
-    "logicAppsSettings": "[json(parameters('textSettings'))]"
+    "logicAppsSettings": "[base64ToJson(parameters('textSettings'))]"
   },
   "resources": [
     {
@@ -47,9 +36,9 @@
       "type": "Microsoft.Logic/workflows",
       "copy": {
         "name": "workflowcopy",
-        "count": "[length(parameters('logicAppsSettings').settings)]"
+        "count": "[length(variables('logicAppsSettings').settings)]"
       },
-      "name": "[concat('getlist-',parameters('logicAppsSettings').settings[copyIndex()].name)]",
+      "name": "[concat('getlist-',variables('logicAppsSettings').settings[copyIndex()].name)]",
       "apiVersion": "2016-06-01",
       "location": "[resourceGroup().location]",
       "tags": {
@@ -109,7 +98,7 @@
               "type": "Function"
             },
             "For_each": {
-              "foreach": "[parameters('logicAppsSettings').settings[copyIndex()].foreachObject]",
+              "foreach": "[variables('logicAppsSettings').settings[copyIndex()].foreachObject]",
               "actions": {
                 "Send_message": {
                   "runAfter": {},
@@ -117,7 +106,7 @@
                   "inputs": {
                     "body": {
                       "Properties": {
-                        "url": "[parameters('logicAppsSettings').settings[copyIndex()].idObject]",
+                        "url": "[variables('logicAppsSettings').settings[copyIndex()].idObject]",
                         "batchId": "@triggerOutputs()['headers']['x-ms-client-request-id']"
                       }
                     },
@@ -130,7 +119,7 @@
                       }
                     },
                     "method": "post",
-                    "path": "[concat('/',parameters('logicAppsSettings').settings[copyIndex()].name,'/messages')]",
+                    "path": "[concat('/',variables('logicAppsSettings').settings[copyIndex()].name,'/messages')]",
                     "retryPolicy": {
                       "count": 2,
                       "interval": "PT20S",
@@ -149,7 +138,7 @@
             "Get_List": {
               "inputs": {
                 "headers": {
-                  "Accept": "[parameters('logicAppsSettings').settings[copyIndex()].listAcceptHeader]"
+                  "Accept": "[variables('logicAppsSettings').settings[copyIndex()].listAcceptHeader]"
                 },
                 "method": "GET",
                 "retryPolicy": {
@@ -157,7 +146,7 @@
                   "interval": "PT20S",
                   "type": "Fixed"
                 },
-                "uri": "[replace(parameters('logicAppsSettings').settings[copyIndex()].listUri,'\r\n','')]"
+                "uri": "[replace(variables('logicAppsSettings').settings[copyIndex()].listUri,'\r\n','')]"
               },
               "runAfter": {
                 "Response": [

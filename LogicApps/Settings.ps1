@@ -502,19 +502,19 @@ foreach ($kind in [enum]::GetValues([SourceType])) {
         }
         "$([SourceType]::External)" {            
             $settings=($logicAppVariable | Where-Object sourceKind -EQ $kind | Select-Object name, listUri, listAcceptHeader, foreachObject, idObject)
-            $json=ConvertTo-Json @{settings=$settings} -Compress
+            $json=(ConvertTo-Json @{settings=$settings} -Compress | ConvertTo-Json)
             Write-Host "##vso[task.setvariable variable=LogicAppsSetting_$kind]$json"
             break
         }
         default {
             $settings=($logicAppVariable | Where-Object sourceKind -EQ $kind | Select-Object name, listUri)
-			$json=ConvertTo-Json @{settings=$settings} -Compress
+			$json=(ConvertTo-Json @{settings=$settings} -Compress | ConvertTo-Json)
             Write-Host "##vso[task.setvariable variable=LogicAppsSetting_$kind]$json"
             break
         }
     }    
 }
-$json=($logicAppVariable | Select-Object name | ConvertTo-Json -Compress)
+$json=($logicAppVariable | Select-Object name | ConvertTo-Json -Compress | ConvertTo-Json)
 Write-Host "##vso[task.setvariable variable=LogicAppsSetting_name]$json"
 Write-Host "##vso[task.setvariable variable=SubscriptionKeyOrchestration]$subscriptionKey"
 

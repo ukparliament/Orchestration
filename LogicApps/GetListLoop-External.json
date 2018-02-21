@@ -2,7 +2,7 @@
   "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
-    "logicAppsSettings": {
+    "textSettings": {
       "defaultValue": {
         "settings": [
           {
@@ -14,9 +14,9 @@
           }
         ]
       },
-      "type": "object",
+      "type": "string",
       "metadata": {
-        "description": "Array of settings."
+        "description": "Object with array of settings send as a text to fool VSTS."
       }
     },
     "serviceBusName": {
@@ -38,7 +38,9 @@
       }
     }
   },
-  "variables": {},
+  "variables": {
+    "logicAppsSettings": "[json(parameters('textSettings'))]"
+  },
   "resources": [
     {
       "comments": "Logic App that retrieves data from external source.",

@@ -1,0 +1,186 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "logicAppsSettings": {
+      "defaultValue": {
+        "settings": [
+          {
+            "name": "",
+            "listUri": "",
+            "listAcceptHeader": "",
+            "foreachObject": "",
+            "idObject": ""
+          }
+        ]
+      },
+      "type": "object",
+      "metadata": {
+        "description": "Array of settings."
+      }
+    },
+    "serviceBusName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the Service Bus."
+      }
+    },
+    "azureFunctionsName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the Azure Functions."
+      }
+    },
+    "releaseId": {
+      "type": "int",
+      "metadata": {
+        "description": "The identifier of the current release record."
+      }
+    }
+  },
+  "variables": {},
+  "resources": [
+    {
+      "comments": "Logic App that retrieves data from external source.",
+      "type": "Microsoft.Logic/workflows",
+      "copy": {
+        "name": "workflowcopy",
+        "count": "[length(parameters('logicAppsSettings').settings)]"
+      },
+      "name": "[concat('getlist-',parameters('logicAppsSettings').settings[copyIndex()].name)]",
+      "apiVersion": "2016-06-01",
+      "location": "[resourceGroup().location]",
+      "tags": {
+        "ReleaseId": "[parameters('releaseId')]"
+      },
+      "properties": {
+        "state": "Enabled",
+        "definition": {
+          "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+          "contentVersion": "1.0.0.0",
+          "parameters": {
+            "$connections": {
+              "defaultValue": {},
+              "type": "Object"
+            }
+          },
+          "triggers": {
+            "manual": {
+              "inputs": {
+                "schema": {}
+              },
+              "kind": "Http",
+              "type": "Request"
+            }
+          },
+          "actions": {
+            "Response": {
+              "inputs": {
+                "headers": {
+                  "batchId": "@triggerOutputs()['headers']['x-ms-client-request-id']"
+                },
+                "statusCode": 202
+              },
+              "runAfter": {
+              },
+              "type": "Response"
+            },
+            "LogicAppsErrorMessageLog": {
+              "inputs": {
+                "body": {
+                  "action": "@actions('Get_List')",
+                  "workflow": "@workflow()",
+                  "batchId": "@triggerOutputs()['headers']['x-ms-client-request-id']"
+                },
+                "function": {
+                  "id": "[concat(subscription().id,'/resourceGroups/',resourceGroup().name,'/providers/Microsoft.Web/sites/',parameters('azureFunctionsName'),'/functions/LogicAppsErrorMessageLog')]"
+                },
+                "retryPolicy": {
+                  "type": "none"
+                }
+              },
+              "runAfter": {
+                "Get_List": [
+                  "Failed"
+                ]
+              },
+              "type": "Function"
+            },
+            "For_each": {
+              "foreach": "[parameters('logicAppsSettings').settings[copyIndex()].foreachObject]",
+              "actions": {
+                "Send_message": {
+                  "runAfter": {},
+                  "type": "ApiConnection",
+                  "inputs": {
+                    "body": {
+                      "Properties": {
+                        "url": "[parameters('logicAppsSettings').settings[copyIndex()].idObject]",
+                        "batchId": "@triggerOutputs()['headers']['x-ms-client-request-id']"
+                      }
+                    },
+                    "host": {
+                      "api": {
+                        "runtimeUrl": "[concat('https://logic-apis-',resourceGroup().location,'.azure-apim.net/apim/servicebus')]"
+                      },
+                      "connection": {
+                        "name": "@parameters('$connections')['servicebus']['connectionId']"
+                      }
+                    },
+                    "method": "post",
+                    "path": "[concat('/',parameters('logicAppsSettings').settings[copyIndex()].name,'/messages')]",
+                    "retryPolicy": {
+                      "count": 2,
+                      "interval": "PT20S",
+                      "type": "Fixed"
+                    }
+                  }
+                }
+              },
+              "runAfter": {
+                "Get_List": [
+                  "Succeeded"
+                ]
+              },
+              "type": "Foreach"
+            },
+            "Get_List": {
+              "inputs": {
+                "headers": {
+                  "Accept": "[parameters('logicAppsSettings').settings[copyIndex()].listAcceptHeader]"
+                },
+                "method": "GET",
+                "retryPolicy": {
+                  "count": 2,
+                  "interval": "PT20S",
+                  "type": "Fixed"
+                },
+                "uri": "[replace(parameters('logicAppsSettings').settings[copyIndex()].listUri,'\r\n','')]"
+              },
+              "runAfter": {
+                "Response": [
+                  "Succeeded"
+                ]
+              },
+              "type": "Http"
+            }
+          },
+          "outputs": {}
+        },
+        "parameters": {
+          "$connections": {
+            "value": {
+              "servicebus": {
+                "connectionId": "[concat(subscription().id,'/resourceGroups/',resourceGroup().name,'/providers/Microsoft.Web/connections/',parameters('serviceBusName'))]",
+                "connectionName": "[parameters('serviceBusName')]",
+                "id": "[concat(subscription().id,'/providers/Microsoft.Web/locations/',resourceGroup().location,'/managedApis/servicebus')]"
+              }
+            }
+          }
+        }
+      },
+      "resources": [],
+      "dependsOn": []
+    }
+  ]
+}

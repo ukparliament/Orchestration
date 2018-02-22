@@ -235,7 +235,7 @@ $logicAppVariable=@(
 	New-Object -TypeName PSObject -Property @{
         "name"="territory";
 		"sourceKind"=[SourceType]::GovernmentRegister;
-        "listUri"="";
+        "listUri"="https://territory.register.gov.uk/records?page-size=1000&page-index=1";
         "listAcceptHeader"="";
         "foreachObject"="@json('')";
         "idObject"="@json('')";
@@ -249,7 +249,7 @@ $logicAppVariable=@(
 	New-Object -TypeName PSObject -Property @{
         "name"="country";
 		"sourceKind"=[SourceType]::GovernmentRegister;
-        "listUri"="";
+        "listUri"="https://country.register.gov.uk/records?page-size=1000&page-index=1";
         "listAcceptHeader"="";
         "foreachObject"="@json('')";
         "idObject"="@json('')";

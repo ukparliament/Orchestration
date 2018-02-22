@@ -128,12 +128,12 @@ has to be added to the project.  Below is the layout of the file:
   "Values": {
     "CUSTOMCONNSTR_Data": "",
     "SubscriptionKey": "",
+    "ApiVersion": "",
     "IdNamespace": "",
     "SchemaNamespace": "",
     "ApplicationInsightsInstrumentationKey": "",
-    "CUSTOMCONNSTR_ServiceBus": ""
+    "CUSTOMCONNSTR_BackupStorage": "",
+    "CUSTOMCONNSTR_SharepointItem"
   }
 }
 ```
-
-VS 2017 Preview is the only one that compiles Azure Functions right now [according to Microsoft](https://blogs.msdn.microsoft.com/webdev/2017/05/10/azure-function-tools-for-visual-studio-2017/).

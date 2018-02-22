@@ -2,28 +2,10 @@
   "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
-    "logicAppsSetting_name": {
-      "type": "array",
+    "base64Settings": {
+      "type": "string",
       "metadata": {
-        "description": "Names for Service Bus queues/workflows."
-      }
-    },
-    "logicAppsSetting_queueReadBatchSize": {
-      "type": "array",
-      "metadata": {
-        "description": "Number of messages to be read from the Service Bus queues."
-      }
-    },
-    "logicAppsSetting_queueReadInterval": {
-      "type": "array",
-      "metadata": {
-        "description": "Interval for the type of the frequency of for the Service Bus queues."
-      }
-    },
-    "logicAppsSetting_queueReadFrequency": {
-      "type": "array",
-      "metadata": {
-        "description": "ype of the frequency of the Service Bus queues."
+        "description": "Base64 (UTF-8) encoded array of settings."
       }
     },
     "azureFunctionsName": {
@@ -45,16 +27,18 @@
       }
     }
   },
-  "variables": {},
+  "variables": {
+    "logicAppsSettings": "[base64ToJson(parameters('base64Settings'))]"
+  },
   "resources": [
     {
       "comments": "Logic App that iterates through the messages inside the Service Bus queue.",
       "type": "Microsoft.Logic/workflows",
       "copy": {
         "name": "workflowcopy",
-        "count": "[length(parameters('logicAppsSetting_name'))]"
+        "count": "[length(variables('logicAppsSettings'))]"
       },
-      "name": "[concat('processlist-',parameters('logicAppsSetting_name')[copyIndex()])]",
+      "name": "[concat('processlist-',variables('logicAppsSettings')[copyIndex()].name)]",
       "apiVersion": "2016-06-01",
       "location": "[resourceGroup().location]",
       "tags": {
@@ -75,7 +59,7 @@
                       }
                     },
                     "method": "delete",
-                    "path": "[concat('/',parameters('logicAppsSetting_name')[copyIndex()],'/messages/complete')]",
+                    "path": "[concat('/',variables('logicAppsSettings')[copyIndex()].name,'/messages/complete')]",
                     "queries": {
                       "lockToken": "@items('For_each')?['LockToken']",
                       "queueType": "Main"
@@ -94,7 +78,7 @@
                         "url": "@items('For_each')?['Properties']?['url']"
                       },
                       "method": "POST",
-                      "uri": "[listsecrets(concat(resourceId('Microsoft.Web/sites',parameters('azureFunctionsName')),concat('/functions/Transformation',parameters('logicAppsSetting_name')[copyIndex()])),'2015-08-01').trigger_url]"
+                      "uri": "[listsecrets(concat(resourceId('Microsoft.Web/sites',parameters('azureFunctionsName')),concat('/functions/Transformation',variables('logicAppsSettings')[copyIndex()].name)),'2015-08-01').trigger_url]"
                     },
                     "unsubscribe": {}
                   },
@@ -137,7 +121,7 @@
                           }
                         },
                         "method": "post",
-                        "path": "[concat('/',parameters('logicAppsSetting_name')[copyIndex()],'/messages')]",
+                        "path": "[concat('/',variables('logicAppsSettings')[copyIndex()].name,'/messages')]",
                         "queries": {
                           "systemProperties": "None"
                         }
@@ -174,9 +158,9 @@
                   }
                 },
                 "method": "get",
-                "path": "[concat('/',parameters('logicAppsSetting_name')[copyIndex()],'/messages/batch/peek')]",
+                "path": "[concat('/',variables('logicAppsSettings')[copyIndex()].name,'/messages/batch/peek')]",
                 "queries": {
-                  "maxMessageCount": "[parameters('logicAppsSetting_queueReadBatchSize')[copyIndex()]]",
+                  "maxMessageCount": "[variables('logicAppsSettings')[copyIndex()].queueReadBatchSize]",
                   "queueType": "Main"
                 }
               },
@@ -195,8 +179,8 @@
           "triggers": {
             "Recurrence": {
               "recurrence": {
-                "frequency": "[parameters('logicAppsSetting_queueReadFrequency')[copyIndex()]]",
-                "interval": "[parameters('logicAppsSetting_queueReadInterval')[copyIndex()]]"
+                "frequency": "[variables('logicAppsSettings')[copyIndex()].queueReadFrequency]",
+                "interval": "[variables('logicAppsSettings')[copyIndex()].queueReadInterval]"
               },
               "type": "Recurrence"
             }

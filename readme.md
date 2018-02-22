@@ -88,7 +88,7 @@ each `LogicApp`.  The *name* property is reused accross:
 
 There are some additional workflows that override these default behaviours.  Default `LogicApps` are created using the
 `Orchestration\LogicApps\Settings.ps1` file.  Any `LogicApp` can then by overriden, as happens
-with the `getlist-country` `LogicApp` which is overriden by the `Orchestration\LogicApps\Country\GetList.json` `LogicApp`.
+with the `getlist-departmentmnis` `LogicApp` which is overriden by the `Orchestration\LogicApps\DepartmentMnis\GetList.json` `LogicApp`.
 The override occurs through the deployment by deploying the all of the defaults followed by deploying an
 override.
 

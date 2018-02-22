@@ -1,56 +1,58 @@
 {
-    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
-    "contentVersion": "1.0.0.0",
-    "parameters": {
-        "logicAppsSetting_name": {
-            "type": "array",
-            "metadata": {
-                "description": "Names for Service Bus queues."
-            }
-        },
-        "serviceBusName": {
-            "type": "string",
-            "metadata": {
-                "description": "Name of the Service Bus."
-            }
-        },
-        "releaseId": {
-            "type": "int",
-            "metadata": {
-                "description": "The identifier of the current release record."
-            }
-        }
-    },
-    "variables": {},
-    "resources": [
-      {
-        "comments": "Service Bus queue.",
-        "type": "Microsoft.ServiceBus/namespaces/queues",
-        "copy": {
-          "name": "queuecopy",
-          "count": "[length(parameters('logicAppsSetting_name'))]"
-        },
-        "name": "[concat(parameters('serviceBusName'),'/',parameters('logicAppsSetting_name')[copyIndex()])]",
-        "apiVersion": "2017-04-01",
-        "location": "[resourceGroup().location]",
-        "tags": {
-          "ReleaseId": "[parameters('releaseId')]"
-        },
-        "properties": {
-          "maxSizeInMegabytes": 1024,
-          "requiresDuplicateDetection": false,
-          "requiresSession": false,
-          "defaultMessageTimeToLive": "P7D",
-          "lockDuration": "PT2M",
-          "deadLetteringOnMessageExpiration": false,
-          "enableBatchedOperations": true,
-          "isAnonymousAccessible": false,
-          "supportOrdering": false,
-          "enablePartitioning": true,
-          "enableExpress": false
-        },
-        "resources": [],
-        "dependsOn": []
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "base64Settings": {
+      "type": "string",
+      "metadata": {
+        "description": "Base64 (UTF-8) encoded array of settings."
       }
-    ]
+    },
+    "serviceBusName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the Service Bus."
+      }
+    },
+    "releaseId": {
+      "type": "int",
+      "metadata": {
+        "description": "The identifier of the current release record."
+      }
+    }
+  },
+  "variables": {
+    "logicAppsSettings": "[base64ToJson(parameters('base64Settings'))]"
+  },
+  "resources": [
+    {
+      "comments": "Service Bus queue.",
+      "type": "Microsoft.ServiceBus/namespaces/queues",
+      "copy": {
+        "name": "queuecopy",
+        "count": "[length(variables('logicAppsSettings'))]"
+      },
+      "name": "[concat(parameters('serviceBusName'),'/',variables('logicAppsSettings')[copyIndex()].name)]",
+      "apiVersion": "2017-04-01",
+      "location": "[resourceGroup().location]",
+      "tags": {
+        "ReleaseId": "[parameters('releaseId')]"
+      },
+      "properties": {
+        "maxSizeInMegabytes": 1024,
+        "requiresDuplicateDetection": false,
+        "requiresSession": false,
+        "defaultMessageTimeToLive": "P7D",
+        "lockDuration": "PT2M",
+        "deadLetteringOnMessageExpiration": false,
+        "enableBatchedOperations": true,
+        "isAnonymousAccessible": false,
+        "supportOrdering": false,
+        "enablePartitioning": true,
+        "enableExpress": false
+      },
+      "resources": [],
+      "dependsOn": []
+    }
+  ]
 }

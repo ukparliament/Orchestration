@@ -2,16 +2,10 @@
   "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
-    "logicAppsSetting_name": {
-      "type": "array",
+    "base64Settings": {
+      "type": "string",
       "metadata": {
-        "description": "Names for Service Bus queues/workflows."
-      }
-    },
-    "logicAppsSetting_listUri": {
-      "type": "array",
-      "metadata": {
-        "description": "Endpoints for Logic Apps to call."
+        "description": "Base64 (UTF-8) encoded array of settings."
       }
     },
     "serviceBusName": {
@@ -33,16 +27,18 @@
       }
     }
   },
-  "variables": {},
+  "variables": {
+    "logicAppsSettings": "[base64ToJson(parameters('base64Settings'))]"
+  },
   "resources": [
     {
       "comments": "Logic App that retrieves data from MNIS.",
       "type": "Microsoft.Logic/workflows",
       "copy": {
         "name": "workflowcopy",
-        "count": "[length(parameters('logicAppsSetting_name'))]"
+        "count": "[length(variables('logicAppsSettings'))]"
       },
-      "name": "[concat('getlist-',parameters('logicAppsSetting_name')[copyIndex()])]",
+      "name": "[concat('getlist-',variables('logicAppsSettings')[copyIndex()].name)]",
       "apiVersion": "2016-06-01",
       "location": "[resourceGroup().location]",
       "tags": {
@@ -123,7 +119,7 @@
                       }
                     },
                     "method": "post",
-                    "path": "[concat('/',parameters('logicAppsSetting_name')[copyIndex()],'/messages')]",
+                    "path": "[concat('/',variables('logicAppsSettings')[copyIndex()].name,'/messages')]",
                     "retryPolicy": {
                       "count": 2,
                       "interval": "PT20S",
@@ -150,7 +146,7 @@
                   "interval": "PT20S",
                   "type": "Fixed"
                 },
-                "uri": "[replace(parameters('logicAppsSetting_listUri')[copyIndex()],'\r\n','')]"
+                "uri": "[replace(variables('logicAppsSettings')[copyIndex()].listUri,'\r\n','')]"
               },
               "runAfter": {
                 "Response": [

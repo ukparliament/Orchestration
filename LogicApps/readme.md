@@ -15,10 +15,10 @@ of the schedules and the names of their associated *LogicApps*.
 * Names of the ListApps
 * Names of the Messags
 
-This can be overriden where the generic pattern is not suitable, as occurs with the processing of Countries.  This
-uses `Orchestration\LogicApps\Country\GetList.json` to deploy the specific settings required to process
-Countries.  This defines an ARM template which is deployed in the `Create workflow - Country list`
-task within the `Data Platform: Logic Apps code` task group.  This concept applies to alarge number of the GetList-* LogicApps.
+This can be overriden where the generic pattern is not suitable, as occurs with the processing of Departments.  This
+uses `Orchestration\LogicApps\DepartmentMnis\GetList.json` to deploy the specific settings required to process
+e-Petitions.  This defines an ARM template which is deployed in the `Create workflow - DepartmentMnis list`
+task within the `Data Platform: Logic Apps code` task group.
 
 When *Settings.ps1* is compiled within its task group it writes a log detailing the compilation.  These log files can be viewed in VSTS
 although doing so is beyond the scope of this description.  Should this be considered
@@ -28,5 +28,5 @@ Triggers are scheduled to run every evening although this is dependant on the se
 
 Photos are read from Parliament's internal SharePoint site.  This requires taking special measures when deploying 
 the SharePoint connector as valid authenication details must be provided during deployment. Once deployed this
-connector can be used without further authenication.  This authenication requirement also applies to the WebLink connector.
+connector can be used without further authenication.  This authenication requirement also applies to other Sharepoint based Logic Apps.
 Processing of items follows the standard pattern - **Get** followed by **Transform**.

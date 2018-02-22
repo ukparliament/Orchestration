@@ -28,8 +28,8 @@ function Log([Parameter(Mandatory=$true)][string]$LogText){
 }
 
 function Set-Base64TaskVariable([Parameter(Mandatory=$true)][string]$VariableName, [Parameter(Mandatory=$true)][Object[]]$VariableValue){
-	$json=ConvertTo-Json @{settings=$VariableValue} -Compress
-	$base64=[Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($json))
+	$json=ConvertTo-Json $VariableValue -Compress
+	$base64=[Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes($json))
     Write-Host "##vso[task.setvariable variable=$VariableName]$base64"
 }
 
@@ -504,22 +504,22 @@ Log "Setting variables to use during deployment"
 foreach ($kind in [enum]::GetValues([SourceType])) {
 	switch ($kind) {
         "$([SourceType]::Custom)" {
-            break
+			break
         }
         "$([SourceType]::External)" {            
             $settings=($logicAppVariable | Where-Object sourceKind -EQ $kind | Select-Object name, listUri, listAcceptHeader, foreachObject, idObject)
-			Set-Base64TaskVariable -VariableName "LogicAppsSetting_$kind" -VariableValue $settings
+			Set-Base64TaskVariable -VariableName "LogicAppsSettings_$kind" -VariableValue $settings
             break
         }
         default {
             $settings=($logicAppVariable | Where-Object sourceKind -EQ $kind | Select-Object name, listUri)
-			Set-Base64TaskVariable -VariableName "LogicAppsSetting_$kind" -VariableValue $settings
+			Set-Base64TaskVariable -VariableName "LogicAppsSettings_$kind" -VariableValue $settings
 			break
         }
     }    
 }
 $settings=($logicAppVariable | Select-Object name, frequency, interval, triggerTime, queueReadBatchSize, queueReadInterval, queueReadFrequency)
-Set-Base64TaskVariable -VariableName "LogicAppsSetting_all" -VariableValue $settings
+Set-Base64TaskVariable -VariableName "LogicAppsSettings_all" -VariableValue $settings
 Write-Host "##vso[task.setvariable variable=SubscriptionKeyOrchestration]$subscriptionKey"
 
 Log "Job well done!"

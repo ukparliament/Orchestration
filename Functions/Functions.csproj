@@ -7,14 +7,14 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="dotNetRDF" Version="2.0.1" />
-    <PackageReference Include="Microsoft.ApplicationInsights" Version="2.4.0" />
+    <PackageReference Include="Microsoft.ApplicationInsights" Version="2.5.1" />
     <PackageReference Include="Microsoft.Azure.WebJobs" Version="2.1.0-beta4" />
     <PackageReference Include="Microsoft.Azure.WebJobs.Extensions" Version="2.1.0-beta4" />
     <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.Http" Version="1.0.0-beta4" />
     <PackageReference Include="Microsoft.Azure.WebJobs.ServiceBus" Version="2.1.0-beta1" />
     <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="1.0.6" />
     <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
-    <PackageReference Include="Parliament.Model" Version="1.0.0-r1176" />
+    <PackageReference Include="Parliament.Model" Version="1.0.0-r1204" />
     <PackageReference Include="Parliament.Rdf" Version="1.0.1" />
     <PackageReference Include="Parliament.Rdf.Serialization" Version="1.0.0-r1177" />
   </ItemGroup>

@@ -498,6 +498,20 @@ $logicAppVariable=@(
 		"queueReadInterval"=1;
 		"queueReadFrequency"="Minute";
     }
+	New-Object -TypeName PSObject -Property @{
+        "name"="answeringbodymnis";
+		"sourceKind"=[SourceType]::Mnis;
+        "listUri"="http://data.parliament.uk/MembersDataPlatform/open/OData.svc/AnsweringBodies?`$select=AnsweringBody_Id";
+        "listAcceptHeader"="";
+        "foreachObject"="";
+        "idObject"="";
+        "frequency"="hour";
+        "interval"=24;
+        "triggerTime"="20:35";
+        "queueReadBatchSize"=150;
+		"queueReadInterval"=90;
+		"queueReadFrequency"="Second";
+    }
 )
 
 Log "Setting variables to use during deployment"

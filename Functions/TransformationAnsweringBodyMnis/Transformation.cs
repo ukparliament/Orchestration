@@ -26,6 +26,11 @@ namespace Functions.TransformationAnsweringBodyMnis
                 Uri departmentUri = IdRetrieval.GetSubject("mnisDepartmentId", departmentId, false, logger);
                 if (departmentUri != null)
                     department.Id = departmentUri;
+                else
+                {
+                    logger.Warning($"Department ({departmentId}) not found for Answering Body ({answeringBody.AnsweringBodyMnisId})");
+                    return null;
+                }
             }
 
             return new IResource[] { answeringBody, department };

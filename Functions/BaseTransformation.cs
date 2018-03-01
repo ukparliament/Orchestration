@@ -119,6 +119,7 @@ namespace Functions
             }
         }
 
+        //TODO: make it optional
         private Uri getSubject(Dictionary<string, object> subjectRetrievalDictionary, T settings)
         {
             Uri subjectUri = null;
@@ -150,6 +151,7 @@ namespace Functions
             return GraphRetrieval.GetGraph(sparql.ToString(), logger);
         }
 
+        //TODO: use rdf serialization to get the type
         private void setSparqlParameter(SparqlParameterizedString sparql, KeyValuePair<string, object> predicateValue)
         {
             object value = predicateValue.Value;
@@ -157,15 +159,18 @@ namespace Functions
                 sparql.SetLiteral(predicateValue.Key, string.Empty);
             else
                 if (value is Uri)
-                sparql.SetUri(predicateValue.Key, (Uri)value);
+                    sparql.SetUri(predicateValue.Key, (Uri)value);
+            else
+                if (value is DateTimeOffset)
+                {
+                    ILiteralNode dateLiteral = ((DateTimeOffset)value).ToLiteralDate(new NodeFactory());
+                    sparql.SetLiteral(predicateValue.Key, dateLiteral.Value, dateLiteral.DataType);
+                }
             else
                 switch (Type.GetTypeCode(value.GetType().BaseType))
                 {
                     case TypeCode.Boolean:
                         sparql.SetLiteral(predicateValue.Key, (bool)value);
-                        break;
-                    case TypeCode.DateTime:
-                        sparql.SetLiteral(predicateValue.Key, (DateTime)value);
                         break;
                     case TypeCode.Decimal:
                         sparql.SetLiteral(predicateValue.Key, (decimal)value);

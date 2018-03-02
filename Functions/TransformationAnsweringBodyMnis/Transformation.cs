@@ -19,10 +19,11 @@ namespace Functions.TransformationAnsweringBodyMnis
             XElement element = doc.Descendants(m + "properties").SingleOrDefault();
 
             answeringBody.AnsweringBodyMnisId = element.Element(d + "AnsweringBody_Id").GetText();
-            IMnisDepartmentGroup department = new MnisDepartmentGroup();
+            IMnisDepartmentGroup department = null;
             string departmentId = element.Element(d + "Department_Id").GetText();
             if (string.IsNullOrWhiteSpace(departmentId) == false)
             {
+                department = new MnisDepartmentGroup();
                 Uri departmentUri = IdRetrieval.GetSubject("mnisDepartmentId", departmentId, false, logger);
                 if (departmentUri != null)
                     department.Id = departmentUri;

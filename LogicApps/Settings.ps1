@@ -512,6 +512,20 @@ $logicAppVariable=@(
 		"queueReadInterval"=90;
 		"queueReadFrequency"="Second";
     }
+	New-Object -TypeName PSObject -Property @{
+        "name"="questionwrittenanswer";
+		"sourceKind"=[SourceType]::Custom;
+        "listUri"="";
+        "listAcceptHeader"="";
+        "foreachObject"="";
+        "idObject"="";
+        "frequency"="hour";
+        "interval"=24;
+        "triggerTime"="22:20";
+        "queueReadBatchSize"=100;
+		"queueReadInterval"=90;
+		"queueReadFrequency"="Second";
+    }
 )
 
 Log "Setting variables to use during deployment"

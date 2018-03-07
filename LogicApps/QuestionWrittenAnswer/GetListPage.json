@@ -39,40 +39,133 @@
         "definition": {
           "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
           "actions": {
-            "For_each": {
+            "Condition": {
               "actions": {
-                "Send_message": {
-                  "inputs": {
-                    "body": {
-                      "Properties": {
-                        "batchId": "@triggerBody()['batchId']",
-                        "url": "@{item().UIN}"
-                      }
-                    },
-                    "host": {
-                      "connection": {
-                        "name": "@parameters('$connections')['servicebus']['connectionId']"
-                      }
-                    },
-                    "method": "post",
-                    "path": "[concat('/',variables('logicAppsSetting_name'),'/messages')]",
-                    "retryPolicy": {
-                      "count": 2,
-                      "interval": "PT20S",
-                      "type": "fixed"
+                "For_each": {
+                  "actions": {
+                    "Send_message": {
+                      "inputs": {
+                        "body": {
+                          "Properties": {
+                            "batchId": "@triggerBody()['batchId']",
+                            "url": "@{item().UIN}"
+                          }
+                        },
+                        "host": {
+                          "connection": {
+                            "name": "@parameters('$connections')['servicebus']['connectionId']"
+                          }
+                        },
+                        "method": "post",
+                        "path": "[concat('/',variables('logicAppsSetting_name'),'/messages')]",
+                        "retryPolicy": {
+                          "count": 2,
+                          "interval": "PT20S",
+                          "type": "fixed"
+                        }
+                      },
+                      "runAfter": {},
+                      "type": "ApiConnection"
                     }
                   },
+                  "foreach": "@body('Get_List').Response",
                   "runAfter": {},
-                  "type": "ApiConnection"
+                  "type": "Foreach"
                 }
               },
-              "foreach": "@body('Get_List').Response",
+              "else": {
+                "actions": {
+                  "For_each_2": {
+                    "actions": {
+                      "Condition_2": {
+                        "actions": {
+                          "Send_message_2": {
+                            "inputs": {
+                              "body": {
+                                "Properties": {
+                                  "batchId": "@triggerBody()['batchId']",
+                                  "url": "@{body('Get_Single_Item').Response[0].UIN}"
+                                }
+                              },
+                              "host": {
+                                "connection": {
+                                  "name": "@parameters('$connections')['servicebus']['connectionId']"
+                                }
+                              },
+                              "method": "post",
+                              "path": "[concat('/',variables('logicAppsSetting_name'),'/messages')]",
+                              "retryPolicy": {
+                                "count": 2,
+                                "interval": "PT20S",
+                                "type": "fixed"
+                              },
+                              "queries": {
+                                "systemProperties": "None"
+                              }
+                            },
+                            "runAfter": {},
+                            "type": "ApiConnection"
+                          }
+                        },
+                        "else": {
+                          "actions": {
+                            "LogicAppsErrorMessageLog_2": {
+                              "inputs": {
+                                "body": {
+                                  "action": "@actions('Get_Single_Item')",
+                                  "batchId": "@triggerBody()['batchId']",
+                                  "workflow": "@workflow()"
+                                },
+                                "function": {
+                                  "id": "[concat(subscription().id,'/resourceGroups/',resourceGroup().name,'/providers/Microsoft.Web/sites/',parameters('azureFunctionsName'),'/functions/LogicAppsErrorMessageLog')]"
+                                },
+                                "retryPolicy": {
+                                  "type": "none"
+                                }
+                              },
+                              "runAfter": {},
+                              "type": "Function"
+                            }
+                          }
+                        },
+                        "expression": "@equals(body('Get_Single_Item').StatusCode, 200)",
+                        "runAfter": {
+                          "Get_Single_Item": [
+                            "Succeeded"
+                          ]
+                        },
+                        "type": "If"
+                      },
+                      "Get_Single_Item": {
+                        "inputs": {
+                          "headers": {
+                            "Accept": "application/json"
+                          },
+                          "method": "GET",
+                          "uri": "https://eqm-services.digiminster.com/writtenquestions/list?parameters.skip=@{add(mul(50,triggerBody()['pageNo']),items('For_each_2'))}&parameters.take=1",
+                          "retryPolicy": {
+                            "count": 2,
+                            "interval": "PT20S",
+                            "type": "fixed"
+                          }
+                        },
+                        "runAfter": {},
+                        "type": "Http"
+                      }
+                    },
+                    "foreach": "@range(0,50)",
+                    "runAfter": {},
+                    "type": "Foreach"
+                  }
+                }
+              },
+              "expression": "@equals(body('Get_List').StatusCode, 200)",
               "runAfter": {
                 "Get_List": [
                   "Succeeded"
                 ]
               },
-              "type": "Foreach"
+              "type": "If"
             },
             "Get_List": {
               "inputs": {

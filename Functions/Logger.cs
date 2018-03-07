@@ -50,7 +50,7 @@ namespace Functions
 
         public void Error(string message, Dictionary<string, string> properties = null)
         {
-            TrackTrace(message, SeverityLevel.Error);
+            TrackTrace(message, SeverityLevel.Error, properties);
         }
 
         private void TrackTrace(string message, SeverityLevel severityLevel, Dictionary<string, string> properties = null)

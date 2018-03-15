@@ -91,16 +91,16 @@ namespace Functions.TransformationSeatIncumbencyMnis
         }where { 
             ?parliamentPeriod parl:parliamentPeriodStartDate ?parliamentPeriodStartDate.
             optional {?parliamentPeriod parl:parliamentPeriodEndDate ?parliamentPeriodEndDate}
-            filter ((?parliamentPeriodStartDate <= @startDate && ?parliamentPeriodEndDate >= @startDate) ||
-    	            (?parliamentPeriodStartDate <= @endDate && ?parliamentPeriodEndDate >= @endDate) ||
-                    (?parliamentPeriodStartDate > @startDate && ?parliamentPeriodEndDate < @endDate) ||
-                    (bound(?parliamentPeriodEndDate) = false && false = @hasEndDate))
+            bind(coalesce(?parliamentPeriodEndDate,@today) as ?endDate)
+            filter ((?parliamentPeriodStartDate <= @startDate && ?endDate >= @startDate) ||
+    	            (?parliamentPeriodStartDate <= @endDate && ?endDate >= @endDate) ||
+                    (?parliamentPeriodStartDate > @startDate && ?endDate < @endDate))
         }";
             SparqlParameterizedString sparql = new SparqlParameterizedString(sparqlCommand);
             sparql.Namespaces.AddNamespace("parl", new Uri(schemaNamespace));
             sparql.SetLiteral("startDate", startDate.ToString("yyyy-MM-dd+00:00"), new Uri("http://www.w3.org/2001/XMLSchema#date"));
             sparql.SetLiteral("endDate", endDate.HasValue ? endDate.Value.ToString("yyyy-MM-dd+00:00") : string.Empty, new Uri("http://www.w3.org/2001/XMLSchema#date"));
-            sparql.SetLiteral("hasEndDate", endDate.HasValue);
+            sparql.SetLiteral("today", DateTime.UtcNow.ToString("yyyy-MM-dd+00:00"), new Uri("http://www.w3.org/2001/XMLSchema#date"));
             Uri parliamentPeriodUri = null;
             try
             {

@@ -99,7 +99,7 @@ namespace Functions.TransformationSeatIncumbencyMnis
             SparqlParameterizedString sparql = new SparqlParameterizedString(sparqlCommand);
             sparql.Namespaces.AddNamespace("parl", new Uri(schemaNamespace));
             sparql.SetLiteral("startDate", startDate.ToString("yyyy-MM-dd+00:00"), new Uri("http://www.w3.org/2001/XMLSchema#date"));
-            sparql.SetLiteral("endDate", endDate.HasValue ? endDate.Value.ToString("yyyy-MM-dd+00:00") : string.Empty, new Uri("http://www.w3.org/2001/XMLSchema#date"));
+            sparql.SetLiteral("endDate", endDate.HasValue ? endDate.Value.ToString("yyyy-MM-dd+00:00") : DateTime.UtcNow.ToString("yyyy-MM-dd+00:00"), new Uri("http://www.w3.org/2001/XMLSchema#date"));
             sparql.SetLiteral("today", DateTime.UtcNow.ToString("yyyy-MM-dd+00:00"), new Uri("http://www.w3.org/2001/XMLSchema#date"));
             Uri parliamentPeriodUri = null;
             try

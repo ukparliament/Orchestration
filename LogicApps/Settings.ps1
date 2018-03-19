@@ -526,6 +526,20 @@ $logicAppVariable=@(
 		"queueReadInterval"=90;
 		"queueReadFrequency"="Second";
     }
+		New-Object -TypeName PSObject -Property @{
+        "name"="lordsseatincumbencyinterruption";
+		"sourceKind"=[SourceType]::Sharepoint;
+        "listUri"="1447ca1f-249d-4491-b9a0-9225b5cd505a";
+        "listAcceptHeader"="";
+        "foreachObject"="@json('')";
+        "idObject"="@json('')";
+        "frequency"="hour";
+        "interval"=24;
+        "triggerTime"="17:04";
+        "queueReadBatchSize"=50;
+		"queueReadInterval"=1;
+		"queueReadFrequency"="Minute";
+    }
 )
 
 Log "Setting variables to use during deployment"

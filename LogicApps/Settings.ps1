@@ -526,7 +526,7 @@ $logicAppVariable=@(
 		"queueReadInterval"=90;
 		"queueReadFrequency"="Second";
     }
-		New-Object -TypeName PSObject -Property @{
+	New-Object -TypeName PSObject -Property @{
         "name"="lordsseatincumbencyinterruption";
 		"sourceKind"=[SourceType]::Sharepoint;
         "listUri"="1447ca1f-249d-4491-b9a0-9225b5cd505a";
@@ -536,6 +536,48 @@ $logicAppVariable=@(
         "frequency"="hour";
         "interval"=24;
         "triggerTime"="17:04";
+        "queueReadBatchSize"=50;
+		"queueReadInterval"=1;
+		"queueReadFrequency"="Minute";
+    }
+	New-Object -TypeName PSObject -Property @{
+        "name"="procedure";
+		"sourceKind"=[SourceType]::Sharepoint;
+        "listUri"="adad783c-971c-4bb3-a07b-28a5068cc1e0";
+        "listAcceptHeader"="";
+        "foreachObject"="@json('')";
+        "idObject"="@json('')";
+        "frequency"="hour";
+        "interval"=24;
+        "triggerTime"="20:30";
+        "queueReadBatchSize"=50;
+		"queueReadInterval"=1;
+		"queueReadFrequency"="Minute";
+    }
+	New-Object -TypeName PSObject -Property @{
+        "name"="procedurestep";
+		"sourceKind"=[SourceType]::Sharepoint;
+        "listUri"="c53aee5a-5dcc-4321-a60a-1432dc7b7bae";
+        "listAcceptHeader"="";
+        "foreachObject"="@json('')";
+        "idObject"="@json('')";
+        "frequency"="hour";
+        "interval"=24;
+        "triggerTime"="20:31";
+        "queueReadBatchSize"=50;
+		"queueReadInterval"=1;
+		"queueReadFrequency"="Minute";
+    }
+	New-Object -TypeName PSObject -Property @{
+        "name"="procedureroute";
+		"sourceKind"=[SourceType]::Sharepoint;
+        "listUri"="0c651f3a-630a-4ca6-b8c6-3a85f381b41d";
+        "listAcceptHeader"="";
+        "foreachObject"="@json('')";
+        "idObject"="@json('')";
+        "frequency"="hour";
+        "interval"=24;
+        "triggerTime"="20:34";
         "queueReadBatchSize"=50;
 		"queueReadInterval"=1;
 		"queueReadFrequency"="Minute";

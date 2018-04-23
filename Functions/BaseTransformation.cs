@@ -54,7 +54,12 @@ namespace Functions
 
         public virtual Dictionary<string, object> GetKeysFromSource(IResource[] deserializedSource)
         {
-            throw new NotImplementedException();
+            return null;
+        }
+
+        public virtual Uri GetSubjectFromSource(IResource[] deserializedSource)
+        {
+            return null;
         }
 
         public virtual Dictionary<string, object> GetKeysForTarget(IResource[] deserializedSource)
@@ -238,7 +243,21 @@ namespace Functions
                 return await communicateBack(callbackUrl, "Problem while retrieving key(s) from the source");
             }
 
-            Uri subjectUri = getSubject(subjectRetrievalDictionary, settings);
+            Uri subjectUri = null;
+            if (subjectRetrievalDictionary != null)
+                subjectUri = getSubject(subjectRetrievalDictionary, settings);
+            else
+            {
+                try
+                {
+                    subjectUri = GetSubjectFromSource(deserializedSource);
+                }
+                catch (Exception e)
+                {
+                    logger.Exception(e);
+                    return await communicateBack(callbackUrl, "Problem while retrieving subject from the source");
+                }
+            }
             if (subjectUri == null)
                 return await communicateBack(callbackUrl, "Problem while obtaining subject from triplestore");
 

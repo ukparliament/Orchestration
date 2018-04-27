@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
 using VDS.RDF;
+using VDS.RDF.Query;
 
 namespace Functions.TransformationAnsweringBodyMnis
 {
@@ -19,6 +20,29 @@ namespace Functions.TransformationAnsweringBodyMnis
             XElement element = doc.Descendants(m + "properties").SingleOrDefault();
 
             answeringBody.AnsweringBodyMnisId = element.Element(d + "AnsweringBody_Id").GetText();
+
+            string GroupHasNameSparqlCommand = @"
+                prefix parl: <https://id.parliament.uk/schema/>
+                construct {
+                    ?answeringBody parl:groupName ?name.
+                }
+                where {
+                    ?answeringBody 
+                        parl:answeringBodyMnisId @id;
+                        parl:groupName ?name;
+                    .
+                }";
+            SparqlParameterizedString sparql = new SparqlParameterizedString(GroupHasNameSparqlCommand);
+            sparql.SetLiteral("id", answeringBody.AnsweringBodyMnisId);
+
+            var groupNameGraph = GraphRetrieval.GetGraph(sparql.ToString(),logger);
+            bool groupHasNoName = groupNameGraph.IsEmpty;
+
+            if (groupHasNoName == true)
+            {
+                answeringBody.GroupName = element.Element(d + "Name").GetText();
+            }
+
             IMnisDepartmentGroup department = null;
             string departmentId = element.Element(d + "Department_Id").GetText();
             if (string.IsNullOrWhiteSpace(departmentId) == false)

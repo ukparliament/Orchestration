@@ -33,12 +33,12 @@
         construct {
         	?answeringBody a parl:MnisAnsweringBody;
                 parl:answeringBodyMnisId ?answeringBodyMnisId;
-                parl:name ?name.
+                parl:groupName ?groupName.
         }
         where {
             bind(@subject as ?answeringBody)
             ?answeringBody parl:answeringBodyMnisId ?answeringBodyMnisId.
-            OPTIONAL {?answeringBody parl:name ?name.}
+            OPTIONAL {?answeringBody parl:groupName ?groupName.}
         }";
             }
         }

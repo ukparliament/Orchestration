@@ -68,15 +68,11 @@ namespace Functions.TransformationLordsSeatIncumbency
             return new IResource[] { mnisSeatIncumbency, pastIncumbency };
         }
 
-        public override Dictionary<string, object> GetKeysFromSource(IResource[] deserializedSource)
+        public override Uri GetSubjectFromSource(IResource[] deserializedSource)
         {
-            Uri subjectUri = deserializedSource.OfType<IMnisSeatIncumbency>()
+            return deserializedSource.OfType<IMnisSeatIncumbency>()
                 .SingleOrDefault()
-                .Id;
-            return new Dictionary<string, object>()
-            {
-                { "subjectUri", subjectUri }
-            };
+                .Id;            
         }
 
         public override IResource[] SynchronizeIds(IResource[] source, Uri subjectUri, IResource[] target)

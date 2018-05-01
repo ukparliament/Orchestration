@@ -16,14 +16,7 @@ namespace Functions.TransformationLordsSeatIncumbencyInterruption
         {
             get
             {
-                return @"
-            construct{
-                ?s a parl:IncumbencyInterruption.
-            }
-            where{
-                bind(@subjectUri as ?s)
-                ?s parl:incumbencyInterruptionHasIncumbency ?incumbencyInterruptionHasIncumbency.
-            }";
+                return null;
             }
         }
 

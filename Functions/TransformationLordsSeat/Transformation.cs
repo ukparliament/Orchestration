@@ -1,9 +1,8 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Parliament.Rdf;
 using Parliament.Model;
+using Parliament.Rdf;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace Functions.TransformationLordsSeat
@@ -54,15 +53,11 @@ namespace Functions.TransformationLordsSeat
             return new IResource[] { houseSeat };
         }
 
-        public override Dictionary<string, object> GetKeysFromSource(IResource[] deserializedSource)
+        public override Uri GetSubjectFromSource(IResource[] deserializedSource)
         {
-            Uri subjectUri = deserializedSource.OfType<IHouseSeat>()
+            return deserializedSource.OfType<IHouseSeat>()
                 .SingleOrDefault()
-                .Id;
-            return new Dictionary<string, object>()
-            {
-                { "subjectUri", subjectUri }
-            };
+                .Id;            
         }
 
         public override IResource[] SynchronizeIds(IResource[] source, Uri subjectUri, IResource[] target)

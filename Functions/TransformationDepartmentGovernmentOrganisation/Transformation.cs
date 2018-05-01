@@ -31,15 +31,11 @@ namespace Functions.TransformationDepartmentGovernmentOrganisation
             return new IResource[] { department };
         }
 
-        public override Dictionary<string, object> GetKeysFromSource(IResource[] deserializedSource)
+        public override Uri GetSubjectFromSource(IResource[] deserializedSource)
         {
-            Uri subjectUri = deserializedSource.OfType<IGovRegisterGovernmentOrganisation>()
+            return deserializedSource.OfType<IGovRegisterGovernmentOrganisation>()
                 .SingleOrDefault()
-                .Id;
-            return new Dictionary<string, object>()
-            {
-                { "subjectUri", subjectUri }
-            };
+                .Id;            
         }
 
         public override IResource[] SynchronizeIds(IResource[] source, Uri subjectUri, IResource[] target)

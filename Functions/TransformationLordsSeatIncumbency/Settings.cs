@@ -16,14 +16,7 @@ namespace Functions.TransformationLordsSeatIncumbency
         {
             get
             {
-                return @"
-            construct{
-                ?s a parl:SeatIncumbency.
-            }
-            where{
-                bind(@subjectUri as ?s)
-                ?s parl:seatIncumbencyHasHouseSeat ?seatIncumbencyHasHouseSeat.
-            }";
+                return null;
             }
         }
 

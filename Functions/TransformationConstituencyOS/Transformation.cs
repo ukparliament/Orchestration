@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Xml.Linq;
 using System.Xml.Serialization;
+using VDS.RDF;
 
 namespace Functions.TransformationConstituencyOS
 {
@@ -30,14 +31,14 @@ namespace Functions.TransformationConstituencyOS
             return new IResource[] { constituency };
         }
 
-        public override Dictionary<string, object> GetKeysFromSource(IResource[] deserializedSource)
+        public override Dictionary<string, INode> GetKeysFromSource(IResource[] deserializedSource)
         {
             string constituencyGroupOnsCode = deserializedSource.OfType<IOnsConstituencyGroup>()
                 .SingleOrDefault()
                 .ConstituencyGroupOnsCode;
-            return new Dictionary<string, object>()
+            return new Dictionary<string, INode>()
             {
-                { "constituencyGroupOnsCode", constituencyGroupOnsCode }
+                { "constituencyGroupOnsCode", SparqlConstructor.GetNode(constituencyGroupOnsCode) }
             };
         }
 

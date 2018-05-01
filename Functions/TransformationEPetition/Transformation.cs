@@ -4,6 +4,7 @@ using Parliament.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using VDS.RDF;
 
 namespace Functions.TransformationEPetition
 {
@@ -45,14 +46,14 @@ namespace Functions.TransformationEPetition
             return new IResource[] { ukgapEPetition };
         }
 
-        public override Dictionary<string, object> GetKeysFromSource(IResource[] deserializedSource)
+        public override Dictionary<string, INode> GetKeysFromSource(IResource[] deserializedSource)
         {
             string ePetitionUkgapId = deserializedSource.OfType<IUkgapEPetition>()
                 .SingleOrDefault()
                 .EPetitionUkgapId;
-            return new Dictionary<string, object>()
+            return new Dictionary<string, INode>()
             {
-                { "ePetitionUkgapId", ePetitionUkgapId }
+                { "ePetitionUkgapId", SparqlConstructor.GetNode(ePetitionUkgapId) }
             };
         }
 

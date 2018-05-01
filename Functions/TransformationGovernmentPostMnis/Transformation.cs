@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
+using VDS.RDF;
 
 namespace Functions.TransformationGovernmentPostMnis
 {
@@ -44,14 +45,14 @@ namespace Functions.TransformationGovernmentPostMnis
             return new IResource[] { governmentPosition };
         }
 
-        public override Dictionary<string, object> GetKeysFromSource(IResource[] deserializedSource)
+        public override Dictionary<string, INode> GetKeysFromSource(IResource[] deserializedSource)
         {
             string governmentPositionMnisId = deserializedSource.OfType<IMnisGovernmentPosition>()
                 .SingleOrDefault()
                 .GovernmentPositionMnisId;
-            return new Dictionary<string, object>()
+            return new Dictionary<string, INode>()
             {
-                { "governmentPositionMnisId", governmentPositionMnisId }
+                { "governmentPositionMnisId", SparqlConstructor.GetNode(governmentPositionMnisId) }
             };
         }
 

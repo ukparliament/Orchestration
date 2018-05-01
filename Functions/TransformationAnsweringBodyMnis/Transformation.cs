@@ -20,9 +20,8 @@ namespace Functions.TransformationAnsweringBodyMnis
             XElement element = doc.Descendants(m + "properties").SingleOrDefault();
 
             answeringBody.AnsweringBodyMnisId = element.Element(d + "AnsweringBody_Id").GetText();
-
-            string GroupHasNameSparqlCommand = @"
-                prefix parl: <https://id.parliament.uk/schema/>
+            
+            string GroupHasNameSparqlCommand = @"                
                 construct {
                     ?answeringBody parl:groupName ?name.
                 }
@@ -34,6 +33,7 @@ namespace Functions.TransformationAnsweringBodyMnis
                 }";
             SparqlParameterizedString sparql = new SparqlParameterizedString(GroupHasNameSparqlCommand);
             sparql.SetLiteral("id", answeringBody.AnsweringBodyMnisId);
+            sparql.Namespaces.AddNamespace("parl", new Uri(schemaNamespace));
 
             var groupNameGraph = GraphRetrieval.GetGraph(sparql.ToString(),logger);
             bool groupHasNoName = groupNameGraph.IsEmpty;
@@ -66,14 +66,14 @@ namespace Functions.TransformationAnsweringBodyMnis
             return new IResource[] { answeringBody, department };
         }
 
-        public override Dictionary<string, object> GetKeysFromSource(IResource[] deserializedSource)
+        public override Dictionary<string, INode> GetKeysFromSource(IResource[] deserializedSource)
         {
             string answeringBodyMnisId = deserializedSource.OfType<IMnisAnsweringBody>()
                 .SingleOrDefault()
                 .AnsweringBodyMnisId;
-            return new Dictionary<string, object>()
+            return new Dictionary<string, INode>()
             {
-                { "answeringBodyMnisId", answeringBodyMnisId }
+                { "answeringBodyMnisId", SparqlConstructor.GetNode(answeringBodyMnisId) }
             };
         }
 

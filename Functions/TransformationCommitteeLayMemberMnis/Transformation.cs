@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
+using VDS.RDF;
 
 namespace Functions.TransformationCommitteeLayMemberMnis
 {
@@ -67,18 +68,18 @@ namespace Functions.TransformationCommitteeLayMemberMnis
             return new IResource[] { mnisFormalBodyLayPerson };
         }
 
-        public override Dictionary<string, object> GetKeysFromSource(IResource[] deserializedSource)
+        public override Dictionary<string, INode> GetKeysFromSource(IResource[] deserializedSource)
         {
             string formalBodyLayPersonMnisId = deserializedSource.OfType<IMnisFormalBodyLayPerson>()
                 .SingleOrDefault()
                 .FormalBodyLayPersonMnisId;
-            return new Dictionary<string, object>()
+            return new Dictionary<string, INode>()
             {
-                { "formalBodyLayPersonMnisId", formalBodyLayPersonMnisId }
+                { "formalBodyLayPersonMnisId", SparqlConstructor.GetNode(formalBodyLayPersonMnisId) }
             };
         }
 
-        public override Dictionary<string, object> GetKeysForTarget(IResource[] deserializedSource)
+        public override Dictionary<string, INode> GetKeysForTarget(IResource[] deserializedSource)
         {
             Uri genderUri = deserializedSource.OfType<IMnisFormalBodyLayPerson>()
                 .SingleOrDefault()
@@ -86,9 +87,9 @@ namespace Functions.TransformationCommitteeLayMemberMnis
                 .SingleOrDefault()
                 .GenderIdentityHasGender
                 .Id;
-            return new Dictionary<string, object>()
+            return new Dictionary<string, INode>()
             {
-                { "gender", genderUri }
+                { "gender", SparqlConstructor.GetNode(genderUri) }
             };
         }
 

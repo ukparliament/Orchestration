@@ -45,34 +45,34 @@ namespace Functions.TransformationMemberMnis
             return new IResource[] { member, mnisMember, dodsPerson, pimsPerson, deceasedPerson};
         }
 
-        public override Dictionary<string, object> GetKeysFromSource(IResource[] deserializedSource)
+        public override Dictionary<string, INode> GetKeysFromSource(IResource[] deserializedSource)
         {
             string memberMnisId = deserializedSource.OfType<IMnisMember>()
                 .SingleOrDefault()
                 .MemberMnisId;
-            return new Dictionary<string, object>()
+            return new Dictionary<string, INode>()
             {
-                { "memberMnisId", memberMnisId }
+                { "memberMnisId", SparqlConstructor.GetNode(memberMnisId) }
             };
         }
 
-        public override Dictionary<string, object> GetKeysForTarget(IResource[] deserializedSource)
+        public override Dictionary<string, INode> GetKeysForTarget(IResource[] deserializedSource)
         {
-            Uri genderUri = deserializedSource.OfType<IMember>()
+            Uri genderUri = deserializedSource.OfType<Member>()
                 .SingleOrDefault()
                 .PersonHasGenderIdentity
                 .SingleOrDefault()
                 .GenderIdentityHasGender
                 .Id;
-            return new Dictionary<string, object>()
+            return new Dictionary<string, INode>()
             {
-                { "gender", genderUri }
+                { "gender", SparqlConstructor.GetNode(genderUri) }
             };
         }
 
         public override IResource[] SynchronizeIds(IResource[] source, Uri subjectUri, IResource[] target)
         {
-            IMember member = source.OfType<IMember>().SingleOrDefault();
+            IMember member = source.OfType<Member>().SingleOrDefault();
             if ((member.PersonHasGenderIdentity != null) && (member.PersonHasGenderIdentity.Any()))
             {
                 IGenderIdentity genderIdentity = target.OfType<IGenderIdentity>().SingleOrDefault();

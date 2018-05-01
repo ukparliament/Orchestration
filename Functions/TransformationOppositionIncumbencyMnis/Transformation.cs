@@ -1,11 +1,10 @@
-﻿using Parliament.Rdf;
-using Parliament.Model;
+﻿using Parliament.Model;
+using Parliament.Rdf;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
 using VDS.RDF;
-using VDS.RDF.Query;
 
 namespace Functions.TransformationOppositionIncumbencyMnis
 {
@@ -54,14 +53,14 @@ namespace Functions.TransformationOppositionIncumbencyMnis
             return new IResource[] { oppositionIncumbency, incumbency };
         }
 
-        public override Dictionary<string, object> GetKeysFromSource(IResource[] deserializedSource)
+        public override Dictionary<string, INode> GetKeysFromSource(IResource[] deserializedSource)
         {
             string oppositionIncumbencyMnisId = deserializedSource.OfType<IMnisOppositionIncumbency>()
                 .SingleOrDefault()
                 .OppositionIncumbencyMnisId;
-            return new Dictionary<string, object>()
+            return new Dictionary<string, INode>()
             {
-                { "oppositionIncumbencyMnisId", oppositionIncumbencyMnisId }
+                { "oppositionIncumbencyMnisId", SparqlConstructor.GetNode(oppositionIncumbencyMnisId) }
             };
         }
 

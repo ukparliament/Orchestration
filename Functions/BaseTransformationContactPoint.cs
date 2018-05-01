@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
+using VDS.RDF;
 
 namespace Functions
 {
@@ -25,14 +26,14 @@ namespace Functions
             return new IResource[] { contactPoint };
         }
 
-        public override Dictionary<string, object> GetKeysFromSource(IResource[] deserializedSource)
+        public override Dictionary<string, INode> GetKeysFromSource(IResource[] deserializedSource)
         {
             string contactPointMnisId = deserializedSource.OfType<IMnisContactPoint>()
                 .SingleOrDefault()
                 .ContactPointMnisId;
-            return new Dictionary<string, object>()
+            return new Dictionary<string, INode>()
             {
-                { "contactPointMnisId", contactPointMnisId }
+                { "contactPointMnisId", SparqlConstructor.GetNode(contactPointMnisId) }
             };
         }
 

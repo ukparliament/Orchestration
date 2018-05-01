@@ -16,14 +16,7 @@ namespace Functions.TransformationLordsSeat
         {
             get
             {
-                return @"
-            construct{
-                ?s a parl:HouseSeat.
-            }
-            where{
-                bind(@subjectUri as ?s)
-                ?s parl:houseSeatName ?houseSeatName.
-            }";
+                return null;
             }
         }
 

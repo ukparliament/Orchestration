@@ -17,14 +17,7 @@ namespace Functions.TransformationCommitteeType
         {
             get
             {
-                return @"
-            construct{
-                ?s a parl:FormalBodyType.
-            }
-            where{
-                bind(@subjectUri as ?s)
-                ?s parl:formalBodyTypeName ?formalBodyTypeName.
-            }";
+                return null;
             }
         }
 

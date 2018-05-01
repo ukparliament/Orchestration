@@ -16,14 +16,7 @@ namespace Functions.TransformationWebLink
         {
             get
             {
-                return @"
-            construct{
-                ?s a parl:PersonWebLink.
-            }
-            where{
-                bind(@subjectUri as ?s)
-                ?s parl:personWebLinkHasPerson ?person.
-            }";
+                return null;
             }
         }
 

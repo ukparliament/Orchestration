@@ -42,6 +42,11 @@ namespace Functions.TransformationAnsweringBodyMnis
             {
                 answeringBody.GroupName = element.Element(d + "Name").GetText();
             }
+            else
+            {
+                var currentName = groupNameGraph.GetTriplesWithPredicate(new Uri("https://id.parliament.uk/schema/groupName")).FirstOrDefault().Object.ToString();
+                answeringBody.GroupName = currentName;
+            }
 
             IMnisDepartmentGroup department = null;
             string departmentId = element.Element(d + "Department_Id").GetText();

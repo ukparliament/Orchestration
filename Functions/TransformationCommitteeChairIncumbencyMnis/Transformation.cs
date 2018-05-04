@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
+using VDS.RDF;
 using VDS.RDF.Query;
 
 namespace Functions.TransformationCommitteeChairIncumbencyMnis
@@ -37,14 +38,14 @@ namespace Functions.TransformationCommitteeChairIncumbencyMnis
             return new IResource[] { mnisIncumbency, pastIncumbency };
         }
 
-        public override Dictionary<string, object> GetKeysFromSource(IResource[] deserializedSource)
+        public override Dictionary<string, INode> GetKeysFromSource(IResource[] deserializedSource)
         {
             string formalBodyChairIncumbencyMnisId = deserializedSource.OfType<IMnisFormalBodyChairIncumbency>()
                 .SingleOrDefault()
                 .FormalBodyChairIncumbencyMnisId;
-            return new Dictionary<string, object>()
+            return new Dictionary<string, INode>()
             {
-                { "formalBodyChairIncumbencyMnisId", formalBodyChairIncumbencyMnisId }
+                { "formalBodyChairIncumbencyMnisId", SparqlConstructor.GetNode(formalBodyChairIncumbencyMnisId) }
             };
         }
 

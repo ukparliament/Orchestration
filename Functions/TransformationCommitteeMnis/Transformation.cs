@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
+using VDS.RDF;
 
 namespace Functions.TransformationCommitteeMnis
 {
@@ -70,14 +71,14 @@ namespace Functions.TransformationCommitteeMnis
             return houses;
         }
 
-        public override Dictionary<string, object> GetKeysFromSource(IResource[] deserializedSource)
+        public override Dictionary<string, INode> GetKeysFromSource(IResource[] deserializedSource)
         {
             string formalBodyMnisId = deserializedSource.OfType<IMnisFormalBody>()
                 .SingleOrDefault()
                 .FormalBodyMnisId;
-            return new Dictionary<string, object>()
+            return new Dictionary<string, INode>()
             {
-                { "formalBodyMnisId", formalBodyMnisId }
+                { "formalBodyMnisId", SparqlConstructor.GetNode(formalBodyMnisId) }
             };
         }
 

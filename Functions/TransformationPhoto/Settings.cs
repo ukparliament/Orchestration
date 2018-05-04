@@ -16,14 +16,7 @@ namespace Functions.TransformationPhoto
         {
             get
             {
-                return @"
-            construct{
-                ?s a parl:MemberImage.
-            }
-            where{
-                bind(@subjectUri as ?s)
-                ?s parl:memberImageHasMember ?person.
-            }";
+                return null;
             }
         }
 

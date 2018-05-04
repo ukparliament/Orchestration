@@ -4,6 +4,7 @@ using Parliament.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using VDS.RDF;
 
 namespace Functions.TransformationConstituencyOSNI
 {
@@ -23,14 +24,14 @@ namespace Functions.TransformationConstituencyOSNI
             return new IResource[] { constituency };
         }
 
-        public override Dictionary<string, object> GetKeysFromSource(IResource[] deserializedSource)
+        public override Dictionary<string, INode> GetKeysFromSource(IResource[] deserializedSource)
         {
             string constituencyGroupOnsCode = deserializedSource.OfType<IOnsConstituencyGroup>()
                 .SingleOrDefault()
                 .ConstituencyGroupOnsCode;
-            return new Dictionary<string, object>()
+            return new Dictionary<string, INode>()
             {
-                { "constituencyGroupOnsCode", constituencyGroupOnsCode }
+                { "constituencyGroupOnsCode", SparqlConstructor.GetNode(constituencyGroupOnsCode) }
             };
         }
 

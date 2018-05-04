@@ -36,15 +36,11 @@ namespace Functions.TransformationCommitteeType
             return new IResource[] { formalBodyType };
         }
 
-        public override Dictionary<string, object> GetKeysFromSource(IResource[] deserializedSource)
+        public override Uri GetSubjectFromSource(IResource[] deserializedSource)
         {
-            Uri subjectUri = deserializedSource.OfType<IFormalBodyType>()
+            return deserializedSource.OfType<IFormalBodyType>()
                 .SingleOrDefault()
-                .Id;
-            return new Dictionary<string, object>()
-            {
-                { "subjectUri", subjectUri }
-            };
+                .Id;            
         }
 
         public override IResource[] SynchronizeIds(IResource[] source, Uri subjectUri, IResource[] target)

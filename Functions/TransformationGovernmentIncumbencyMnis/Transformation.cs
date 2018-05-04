@@ -54,14 +54,14 @@ namespace Functions.TransformationGovernmentIncumbencyMnis
             return new IResource[] { governmentIncumbency, incumbency };
         }
 
-        public override Dictionary<string, object> GetKeysFromSource(IResource[] deserializedSource)
+        public override Dictionary<string, INode> GetKeysFromSource(IResource[] deserializedSource)
         {
             string governmentIncumbencyMnisId = deserializedSource.OfType<IMnisGovernmentIncumbency>()
                 .SingleOrDefault()
                 .GovernmentIncumbencyMnisId;
-            return new Dictionary<string, object>()
+            return new Dictionary<string, INode>()
             {
-                { "governmentIncumbencyMnisId", governmentIncumbencyMnisId }
+                { "governmentIncumbencyMnisId", SparqlConstructor.GetNode(governmentIncumbencyMnisId) }
             };
         }
 

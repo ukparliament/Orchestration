@@ -32,18 +32,20 @@
                 return @"
         construct {
         	?answeringBody a parl:MnisAnsweringBody;
-                parl:answeringBodyMnisId ?answeringBodyMnisId.
+                parl:answeringBodyMnisId ?answeringBodyMnisId;
+                parl:groupName ?groupName.
         }
         where {
             bind(@subject as ?answeringBody)
             ?answeringBody parl:answeringBodyMnisId ?answeringBodyMnisId.
+            OPTIONAL {?answeringBody parl:groupName ?groupName.}
         }";
             }
         }
 
         public string FullDataUrlParameterizedString(string dataUrl)
         {
-            return $"{dataUrl}?$select=AnsweringBody_Id,Department_Id";
+            return $"{dataUrl}?$select=AnsweringBody_Id,Department_Id,Name";
         }
     }
 }

@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
+using VDS.RDF;
 
 namespace Functions.TransformationPartyMnis
 {
@@ -23,14 +24,14 @@ namespace Functions.TransformationPartyMnis
             return new IResource[] { party };
         }
 
-        public override Dictionary<string, object> GetKeysFromSource(IResource[] deserializedSource)
+        public override Dictionary<string, INode> GetKeysFromSource(IResource[] deserializedSource)
         {
             string partyMnisId = deserializedSource.OfType<IMnisParty>()
                 .SingleOrDefault()
                 .PartyMnisId;
-            return new Dictionary<string, object>()
+            return new Dictionary<string, INode>()
             {
-                { "partyMnisId", partyMnisId }
+                { "partyMnisId", SparqlConstructor.GetNode(partyMnisId) }
             };
         }
 

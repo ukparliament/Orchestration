@@ -47,15 +47,11 @@ namespace Functions.TransformationHouseSeatType
             return new IResource[] { houseSeatType };
         }
 
-        public override Dictionary<string, object> GetKeysFromSource(IResource[] deserializedSource)
+        public override Uri GetSubjectFromSource(IResource[] deserializedSource)
         {
-            Uri subjectUri = deserializedSource.OfType<IHouseSeatType>()
+            return deserializedSource.OfType<IHouseSeatType>()
                 .SingleOrDefault()
-                .Id;
-            return new Dictionary<string, object>()
-            {
-                { "subjectUri", subjectUri }
-            };
+                .Id;            
         }
 
         public override IResource[] SynchronizeIds(IResource[] source, Uri subjectUri, IResource[] target)

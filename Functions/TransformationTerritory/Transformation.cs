@@ -5,6 +5,7 @@ using Parliament.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using VDS.RDF;
 
 namespace Functions.TransformationTerritory
 {
@@ -30,14 +31,14 @@ namespace Functions.TransformationTerritory
             return new IResource[] { territory };
         }
 
-        public override Dictionary<string, object> GetKeysFromSource(IResource[] deserializedSource)
+        public override Dictionary<string, INode> GetKeysFromSource(IResource[] deserializedSource)
         {
             string territoryGovRegisterId = deserializedSource.OfType<IGovRegisterTerritory>()
                 .SingleOrDefault()
                 .TerritoryGovRegisterId;
-            return new Dictionary<string, object>()
+            return new Dictionary<string, INode>()
             {
-                { "territoryGovRegisterId", territoryGovRegisterId }
+                { "territoryGovRegisterId", SparqlConstructor.GetNode(territoryGovRegisterId) }
             };
         }
 

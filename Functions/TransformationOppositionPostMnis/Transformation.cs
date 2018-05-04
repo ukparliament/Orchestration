@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
+using VDS.RDF;
 
 namespace Functions.TransformationOppositionPostMnis
 {
@@ -23,14 +24,14 @@ namespace Functions.TransformationOppositionPostMnis
             return new IResource[] { oppositionPosition };
         }
 
-        public override Dictionary<string, object> GetKeysFromSource(IResource[] deserializedSource)
+        public override Dictionary<string, INode> GetKeysFromSource(IResource[] deserializedSource)
         {
             string oppositionPositionMnisId = deserializedSource.OfType<IMnisOppositionPosition>()
                 .SingleOrDefault()
                 .OppositionPositionMnisId;
-            return new Dictionary<string, object>()
+            return new Dictionary<string, INode>()
             {
-                { "oppositionPositionMnisId", oppositionPositionMnisId }
+                { "oppositionPositionMnisId", SparqlConstructor.GetNode(oppositionPositionMnisId) }
             };
         }
 

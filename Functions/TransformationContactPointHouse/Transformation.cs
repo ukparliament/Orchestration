@@ -5,6 +5,7 @@ using Parliament.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using VDS.RDF;
 
 namespace Functions.TransformationContactPointHouse
 {
@@ -52,16 +53,16 @@ namespace Functions.TransformationContactPointHouse
             return new IResource[] { contactPoint };
         }
 
-        public override Dictionary<string, object> GetKeysFromSource(IResource[] deserializedSource)
+        public override Dictionary<string, INode> GetKeysFromSource(IResource[] deserializedSource)
         {
             Uri contactPointHasHouse = deserializedSource.OfType<IContactPoint>()
                 .SingleOrDefault()
                 .ContactPointHasHouse
                 .SingleOrDefault()
                 .Id;
-            return new Dictionary<string, object>()
+            return new Dictionary<string, INode>()
             {
-                { "contactPointHasHouse", contactPointHasHouse }
+                { "contactPointHasHouse", SparqlConstructor.GetNode(contactPointHasHouse) }
             };
         }
 

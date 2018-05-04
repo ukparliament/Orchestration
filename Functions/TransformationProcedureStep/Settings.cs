@@ -28,12 +28,15 @@ namespace Functions.TransformationProcedureStep
         construct {
             ?procedureStep a parl:ProcedureStep;
         	    parl:procedureStepName ?procedureStepName;
-                parl:procedureStepDescription ?procedureStepDescription.
+                parl:procedureStepDescription ?procedureStepDescription;
+                parl:procedureStepHasHouse ?procedureStepHasHouse.
+            ?procedureStepHasHouse a parl:House.
         }
         where {
             bind(@subject as ?procedureStep)
             ?procedureStep parl:procedureStepName ?procedureStepName.
             optional {?procedureStep parl:procedureStepDescription ?procedureStepDescription}
+            optional {?procedureStep parl:procedureStepHasHouse ?procedureStepHasHouse}
         }";
             }
         }

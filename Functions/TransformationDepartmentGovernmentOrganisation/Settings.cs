@@ -17,14 +17,7 @@ namespace Functions.TransformationDepartmentGovernmentOrganisation
         {
             get
             {
-                return @"
-            construct{
-                ?s a parl:GovRegisterGovernmentOrganisation.
-            }
-            where{
-                bind(@subjectUri as ?s)
-                ?s parl:mnisDepartmentId ?mnisDepartmentId.
-            }";
+                return null;
             }
         }
 

@@ -4,6 +4,7 @@ using Parliament.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using VDS.RDF;
 
 namespace Functions.TransformationQuestionWrittenAnswer
 {
@@ -48,7 +49,7 @@ namespace Functions.TransformationQuestionWrittenAnswer
             return new IResource[] { question };
         }
 
-        public override Dictionary<string, object> GetKeysFromSource(IResource[] deserializedSource)
+        public override Dictionary<string, INode> GetKeysFromSource(IResource[] deserializedSource)
         {
             string writtenQuestionEqmUin = deserializedSource.OfType<IEqmWrittenQuestion>()
                 .SingleOrDefault()
@@ -57,10 +58,10 @@ namespace Functions.TransformationQuestionWrittenAnswer
                 .SingleOrDefault()
                 .QuestionAskedAt
                 .Value;
-            return new Dictionary<string, object>()
+            return new Dictionary<string, INode>()
             {
-                { "writtenQuestionEqmUin", writtenQuestionEqmUin },
-                {"questionAskedAt", questionAskedAt }
+                { "writtenQuestionEqmUin", SparqlConstructor.GetNode(writtenQuestionEqmUin) },
+                {"", SparqlConstructor.GetNodeDate(questionAskedAt) }
             };
         }
 

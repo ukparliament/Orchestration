@@ -582,6 +582,48 @@ $logicAppVariable=@(
 		"queueReadInterval"=1;
 		"queueReadFrequency"="Minute";
     }
+	New-Object -TypeName PSObject -Property @{
+        "name"="procedureworkpackage";
+		"sourceKind"=[SourceType]::Sharepoint;
+        "listUri"="25101afd-6e12-4e13-b981-e3b2a12f112e";
+        "listAcceptHeader"="";
+        "foreachObject"="@json('')";
+        "idObject"="@json('')";
+        "frequency"="hour";
+        "interval"=24;
+        "triggerTime"="20:36";
+        "queueReadBatchSize"=50;
+		"queueReadInterval"=1;
+		"queueReadFrequency"="Minute";
+    }
+	New-Object -TypeName PSObject -Property @{
+        "name"="procedureworkpackageablething";
+		"sourceKind"=[SourceType]::Sharepoint;
+        "listUri"="25101afd-6e12-4e13-b981-e3b2a12f112e";
+        "listAcceptHeader"="";
+        "foreachObject"="@json('')";
+        "idObject"="@json('')";
+        "frequency"="hour";
+        "interval"=24;
+        "triggerTime"="20:38";
+        "queueReadBatchSize"=50;
+		"queueReadInterval"=1;
+		"queueReadFrequency"="Minute";
+    }
+	New-Object -TypeName PSObject -Property @{
+        "name"="procedurebusinessitem";
+		"sourceKind"=[SourceType]::Sharepoint;
+        "listUri"="d4c67a7c-6254-4b18-a936-4155536811e5";
+        "listAcceptHeader"="";
+        "foreachObject"="@json('')";
+        "idObject"="@json('')";
+        "frequency"="hour";
+        "interval"=24;
+        "triggerTime"="20:45";
+        "queueReadBatchSize"=50;
+		"queueReadInterval"=1;
+		"queueReadFrequency"="Minute";
+    }
 )
 
 Log "Setting variables to use during deployment"

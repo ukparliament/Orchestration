@@ -18,7 +18,6 @@ namespace Functions
     public class BaseTransformation<T> where T : ITransformationSettings, new()
     {
         protected Logger logger;
-        protected Microsoft.Azure.WebJobs.ExecutionContext functionExecutionContext;
 
         protected static readonly string schemaNamespace = Environment.GetEnvironmentVariable("SchemaNamespace", EnvironmentVariableTarget.Process);
         protected static readonly string idNamespace = Environment.GetEnvironmentVariable("IdNamespace", EnvironmentVariableTarget.Process);
@@ -26,7 +25,6 @@ namespace Functions
         public async Task<object> Run(HttpRequestMessage req, T settings, Microsoft.Azure.WebJobs.ExecutionContext executionContext)
         {
             logger = new Logger(executionContext);
-            functionExecutionContext = executionContext;
             logger.Triggered();
             string jsonContent = await req.Content.ReadAsStringAsync();
             dynamic data = JsonConvert.DeserializeObject(jsonContent);
@@ -52,7 +50,7 @@ namespace Functions
             throw new NotImplementedException();
         }
 
-        public virtual Dictionary<string, object> GetKeysFromSource(IResource[] deserializedSource)
+        public virtual Dictionary<string, INode> GetKeysFromSource(IResource[] deserializedSource)
         {
             return null;
         }
@@ -62,9 +60,9 @@ namespace Functions
             return null;
         }
 
-        public virtual Dictionary<string, object> GetKeysForTarget(IResource[] deserializedSource)
+        public virtual Dictionary<string, INode> GetKeysForTarget(IResource[] deserializedSource)
         {
-            return new Dictionary<string, object> { };
+            return new Dictionary<string, INode> { };
         }
 
         public virtual IResource[] SynchronizeIds(IResource[] source, Uri id, IResource[] deserializedTarget)
@@ -124,18 +122,15 @@ namespace Functions
             }
         }
 
-        //TODO: make it optional
-        private Uri getSubject(Dictionary<string, object> subjectRetrievalDictionary, T settings)
+        private Uri getSubject(Dictionary<string, INode> subjectRetrievalDictionary, T settings)
         {
             Uri subjectUri = null;
             try
             {
                 logger.Verbose("Getting key");
-                SparqlParameterizedString sparql = new SparqlParameterizedString(settings.SubjectRetrievalSparqlCommand);
-                sparql.Namespaces.AddNamespace("parl", new Uri(schemaNamespace));
-                foreach (KeyValuePair<string, object> predicateValue in subjectRetrievalDictionary)
-                    setSparqlParameter(sparql, predicateValue);
-                subjectUri = IdRetrieval.GetSubject(sparql.ToString(), true, logger);
+                SparqlConstructor sparqlConstructor = new SparqlConstructor(settings.SubjectRetrievalSparqlCommand, subjectRetrievalDictionary);
+                sparqlConstructor.Sparql.Namespaces.AddNamespace("parl", new Uri(schemaNamespace));
+                subjectUri = IdRetrieval.GetSubject(sparqlConstructor.Sparql.ToString(), true, logger);
                 logger.Verbose($"Subject: {subjectUri}");
             }
             catch (Exception e)
@@ -145,54 +140,14 @@ namespace Functions
             return subjectUri;
         }
 
-        private IGraph getExistingGraph(Uri subject, Dictionary<string, object> graphRetrievalDictionary, T settings)
+        private IGraph getExistingGraph(Uri subject, Dictionary<string, INode> graphRetrievalDictionary, T settings)
         {
-            SparqlParameterizedString sparql = new SparqlParameterizedString(settings.ExistingGraphSparqlCommand);
-            sparql.SetUri("subject", subject);
-            foreach (KeyValuePair<string, object> predicateValue in graphRetrievalDictionary)
-                setSparqlParameter(sparql, predicateValue);
-            sparql.Namespaces.AddNamespace("parl", new Uri(schemaNamespace));
+            graphRetrievalDictionary = graphRetrievalDictionary ?? new Dictionary<string, INode>();
+            graphRetrievalDictionary.Add("subject", SparqlConstructor.GetNode(subject));
+            SparqlConstructor sparqlConstructor = new SparqlConstructor(settings.ExistingGraphSparqlCommand, graphRetrievalDictionary);
+            sparqlConstructor.Sparql.Namespaces.AddNamespace("parl", new Uri(schemaNamespace));
             logger.Verbose("Trying to get existing graph");
-            return GraphRetrieval.GetGraph(sparql.ToString(), logger);
-        }
-
-        //TODO: use rdf serialization to get the type
-        private void setSparqlParameter(SparqlParameterizedString sparql, KeyValuePair<string, object> predicateValue)
-        {
-            object value = predicateValue.Value;
-            if (value == null)
-                sparql.SetLiteral(predicateValue.Key, string.Empty);
-            else
-                if (value is Uri)
-                    sparql.SetUri(predicateValue.Key, (Uri)value);
-            else
-                if (value is DateTimeOffset)
-                {
-                    ILiteralNode dateLiteral = ((DateTimeOffset)value).ToLiteralDate(new NodeFactory());
-                    sparql.SetLiteral(predicateValue.Key, dateLiteral.Value, dateLiteral.DataType);
-                }
-            else
-                switch (Type.GetTypeCode(value.GetType().BaseType))
-                {
-                    case TypeCode.Boolean:
-                        sparql.SetLiteral(predicateValue.Key, (bool)value);
-                        break;
-                    case TypeCode.Decimal:
-                        sparql.SetLiteral(predicateValue.Key, (decimal)value);
-                        break;
-                    case TypeCode.Double:
-                        sparql.SetLiteral(predicateValue.Key, (double)value);
-                        break;
-                    case TypeCode.Int32:
-                        sparql.SetLiteral(predicateValue.Key, (int)value);
-                        break;
-                    case TypeCode.String:
-                        sparql.SetLiteral(predicateValue.Key, value.ToString());
-                        break;
-                    default:
-                        sparql.SetLiteral(predicateValue.Key, value.ToString());
-                        break;
-                }
+            return GraphRetrieval.GetGraph(sparqlConstructor.Sparql.ToString(), logger);
         }
 
         private IEnumerable<IResource> deserializeTarget(IGraph target)
@@ -231,7 +186,7 @@ namespace Functions
                 return await communicateBack(callbackUrl, "Problem while deserializing source");
             }
 
-            Dictionary<string, object> subjectRetrievalDictionary;
+            Dictionary<string, INode> subjectRetrievalDictionary;
             try
             {
                 logger.Verbose("Retrieving key(s) from the source");
@@ -261,7 +216,7 @@ namespace Functions
             if (subjectUri == null)
                 return await communicateBack(callbackUrl, "Problem while obtaining subject from triplestore");
 
-            Dictionary<string, object> graphRetrievalDictionary = GetKeysForTarget(deserializedSource);
+            Dictionary<string, INode> graphRetrievalDictionary = GetKeysForTarget(deserializedSource);
             IGraph existingGraph = getExistingGraph(subjectUri, graphRetrievalDictionary, settings);
             if (existingGraph == null)
                 return await communicateBack(callbackUrl, $"Problem while retrieving old graph for {subjectUri}");

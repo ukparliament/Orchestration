@@ -16,14 +16,7 @@ namespace Functions.TransformationParliamentPeriod
         {
             get
             {
-                return @"
-            construct{
-                ?s a parl:ParliamentPeriod.
-            }
-            where{
-                bind(@subjectUri as ?s)
-                ?s parl:parliamentPeriodNumber ?parliamentPeriodNumber.
-            }";
+                return null;
             }
         }
 

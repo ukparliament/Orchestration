@@ -65,14 +65,14 @@ namespace Functions.TransformationSeatIncumbencyMnis
             return new IResource[] { incumbency, seatIncumbency };
         }
 
-        public override Dictionary<string, object> GetKeysFromSource(IResource[] deserializedSource)
+        public override Dictionary<string, INode> GetKeysFromSource(IResource[] deserializedSource)
         {
             string commonsSeatIncumbencyMnisId = deserializedSource.OfType<IMnisSeatIncumbency>()
                 .SingleOrDefault()
                 .CommonsSeatIncumbencyMnisId;
-            return new Dictionary<string, object>()
+            return new Dictionary<string, INode>()
             {
-                { "commonsSeatIncumbencyMnisId", commonsSeatIncumbencyMnisId }
+                { "commonsSeatIncumbencyMnisId", SparqlConstructor.GetNode(commonsSeatIncumbencyMnisId) }
             };
         }
 

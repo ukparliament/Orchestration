@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
+using VDS.RDF;
 
 namespace Functions.TransformationConstituencyMnis
 {
@@ -35,7 +36,7 @@ namespace Functions.TransformationConstituencyMnis
             return new IResource[] { mnisConstituency, onsConstituencyGroup, pastConstituencyGroup };
         }
 
-        public override Dictionary<string, object> GetKeysFromSource(IResource[] deserializedSource)
+        public override Dictionary<string, INode> GetKeysFromSource(IResource[] deserializedSource)
         {
             string constituencyGroupMnisId = deserializedSource.OfType<IMnisConstituencyGroup>()
                 .SingleOrDefault()
@@ -43,10 +44,10 @@ namespace Functions.TransformationConstituencyMnis
             string constituencyGroupOnsCode = deserializedSource.OfType<IOnsConstituencyGroup>()
                 .SingleOrDefault()
                 .ConstituencyGroupOnsCode;
-            return new Dictionary<string, object>()
+            return new Dictionary<string, INode>()
             {
-                { "constituencyGroupMnisId", constituencyGroupMnisId },
-                {"constituencyGroupOnsCode", constituencyGroupOnsCode }
+                { "constituencyGroupMnisId", SparqlConstructor.GetNode(constituencyGroupMnisId) },
+                {"constituencyGroupOnsCode", SparqlConstructor.GetNode(constituencyGroupOnsCode) }
             };
         }
 

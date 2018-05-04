@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
+using VDS.RDF;
 
 namespace Functions.TransformationDepartmentMnis
 {
@@ -31,14 +32,14 @@ namespace Functions.TransformationDepartmentMnis
             return new IResource[] { department, pastGroup };
         }
 
-        public override Dictionary<string, object> GetKeysFromSource(IResource[] deserializedSource)
+        public override Dictionary<string, INode> GetKeysFromSource(IResource[] deserializedSource)
         {
             string mnisDepartmentId = deserializedSource.OfType<IMnisDepartmentGroup>()
                 .SingleOrDefault()
                 .MnisDepartmentId;
-            return new Dictionary<string, object>()
+            return new Dictionary<string, INode>()
             {
-                { "mnisDepartmentId", mnisDepartmentId }
+                { "mnisDepartmentId", SparqlConstructor.GetNode(mnisDepartmentId) }
             };
         }
 

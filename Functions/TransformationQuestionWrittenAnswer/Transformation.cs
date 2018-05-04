@@ -1,50 +1,62 @@
-﻿using Newtonsoft.Json;
-using Parliament.Rdf;
+﻿using Parliament.Rdf;
 using Parliament.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Xml.Linq;
 using VDS.RDF;
 
 namespace Functions.TransformationQuestionWrittenAnswer
 {
     public class Transformation : BaseTransformation<Settings>
     {
+        public XElement FindXElementByAttributeName(List<XElement> elements, string nameValue, string valueElementName)
+        {
+            var element = elements.Where(x => x.Attribute("name").Value == nameValue).FirstOrDefault();
+            if (element == null)
+                return element;
+            return element.Element(valueElementName);
+        }
 
         public override IResource[] TransformSource(string response)
         {
-            Rootobject sourceQuestion = JsonConvert.DeserializeObject<Rootobject>(response, new JsonSerializerSettings() { DateTimeZoneHandling = DateTimeZoneHandling.Utc });
-            IEqmWrittenQuestion question = new EqmWrittenQuestion();
+            XDocument doc = XDocument.Parse(response);
+            var questionElements = doc.Element("response").Element("result").Element("doc").Elements("arr").ToList();
 
-            if ((sourceQuestion != null) && (sourceQuestion.Response != null) &&
-                (sourceQuestion.Response.Any()) && (sourceQuestion.Response[0].UIN.HasValue) &&
-                (sourceQuestion.Response[0].TabledWhen.HasValue) && (sourceQuestion.Response[0].AskingMemberId.HasValue) &&
-                (sourceQuestion.Response[0].AskingMemberId.Value != 0))
-            {
-                if (sourceQuestion.Response.Length > 1)
-                    logger.Warning($"Multiple responses for UIN {sourceQuestion.Response[0].UIN.Value}");
-                Response data = sourceQuestion.Response[0];
-                question.WrittenQuestionEqmUin = data.UIN.Value.ToString();
-                question.QuestionAskedAt = data.TabledWhen;
-                question.QuestionText = data.QuestionText;
-                Uri memberId = IdRetrieval.GetSubject("memberMnisId", data.AskingMemberId.Value.ToString(), false, logger);
-                if (memberId != null)
-                    question.QuestionHasAskingPerson = new IPerson[]
-                    {
+            Response data = new Response();
+            data.DateTabled = FindXElementByAttributeName(questionElements, "dateTabled_dt", "date").GetDate();
+            data.QuestionText = FindXElementByAttributeName(questionElements, "questionText_t", "str").GetText();
+            data.AskingMemberSesId = FindXElementByAttributeName(questionElements, "askingMember_ses", "int").GetText();
+            data.AnsweringDeptSesId = FindXElementByAttributeName(questionElements, "answeringDept_ses", "int").GetText();
+            data.HeadingDueDate = FindXElementByAttributeName(questionElements, "headingDueDate_dt", "date").GetDate();
+            data.AnswerText = FindXElementByAttributeName(questionElements, "answerText_t", "str").GetText();
+            data.DateOfAnswer = FindXElementByAttributeName(questionElements, "dateOfAnswer_dt", "date").GetDate();
+            data.AnsweringMemberSesId = FindXElementByAttributeName(questionElements, "answeringMember_ses", "int").GetText();
+            data.DateForAnswer = FindXElementByAttributeName(questionElements, "dateForAnswer_dt", "date").GetDate();
+
+            IEqmWrittenQuestion question = new EqmWrittenQuestion();
+            question.QuestionAskedAt = data.DateTabled;
+            question.QuestionText = data.QuestionText;
+
+            Uri memberId = IdRetrieval.GetSubject("sesId", data.AskingMemberSesId, false, logger);
+            // Members could share Ses Id. Need to fix.
+            if (memberId != null)
+                question.QuestionHasAskingPerson = new IPerson[]
+                {
                         new Person()
                         {
                             Id = memberId
                         }
-                    };
-                else
-                    logger.Warning($"Member ({data.AskingMemberId}) not found");
-                IAnsweringBodyAllocation answeringBodyAllocation = giveMeAnsweringBodyAllocation(data);
-                if (answeringBodyAllocation != null)
-                    question.QuestionHasAnsweringBodyAllocation = new IAnsweringBodyAllocation[] { answeringBodyAllocation };
-                IWrittenAnswerExpectation writtenAnswerExpectation = giveMeWrittenAnswerExpectation(data);
-                if (writtenAnswerExpectation != null)
-                    question.QuestionHasWrittenAnswerExpectation = new IWrittenAnswerExpectation[] { writtenAnswerExpectation };
-            }
+                };
+            else
+                logger.Warning($"Member with Ses Id ({data.AskingMemberSesId}) not found");
+
+            IAnsweringBodyAllocation answeringBodyAllocation = giveMeAnsweringBodyAllocation(data);
+            if (answeringBodyAllocation != null)
+                question.QuestionHasAnsweringBodyAllocation = new IAnsweringBodyAllocation[] { answeringBodyAllocation };
+            IWrittenAnswerExpectation writtenAnswerExpectation = giveMeWrittenAnswerExpectation(data);
+            if (writtenAnswerExpectation != null)
+                question.QuestionHasWrittenAnswerExpectation = new IWrittenAnswerExpectation[] { writtenAnswerExpectation };
 
             return new IResource[] { question };
         }
@@ -116,9 +128,9 @@ namespace Functions.TransformationQuestionWrittenAnswer
         {
             IAnsweringBodyAllocation answeringBodyAllocation = null;
 
-            if (data.AnsweringBodyId.HasValue)
+            if (data.AnsweringDeptSesId != null)
             {
-                Uri answeringBodyId = IdRetrieval.GetSubject("answeringBodyMnisId", data.AnsweringBodyId.Value.ToString(), false, logger);
+                Uri answeringBodyId = IdRetrieval.GetSubject("sesId", data.AnsweringDeptSesId, false, logger);
                 if (answeringBodyId != null)
                 {
                     answeringBodyAllocation = new AnsweringBodyAllocation()
@@ -136,7 +148,7 @@ namespace Functions.TransformationQuestionWrittenAnswer
                             .AnsweringBodyHasWrittenAnswer = new IWrittenAnswer[] { writtenAnswer };
                 }
                 else
-                    logger.Warning($"Answering body ({data.AskingMemberId}) not found");
+                    logger.Warning($"Answering body with Ses Id ({data.AskingMemberSesId}) not found");
             }
 
             return answeringBodyAllocation;
@@ -146,17 +158,18 @@ namespace Functions.TransformationQuestionWrittenAnswer
         {
             IWrittenAnswer writtenAnswer = null;
 
-            if ((string.IsNullOrWhiteSpace(data.Answer) == false) || (data.AnsweredWhen.HasValue))
+            if ((string.IsNullOrWhiteSpace(data.AnswerText) == false) || (data.DateOfAnswer.HasValue))
             {
                 writtenAnswer = new WrittenAnswer()
                 {
                     Id = GenerateNewId(),
-                    AnswerText = DeserializerHelper.GiveMeSingleTextValue(data.Answer),
-                    AnswerGivenDate = data.AnsweredWhen
+                    AnswerText = DeserializerHelper.GiveMeSingleTextValue(data.AnswerText),
+                    AnswerGivenDate = data.DateOfAnswer
                 };
-                if (data.AnsweringMinisterId.HasValue)
+                if (!string.IsNullOrWhiteSpace(data.AnsweringMemberSesId))
                 {
-                    Uri ministerId = IdRetrieval.GetSubject("memberMnisId", data.AnsweringMinisterId.Value.ToString(), false, logger);
+                    Uri ministerId = IdRetrieval.GetSubject("sesId", data.AnsweringMemberSesId, false, logger);
+                    //members share Ses Id. Need to fix.
                     if (ministerId != null)
                         writtenAnswer.AnswerHasAnsweringPerson = new IPerson[]
                             {
@@ -166,7 +179,7 @@ namespace Functions.TransformationQuestionWrittenAnswer
                                 }
                             };
                     else
-                        logger.Warning($"Minister ({data.AskingMemberId}) not found");
+                        logger.Warning($"Minister with Ses Id ({data.AnsweringMemberSesId}) not found");
                 }
             }
 
@@ -177,11 +190,11 @@ namespace Functions.TransformationQuestionWrittenAnswer
         {
             IWrittenAnswerExpectation writtenAnswerExpectation = null;
 
-            if (data.DueForAnswer.HasValue)
+            if (data.DateForAnswer.HasValue)
                 writtenAnswerExpectation = new WrittenAnswerExpectation()
                 {
                     Id = GenerateNewId(),
-                    AnswerExpectationStartDate = DeserializerHelper.GiveMeSingleDateValue(data.DueForAnswer)
+                    AnswerExpectationStartDate = DeserializerHelper.GiveMeSingleDateValue(data.DateForAnswer)
                 };
 
             return writtenAnswerExpectation;

@@ -48,7 +48,7 @@
                         "body": {
                           "Properties": {
                             "batchId": "@triggerBody()['batchId']",
-                            "url": "@{item().UIN}"
+                            "url": "@item()['@name']"
                           }
                         },
                         "host": {
@@ -68,7 +68,7 @@
                       "type": "ApiConnection"
                     }
                   },
-                  "foreach": "@body('Get_List').Response",
+                  "foreach": "@json(body('Get_List')).response.lst[1].lst",
                   "runAfter": {},
                   "type": "Foreach"
                 }
@@ -159,7 +159,7 @@
                   }
                 }
               },
-              "expression": "@equals(body('Get_List').StatusCode, 200)",
+              "expression": "@equals(outputs('Get_List')['statusCode'], 200)",
               "runAfter": {
                 "Get_List": [
                   "Succeeded"
@@ -178,7 +178,7 @@
                   "interval": "PT20S",
                   "type": "fixed"
                 },
-                "uri": "https://eqm-services.digiminster.com/writtenquestions/list?parameters.skip=@{mul(50,triggerBody()['pageNo'])}&parameters.take=50"
+                "uri": "http://13.93.40.140:8983/solr/select/?q=%28type_sesrollup%3A93522%5E0+OR+type_t%3A\"Written+questions\"%5E0%29&version=2.2&start=@{mul(50,triggerBody()['pageNo'])}&rows=50&fl=highlighting"
               },
               "runAfter": {
                 "Response": [

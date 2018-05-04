@@ -57,7 +57,7 @@
                   "type": "Workflow"
                 }
               },
-              "foreach": "@range(0,add(div(int(body('Get_List').PagingInfo.Total),50),1))",
+              "foreach": "@range(0,add(div(int(json(body('Get_List')).response.result['@numFound']),50),1))",
               "operationOptions": "Sequential",
               "runAfter": {
                 "Get_List": [
@@ -77,7 +77,7 @@
                   "interval": "PT20S",
                   "type": "fixed"
                 },
-                "uri": "https://eqm-services.digiminster.com/writtenquestions/list"
+                "uri": "http://13.93.40.140:8983/solr/select/?q=%28type_sesrollup%3A93522%5E0+OR+type_t%3A%22Written+questions%22%5E0%29&fl=highlighting"
               },
               "runAfter": {
                 "Response": [

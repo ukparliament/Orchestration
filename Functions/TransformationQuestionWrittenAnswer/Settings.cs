@@ -20,7 +20,7 @@
                 ?s a parl:Question.
             }
             where{
-                ?s parl:writtenQuestionEqmUin @writtenQuestionEqmUin;
+                ?s parl:indexingAndSearchUri @writtenQuestionUri;
                     parl:questionAskedAt @questionAskedAt.
             }";
             }
@@ -33,7 +33,7 @@
                 return @"
             construct {
                 ?question a parl:EqmWrittenQuestion;
-                    parl:writtenQuestionEqmUin ?writtenQuestionEqmUin;
+                    parl:indexingAndSearchUri ?writtenQuestionUri;
 	                parl:questionAskedAt ?questionAskedAt;
 		            parl:questionText ?questionText;
                     parl:questionHasAskingPerson ?questionHasAskingPerson;
@@ -54,8 +54,8 @@
             }
             where {
 	            bind(@subject as ?question)
-	            ?question parl:writtenQuestionEqmUin ?writtenQuestionEqmUin;
-                    parl:questionAskedAt ?questionAskedAt.
+	            ?question parl:indexingAndSearchUri ?writtenQuestionUri.
+                optional {?question parl:questionAskedAt ?questionAskedAt}
 	            optional {?question parl:questionText ?questionText}
                 optional {?question parl:questionHasAskingPerson ?questionHasAskingPerson}
                 optional {
@@ -77,9 +77,9 @@
             }
         }
 
-        public string FullDataUrlParameterizedString(string dataUrl)
+        public string FullDataUrlParameterizedString(string dataUri)
         {
-            return $"https://eqm-services.digiminster.com/writtenquestions/list?parameters.uINs={dataUrl}";
+            return $"http://13.93.40.140:8983/solr/select?indent=on&version=2.2&q=uri%3A%22{dataUri}%22&fq=&start=0&rows=10&fl=dateTabled_dt%2CquestionText_t%2CaskingMember_ses%2CansweringDept_ses%2CheadingDueDate_dt%2CanswerText_t%2CdateOfAnswer_dt%2CansweringMember_ses%2CdateForAnswer_dt%2Curi&qt=&wt=&explainOther=&hl.fl=";
         }
     }
 }

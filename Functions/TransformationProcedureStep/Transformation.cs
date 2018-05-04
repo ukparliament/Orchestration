@@ -3,12 +3,15 @@ using Newtonsoft.Json.Linq;
 using Parliament.Model;
 using Parliament.Rdf;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Functions.TransformationProcedureStep
 {
     public class Transformation : BaseTransformation<Settings>
     {
+        private Uri houseUri;
+
         public override IResource[] TransformSource(string response)
         {
             IProcedureStep procedureStep = new ProcedureStep();
@@ -32,7 +35,19 @@ namespace Functions.TransformationProcedureStep
             }
             procedureStep.ProcedureStepName = ((JValue)jsonResponse.SelectToken("Title")).GetText();
             procedureStep.ProcedureStepDescription = ((JValue)jsonResponse.SelectToken("Description")).GetText();
-
+            List<IHouse> houses= new List<IHouse>();
+            foreach (JObject house in (JArray)jsonResponse.SelectToken("House_x003a_TripleStoreId"))
+            {
+                string houseId = house["Value"].ToString();
+                if (string.IsNullOrWhiteSpace(houseId))
+                    continue;
+                if (Uri.TryCreate($"{idNamespace}{houseId}", UriKind.Absolute, out houseUri))
+                    houses.Add(new House()
+                    {
+                        Id = houseUri
+                    });
+            }
+            procedureStep.ProcedureStepHasHouse = houses;
             return new IResource[] { procedureStep };
         }
 

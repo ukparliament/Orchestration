@@ -53,7 +53,7 @@ namespace Functions
 
         public static DateTimeOffset? GetDate(this JValue value)
         {
-            if ((value != null) && (value.Type == JTokenType.Date) &&
+            if ((value != null) && ((value.Type == JTokenType.Date) || (value.Type==JTokenType.String)) &&
                 (value.Value != null) && (string.IsNullOrWhiteSpace(value.Value.ToString()) == false) &&
                 (DateTimeOffset.TryParse(value.Value.ToString(), null as IFormatProvider, System.Globalization.DateTimeStyles.AssumeUniversal, out DateTimeOffset dt)))
                 return dt;

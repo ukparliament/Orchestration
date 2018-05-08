@@ -37,6 +37,9 @@ namespace Functions.TransformationQuestionWrittenAnswer
             IEqmWrittenQuestion question = new EqmWrittenQuestion();
             question.QuestionAskedAt = data.DateTabled;
             question.QuestionText = data.QuestionText;
+            IndexingAndSearchThing iast = new IndexingAndSearchThing();
+            var uriElements = doc.Element("response").Element("result").Element("doc").Elements("str").ToList();
+            iast.IndexingAndSearchUri = new String[] { uriElements.Where(x => x.Attribute("name").Value == "uri").FirstOrDefault().GetText() };
 
             Uri memberId = IdRetrieval.GetSubject("sesId", data.AskingMemberSesId, false, logger);
             // Members could share Ses Id. Need to fix.
@@ -58,22 +61,17 @@ namespace Functions.TransformationQuestionWrittenAnswer
             if (writtenAnswerExpectation != null)
                 question.QuestionHasWrittenAnswerExpectation = new IWrittenAnswerExpectation[] { writtenAnswerExpectation };
 
-            return new IResource[] { question };
+            return new IResource[] { question, iast };
         }
 
         public override Dictionary<string, INode> GetKeysFromSource(IResource[] deserializedSource)
         {
-            string writtenQuestionEqmUin = deserializedSource.OfType<IEqmWrittenQuestion>()
+            string writtenQuestionEqmUri = deserializedSource.OfType<IIndexingAndSearchThing>()
                 .SingleOrDefault()
-                .WrittenQuestionEqmUin;
-            DateTimeOffset questionAskedAt = deserializedSource.OfType<IQuestion>()
-                .SingleOrDefault()
-                .QuestionAskedAt
-                .Value;
+                .IndexingAndSearchUri.SingleOrDefault();
             return new Dictionary<string, INode>()
             {
-                { "writtenQuestionEqmUin", SparqlConstructor.GetNode(writtenQuestionEqmUin) },
-                {"", SparqlConstructor.GetNodeDate(questionAskedAt) }
+                { "writtenQuestionUri", SparqlConstructor.GetNode(writtenQuestionEqmUri) }
             };
         }
 
@@ -81,6 +79,8 @@ namespace Functions.TransformationQuestionWrittenAnswer
         {
             IEqmWrittenQuestion question = source.OfType<IEqmWrittenQuestion>().SingleOrDefault();
             question.Id = subjectUri;
+            IIndexingAndSearchThing iast = source.OfType<IIndexingAndSearchThing>().SingleOrDefault();
+            iast.Id = subjectUri;
             if ((question.QuestionHasAnsweringBodyAllocation != null) && (question.QuestionHasAnsweringBodyAllocation.Any()))
             {
                 IAnsweringBodyAllocation answeringBodyAllocationTarget = target.OfType<IAnsweringBodyAllocation>().SingleOrDefault();
@@ -121,7 +121,7 @@ namespace Functions.TransformationQuestionWrittenAnswer
                         .Id = expectationTarget.Id;
             }
 
-            return new IResource[] { question };
+            return new IResource[] { question, iast };
         }
 
         private IAnsweringBodyAllocation giveMeAnsweringBodyAllocation(Response data)

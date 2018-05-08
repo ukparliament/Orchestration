@@ -20,8 +20,7 @@
                 ?s a parl:Question.
             }
             where{
-                ?s parl:indexingAndSearchUri @writtenQuestionUri;
-                    parl:questionAskedAt @questionAskedAt.
+                ?s parl:indexingAndSearchUri @writtenQuestionUri.
             }";
             }
         }
@@ -32,8 +31,9 @@
             {
                 return @"
             construct {
+                ?question a parl:IndexingAndSearchThing;
+                    parl:indexingAndSearchUri ?writtenQuestionUri.
                 ?question a parl:EqmWrittenQuestion;
-                    parl:indexingAndSearchUri ?writtenQuestionUri;
 	                parl:questionAskedAt ?questionAskedAt;
 		            parl:questionText ?questionText;
                     parl:questionHasAskingPerson ?questionHasAskingPerson;

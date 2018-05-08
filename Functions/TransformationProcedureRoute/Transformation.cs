@@ -86,6 +86,15 @@ namespace Functions.TransformationProcedureRoute
                             }
                         };
                         break;
+                    case ProcedureRouteType.Requires:
+                        fromProcedureStep.ProcedureStepRequiresRequiredProcedureRoute = new List<IRequiredProcedureRoute>()
+                        {
+                            new RequiredProcedureRoute()
+                            {
+                                Id=procedureRoute.Id
+                            }
+                        };
+                        break;
                 }
                 procedureRoute.ProcedureRouteIsFromProcedureStep = new List<IProcedureStep>()
                 {

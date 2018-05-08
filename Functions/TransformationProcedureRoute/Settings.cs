@@ -52,6 +52,10 @@ namespace Functions.TransformationProcedureRoute
                 ?procedureRouteIsFromProcedureStep parl:procedureStepPrecludesPrecludedProcedureRoute ?procedureRoute.
                 bind(parl:procedureStepPrecludesPrecludedProcedureRoute as ?procedureRouteTriggerType)
             }
+            optional{
+                ?procedureRouteIsFromProcedureStep parl:procedureStepRequiresRequiredProcedureRoute ?procedureRoute.
+                bind(parl:procedureStepRequiresRequiredProcedureRoute as ?procedureRouteTriggerType)
+            }
         }";
             }
         }

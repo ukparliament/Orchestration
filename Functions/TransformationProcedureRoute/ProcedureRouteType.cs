@@ -7,6 +7,7 @@ namespace Functions.TransformationProcedureRoute
     {
         Causes,
         Allows,
-        Precludes
+        Precludes,
+        Requires
     }
 }

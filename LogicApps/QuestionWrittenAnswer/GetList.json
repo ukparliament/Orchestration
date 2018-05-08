@@ -77,7 +77,7 @@
                   "interval": "PT20S",
                   "type": "fixed"
                 },
-                "uri": "http://13.93.40.140:8983/solr/select/?q=%28type_sesrollup%3A93522%5E0+OR+type_t%3A%22Written+questions%22%5E0%29&fl=highlighting"
+                "uri": "http://13.93.40.140:8983/solr/select/?q=%28type_sesrollup%3A93522%5E0+OR+type_t%3A%22Written+questions%22%5E0%29+AND+dateLastModified_dt%3A%5B@{ addDays(startOfDay(utcNow()), -1)}+TO+*%5D&fl=highlighting"
               },
               "runAfter": {
                 "Response": [

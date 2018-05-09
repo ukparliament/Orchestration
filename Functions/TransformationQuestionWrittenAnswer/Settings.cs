@@ -31,9 +31,9 @@
             {
                 return @"
             construct {
-                ?question a parl:IndexingAndSearchThing;
+                ?question 
                     parl:indexingAndSearchUri ?writtenQuestionUri.
-                ?question a parl:EqmWrittenQuestion;
+                ?question a parl:Question;
 	                parl:questionAskedAt ?questionAskedAt;
 		            parl:questionText ?questionText;
                     parl:questionHasAskingPerson ?questionHasAskingPerson;

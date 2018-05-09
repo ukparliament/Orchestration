@@ -34,25 +34,28 @@ namespace Functions.TransformationQuestionWrittenAnswer
             data.AnsweringMemberSesId = FindXElementByAttributeName(questionElements, "answeringMember_ses", "int").GetText();
             data.DateForAnswer = FindXElementByAttributeName(questionElements, "dateForAnswer_dt", "date").GetDate();
 
-            IEqmWrittenQuestion question = new EqmWrittenQuestion();
+            Question question = new Question();
             question.QuestionAskedAt = data.DateTabled;
             question.QuestionText = data.QuestionText;
             IndexingAndSearchThing iast = new IndexingAndSearchThing();
             var uriElements = doc.Element("response").Element("result").Element("doc").Elements("str").ToList();
             iast.IndexingAndSearchUri = new String[] { uriElements.Where(x => x.Attribute("name").Value == "uri").FirstOrDefault().GetText() };
 
-            Uri memberId = IdRetrieval.GetSubject("sesId", data.AskingMemberSesId, false, logger);
-            // Members could share Ses Id. Need to fix.
-            if (memberId != null)
-                question.QuestionHasAskingPerson = new IPerson[]
-                {
-                        new Person()
-                        {
-                            Id = memberId
-                        }
-                };
-            else
-                logger.Warning($"Member with Ses Id ({data.AskingMemberSesId}) not found");
+            if (data.AskingMemberSesId != null)
+            {
+                Uri memberId = IdRetrieval.GetSubject("sesId", data.AskingMemberSesId, false, logger);
+                // Members could share Ses Id. Need to fix.
+                if (memberId != null)
+                    question.QuestionHasAskingPerson = new IPerson[]
+                    {
+                            new Person()
+                            {
+                                Id = memberId
+                            }
+                    };
+                else
+                    logger.Warning($"Member with Ses Id ({data.AskingMemberSesId}) not found");
+            }
 
             IAnsweringBodyAllocation answeringBodyAllocation = giveMeAnsweringBodyAllocation(data);
             if (answeringBodyAllocation != null)
@@ -77,7 +80,7 @@ namespace Functions.TransformationQuestionWrittenAnswer
 
         public override IResource[] SynchronizeIds(IResource[] source, Uri subjectUri, IResource[] target)
         {
-            IEqmWrittenQuestion question = source.OfType<IEqmWrittenQuestion>().SingleOrDefault();
+            IQuestion question = source.OfType<IQuestion>().SingleOrDefault();
             question.Id = subjectUri;
             IIndexingAndSearchThing iast = source.OfType<IIndexingAndSearchThing>().SingleOrDefault();
             iast.Id = subjectUri;
@@ -148,7 +151,7 @@ namespace Functions.TransformationQuestionWrittenAnswer
                             .AnsweringBodyHasWrittenAnswer = new IWrittenAnswer[] { writtenAnswer };
                 }
                 else
-                    logger.Warning($"Answering body with Ses Id ({data.AskingMemberSesId}) not found");
+                    logger.Warning($"Answering body with Ses Id ({data.AnsweringDeptSesId}) not found");
             }
 
             return answeringBodyAllocation;

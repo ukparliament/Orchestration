@@ -3,11 +3,11 @@ using Microsoft.Azure.WebJobs.Host;
 using System.Net.Http;
 using System.Threading.Tasks;
 
-namespace Functions.TransformationProcedureWorkPackageableThingPreceding
+namespace Functions.TransformationProcedureWorkPackageablePreceding
 {
-    public static class TransformationProcedureWorkPackageableThingPreceding
+    public static class TransformationProcedureWorkPackageablePreceding
     {
-        [FunctionName("TransformationProcedureWorkPackageableThingPreceding")]
+        [FunctionName("TransformationProcedureWorkPackageablePreceding")]
         public static async Task<object> Run([HttpTrigger(WebHookType = "genericJson")]HttpRequestMessage req, TraceWriter log, ExecutionContext executionContext)
         {
             Transformation transformation = new Transformation();

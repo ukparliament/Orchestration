@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Functions.TransformationProcedureWorkPackageableThingPreceding
+namespace Functions.TransformationProcedureWorkPackageablePreceding
 {
     public class Settings : ITransformationSettings
     {

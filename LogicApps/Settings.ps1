@@ -611,7 +611,7 @@ $logicAppVariable=@(
 		"queueReadFrequency"="Minute";
     }
 	New-Object -TypeName PSObject -Property @{
-        "name"="procedureworkpackageablethingpreceding";
+        "name"="procedureworkpackageablepreceding";
 		"sourceKind"=[SourceType]::Sharepoint;
         "listUri"="24a1a168-c956-4da5-a7e7-aaf8ed54b38c";
         "listAcceptHeader"="";

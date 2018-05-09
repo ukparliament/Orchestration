@@ -5,7 +5,7 @@ using Parliament.Rdf;
 using System;
 using System.Linq;
 
-namespace Functions.TransformationProcedureWorkPackageableThingPreceding
+namespace Functions.TransformationProcedureWorkPackageablePreceding
 {
     public class Transformation : BaseTransformation<Settings>
     {

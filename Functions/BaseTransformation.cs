@@ -11,7 +11,6 @@ using System.Threading.Tasks;
 using System.Xml.Linq;
 using VDS.RDF;
 using VDS.RDF.Parsing;
-using VDS.RDF.Query;
 
 namespace Functions
 {

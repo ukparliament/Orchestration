@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
 using VDS.RDF;
+using VDS.RDF.Query;
 
 namespace Functions.TransformationQuestionWrittenAnswer
 {
@@ -18,6 +19,47 @@ namespace Functions.TransformationQuestionWrittenAnswer
             return element.Element(valueElementName);
         }
 
+        private static Uri GetMemberId(string objectValue, DateTimeOffset? DateTabled, Logger logger)
+        {
+            string command = @"
+                construct{
+                    ?member parl:sesId @objectValue.
+                }
+                where{
+                    ?member parl:sesId @objectValue.
+                }";
+            SparqlParameterizedString sparql = new SparqlParameterizedString(command);
+            sparql.Namespaces.AddNamespace("parl", new Uri(schemaNamespace));
+            sparql.SetLiteral("objectValue", objectValue);
+            IGraph graph = GraphRetrieval.GetGraph(sparql.ToString(), logger, "true");
+            IEnumerable<INode> nodes = graph.Triples.SubjectNodes;
+            Uri result = null;
+            if (nodes.Count() > 1)
+            {
+                command = @"
+                construct{
+                    ?member parl:sesId @objectValue.
+                }
+                where{
+                    ?member parl:sesId @objectValue;
+                            parl:memberHasParliamentaryIncumbency ?incumbency.
+                    ?incumbency   parl:startDate  ?startDate.
+                    OPTIONAL { ?incumbency    parl:endDate    ?endDate.}
+                    FILTER (?startDate <= @dateTabled)
+                    FILTER ( !bound(?endDate) || (bound(?endDate) && ?endDate >= @dateTabled ))
+                }";
+                sparql = new SparqlParameterizedString(command);
+                sparql.Namespaces.AddNamespace("parl", new Uri(schemaNamespace));
+                sparql.SetLiteral("objectValue", objectValue);
+                sparql.SetParameter("dateTabled", DateTabled.GetValueOrDefault().Date.ToLiteralDate(new NodeFactory()));
+                graph = GraphRetrieval.GetGraph(sparql.ToString(), logger, "true");
+                result = ((IUriNode)graph.Triples.SubjectNodes.SingleOrDefault()).Uri;
+            }
+            else
+                result = ((IUriNode)nodes.SingleOrDefault()).Uri;
+            logger.Verbose($"Found existing ({result})");
+            return result;
+        }
         public override IResource[] TransformSource(string response)
         {
             XDocument doc = XDocument.Parse(response);
@@ -43,8 +85,7 @@ namespace Functions.TransformationQuestionWrittenAnswer
 
             if (data.AskingMemberSesId != null)
             {
-                Uri memberId = IdRetrieval.GetSubject("sesId", data.AskingMemberSesId, false, logger);
-                // Members could share Ses Id. Need to fix.
+                Uri memberId = GetMemberId(data.AskingMemberSesId, data.DateTabled == null ? data.DateOfAnswer: data.DateTabled, logger);
                 if (memberId != null)
                     question.QuestionHasAskingPerson = new IPerson[]
                     {
@@ -171,8 +212,8 @@ namespace Functions.TransformationQuestionWrittenAnswer
                 };
                 if (!string.IsNullOrWhiteSpace(data.AnsweringMemberSesId))
                 {
-                    Uri ministerId = IdRetrieval.GetSubject("sesId", data.AnsweringMemberSesId, false, logger);
-                    //members share Ses Id. Need to fix.
+                    Uri ministerId = GetMemberId(data.AnsweringMemberSesId, data.DateOfAnswer, logger);
+
                     if (ministerId != null)
                         writtenAnswer.AnswerHasAnsweringPerson = new IPerson[]
                             {

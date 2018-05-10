@@ -29,6 +29,8 @@ namespace Functions.TransformationProcedureWorkPackageableThing
             ?workPackageableThing a parl:WorkPackageableThing;
                 parl:workPackageableThingName ?workPackageableThingName;
                 parl:statutoryInstrumentNumber ?statutoryInstrumentNumber;
+                parl:statutoryInstrumentNumberPrefix ?statutoryInstrumentNumberPrefix;
+                parl:statutoryInstrumentNumberYear ?statutoryInstrumentNumberYear;
                 parl:workPackageableThingComingIntoForceDate ?workPackageableThingComingIntoForceDate;
                 parl:workPackageableThingComingIntoForceNote ?workPackageableThingComingIntoForceNote;
                 parl:workPackageableThingTimeLimitForObjectionEndDate ?workPackageableThingTimeLimitForObjectionEndDate;
@@ -39,6 +41,8 @@ namespace Functions.TransformationProcedureWorkPackageableThing
             bind(@subject as ?workPackageableThing)
             ?workPackageableThing parl:workPackageableThingName ?workPackageableThingName.
             optional {?workPackageableThing parl:statutoryInstrumentNumber ?statutoryInstrumentNumber}
+            optional {?workPackageableThing parl:statutoryInstrumentNumberPrefix ?statutoryInstrumentNumberPrefix}
+            optional {?workPackageableThing parl:statutoryInstrumentNumberYear ?statutoryInstrumentNumberYear}
             optional {?workPackageableThing parl:workPackageableThingComingIntoForceDate ?workPackageableThingComingIntoForceDate}
             optional {?workPackageableThing parl:workPackageableThingComingIntoForceNote ?workPackageableThingComingIntoForceNote}
             optional {?workPackageableThing parl:workPackageableThingTimeLimitForObjectionEndDate ?workPackageableThingTimeLimitForObjectionEndDate}

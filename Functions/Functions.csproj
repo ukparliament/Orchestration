@@ -14,7 +14,7 @@
     <PackageReference Include="Microsoft.Azure.WebJobs.ServiceBus" Version="2.1.0-beta1" />
     <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="1.0.6" />
     <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
-    <PackageReference Include="Parliament.Model" Version="1.0.0-r1373" />
+    <PackageReference Include="Parliament.Model" Version="1.0.0-r1406" />
     <PackageReference Include="Parliament.Rdf" Version="1.0.2-r1323" />
     <PackageReference Include="Parliament.Rdf.Serialization" Version="1.0.0-r1177" />
   </ItemGroup>

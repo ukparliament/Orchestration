@@ -51,6 +51,9 @@ namespace Functions.TransformationProcedureWorkPackageableThing
                 };
             
             statutoryInstrument.StatutoryInstrumentNumber = ((JValue)jsonResponse.SelectToken("SINumber")).GetText();
+            statutoryInstrument.StatutoryInstrumentNumberPrefix = ((JValue)jsonResponse.SelectToken("SIPrefix")).GetText();
+            statutoryInstrument.StatutoryInstrumentNumberYear = ((JValue)jsonResponse.SelectToken("SIYear")).GetInteger();
+
             return new IResource[] { workPackageableThing, statutoryInstrument };
         }
 

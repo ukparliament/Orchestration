@@ -10,6 +10,7 @@ namespace Functions.TransformationQuestionWrittenAnswer
     public class Response
     {
         public DateTimeOffset? DateTabled { get; set; }
+        public string QuestionHeading { get; set; }
         public string QuestionText { get; set; }
         public string AskingMemberSesId { get; set; }
         public string AnsweringDeptSesId { get; set; }

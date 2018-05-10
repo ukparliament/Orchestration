@@ -63,25 +63,27 @@ namespace Functions.TransformationQuestionWrittenAnswer
         public override IResource[] TransformSource(string response)
         {
             XDocument doc = XDocument.Parse(response);
-            var questionElements = doc.Element("response").Element("result").Element("doc").Elements("arr").ToList();
+            var arrElements = doc.Element("response").Element("result").Element("doc").Elements("arr").ToList();
+            var strElements = doc.Element("response").Element("result").Element("doc").Elements("str").ToList();
 
             Response data = new Response();
-            data.DateTabled = FindXElementByAttributeName(questionElements, "dateTabled_dt", "date").GetDate();
-            data.QuestionText = FindXElementByAttributeName(questionElements, "questionText_t", "str").GetText();
-            data.AskingMemberSesId = FindXElementByAttributeName(questionElements, "askingMember_ses", "int").GetText();
-            data.AnsweringDeptSesId = FindXElementByAttributeName(questionElements, "answeringDept_ses", "int").GetText();
-            data.HeadingDueDate = FindXElementByAttributeName(questionElements, "headingDueDate_dt", "date").GetDate();
-            data.AnswerText = FindXElementByAttributeName(questionElements, "answerText_t", "str").GetText();
-            data.DateOfAnswer = FindXElementByAttributeName(questionElements, "dateOfAnswer_dt", "date").GetDate();
-            data.AnsweringMemberSesId = FindXElementByAttributeName(questionElements, "answeringMember_ses", "int").GetText();
-            data.DateForAnswer = FindXElementByAttributeName(questionElements, "dateForAnswer_dt", "date").GetDate();
+            data.DateTabled = FindXElementByAttributeName(arrElements, "dateTabled_dt", "date").GetDate();
+            data.QuestionText = FindXElementByAttributeName(arrElements, "questionText_t", "str").GetText();
+            data.QuestionHeading = strElements.Where(x => x.Attribute("name").Value == "title_t").FirstOrDefault().GetText();
+            data.AskingMemberSesId = FindXElementByAttributeName(arrElements, "askingMember_ses", "int").GetText();
+            data.AnsweringDeptSesId = FindXElementByAttributeName(arrElements, "answeringDept_ses", "int").GetText();
+            data.HeadingDueDate = FindXElementByAttributeName(arrElements, "headingDueDate_dt", "date").GetDate();
+            data.AnswerText = FindXElementByAttributeName(arrElements, "answerText_t", "str").GetText();
+            data.DateOfAnswer = FindXElementByAttributeName(arrElements, "dateOfAnswer_dt", "date").GetDate();
+            data.AnsweringMemberSesId = FindXElementByAttributeName(arrElements, "answeringMember_ses", "int").GetText();
+            data.DateForAnswer = FindXElementByAttributeName(arrElements, "dateForAnswer_dt", "date").GetDate();
 
             Question question = new Question();
             question.QuestionAskedAt = data.DateTabled;
+            question.QuestionHeading = data.QuestionHeading;
             question.QuestionText = data.QuestionText;
             IndexingAndSearchThing iast = new IndexingAndSearchThing();
-            var uriElements = doc.Element("response").Element("result").Element("doc").Elements("str").ToList();
-            iast.IndexingAndSearchUri = new String[] { uriElements.Where(x => x.Attribute("name").Value == "uri").FirstOrDefault().GetText() };
+            iast.IndexingAndSearchUri = new String[] { strElements.Where(x => x.Attribute("name").Value == "uri").FirstOrDefault().GetText() };
 
             if (data.AskingMemberSesId != null)
             {

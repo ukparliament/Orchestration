@@ -35,6 +35,7 @@
                     parl:indexingAndSearchUri ?writtenQuestionUri.
                 ?question a parl:Question;
 	                parl:questionAskedAt ?questionAskedAt;
+                    parl:questionHeading ?questionHeading;
 		            parl:questionText ?questionText;
                     parl:questionHasAskingPerson ?questionHasAskingPerson;
                     parl:questionHasAnsweringBodyAllocation ?questionHasAnsweringBodyAllocation;
@@ -56,6 +57,7 @@
 	            bind(@subject as ?question)
 	            ?question parl:indexingAndSearchUri ?writtenQuestionUri.
                 optional {?question parl:questionAskedAt ?questionAskedAt}
+                optional {?question parl:questionHeading ?questionHeading}
 	            optional {?question parl:questionText ?questionText}
                 optional {?question parl:questionHasAskingPerson ?questionHasAskingPerson}
                 optional {
@@ -79,7 +81,7 @@
 
         public string FullDataUrlParameterizedString(string dataUri)
         {
-            return $"http://13.93.40.140:8983/solr/select?indent=on&version=2.2&q=uri%3A%22{dataUri}%22&fq=&start=0&rows=10&fl=dateTabled_dt%2CquestionText_t%2CaskingMember_ses%2CansweringDept_ses%2CheadingDueDate_dt%2CanswerText_t%2CdateOfAnswer_dt%2CansweringMember_ses%2CdateForAnswer_dt%2Curi&qt=&wt=&explainOther=&hl.fl=";
+            return $"http://13.93.40.140:8983/solr/select?indent=on&version=2.2&q=uri%3A%22{dataUri}%22&fq=&start=0&rows=10&fl=dateTabled_dt%2CquestionText_t%2Ctitle_t%2CaskingMember_ses%2CansweringDept_ses%2CheadingDueDate_dt%2CanswerText_t%2CdateOfAnswer_dt%2CansweringMember_ses%2CdateForAnswer_dt%2Curi&qt=&wt=&explainOther=&hl.fl=";
         }
     }
 }

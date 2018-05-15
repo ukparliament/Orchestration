@@ -2,11 +2,6 @@
 
 namespace Functions.TransformationQuestionWrittenAnswerCorrection
 {
-    public class Rootobject
-    {
-        public Response[] Response { get; set; }
-    }
-
     public class Response
     {
         public string QuestionUri { get; set; }

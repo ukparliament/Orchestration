@@ -30,42 +30,36 @@
             get
             {
                 return @"
-            construct {
+            construct {                
                 ?correctingAnswer a parl:CorrectingAnswer;
                     parl:indexingAndSearchUri ?correctingAnswerUri;
-                    parl:answerHasQuestion ?question;
                     parl:answerReplacesAnswer ?answer;
                     parl:answerText ?answerText;
                     parl:answerGivenDate ?answerGivenDate;
-                    parl:answerHasAnsweringPerson ?answerHasAnsweringPerson.
+                    parl:answerHasAnsweringPerson ?answerHasAnsweringPerson;
+                    parl:correctingAnswerHasQuestion ?question.
+                ?answer a parl:WrittenAnswer.
                 ?question a parl:Question;
-                    parl:questionHasAnswer ?answer;
-                    parl:questionHasAnswer ?correctingAnswer;
                     parl:questionHasAnsweringBodyAllocation ?questionHasCorrectingAnsweringBodyAllocation.
                 ?questionHasCorrectingAnsweringBodyAllocation a parl:AnsweringBodyAllocation;
                     parl:answeringBodyAllocationHasAnsweringBody ?correctingAnsweringBodyAllocationHasAnsweringBody.
                 ?correctingAnsweringBodyAllocationHasAnsweringBody a parl:AnsweringBody;
                     parl:answeringBodyHasWrittenAnswer ?correctingAnswer.
+                ?answerHasAnsweringPerson a parl:Person.
             }
             where {
 	            bind(@subject as ?correctingAnswer)
-	            ?correctingAnswer parl:indexingAndSearchUri ?correctingAnswerUri.
-                optional {?correctingAnswer parl:answerHasQuestion ?question.}
-                optional {?correctingAnswer parl:answerReplacesAnswer ?answer.}
-                optional {?question parl:indexingAndSearchUri ?questionUri.}
-                optional {?question parl:questionHasAnswer ?answer.}
+	            bind(@questionUri as ?questionUri)
+                ?question parl:indexingAndSearchUri ?questionUri.
+                ?question parl:questionHasAnsweringBodyAllocation ?questionHasCorrectingAnsweringBodyAllocation.
+                ?correctingAnswer parl:indexingAndSearchUri ?correctingAnswerUri;
+                    parl:correctingAnswerHasQuestion ?question;
+                    parl:answerReplacesAnswer ?answer.
+                ?questionHasCorrectingAnsweringBodyAllocation parl:answeringBodyAllocationHasAnsweringBody ?correctingAnsweringBodyAllocationHasAnsweringBody.
+                ?correctingAnsweringBodyAllocationHasAnsweringBody parl:answeringBodyHasWrittenAnswer ?correctingAnswer.
                 optional {?correctingAnswer parl:answerText ?answerText}
                 optional {?correctingAnswer parl:answerGivenDate ?answerGivenDate}
                 optional {?correctingAnswer parl:answerHasAnsweringPerson ?answerHasAnsweringPerson}
-                optional {?question parl:questionHasAnswer ?correctingAnswer
-                optional {
-                    ?question parl:questionHasAnsweringBodyAllocation ?questionHasCorrectingAnsweringBodyAllocation.
-                    ?questionHasCorrectingAnsweringBodyAllocation parl:answeringBodyAllocationHasAnsweringBody ?correctingAnsweringBodyAllocationHasAnsweringBody.
-                    optional {
-                        ?correctingAnsweringBodyAllocationHasAnsweringBody parl:answeringBodyHasWrittenAnswer ?correctingAnswer.
-                        }
-                    }
-                }
             }";
             }
         }

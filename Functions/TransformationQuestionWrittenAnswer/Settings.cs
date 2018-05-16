@@ -66,6 +66,8 @@
                     optional {
                         ?answeringBodyAllocationHasAnsweringBody parl:answeringBodyHasWrittenAnswer ?answeringBodyHasWrittenAnswer.
                         ?answeringBodyHasWrittenAnswer parl:answerHasQuestion ?question.
+                        optional {?answeringBodyHasWrittenAnswer parl:answerReplacesAnswer ?answer}
+                        filter (bound(?answer) = false)
                         optional {?answeringBodyHasWrittenAnswer parl:answerText ?answerText}
                         optional {?answeringBodyHasWrittenAnswer parl:answerGivenDate ?answerGivenDate}
                         optional {?answeringBodyHasWrittenAnswer parl:answerHasAnsweringPerson ?answerHasAnsweringPerson}

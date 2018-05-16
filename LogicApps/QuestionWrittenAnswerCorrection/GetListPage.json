@@ -1,0 +1,270 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "azureFunctionsName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the Azure Functions."
+      }
+    },
+    "serviceBusName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the Service Bus."
+      }
+    },
+    "releaseId": {
+      "type": "int",
+      "metadata": {
+        "description": "The identifier of the current release record."
+      }
+    }
+  },
+  "variables": {
+    "logicAppsSetting_name": "questionwrittenanswercorrection"
+  },
+  "resources": [
+    {
+      "comments": "Logic App that obtains list of written answer corrections.",
+      "type": "Microsoft.Logic/workflows",
+      "name": "[concat('getlistpage-',variables('logicAppsSetting_name'))]",
+      "apiVersion": "2016-06-01",
+      "location": "[resourceGroup().location]",
+      "tags": {
+        "ReleaseId": "[parameters('releaseId')]"
+      },
+      "properties": {
+        "state": "Enabled",
+        "definition": {
+          "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+          "actions": {
+            "Condition": {
+              "actions": {
+                "For_each": {
+                  "actions": {
+                    "Send_message": {
+                      "inputs": {
+                        "body": {
+                          "Properties": {
+                            "batchId": "@triggerBody()['batchId']",
+                            "url": "@item()['@name']"
+                          }
+                        },
+                        "host": {
+                          "connection": {
+                            "name": "@parameters('$connections')['servicebus']['connectionId']"
+                          }
+                        },
+                        "method": "post",
+                        "path": "[concat('/',variables('logicAppsSetting_name'),'/messages')]",
+                        "retryPolicy": {
+                          "count": 2,
+                          "interval": "PT20S",
+                          "type": "fixed"
+                        }
+                      },
+                      "runAfter": {},
+                      "type": "ApiConnection"
+                    }
+                  },
+                  "foreach": "@json(body('Get_List')).response.lst[1].lst",
+                  "runAfter": {},
+                  "type": "Foreach"
+                }
+              },
+              "else": {
+                "actions": {
+                  "For_each_2": {
+                    "actions": {
+                      "Condition_2": {
+                        "actions": {
+                          "Send_message_2": {
+                            "inputs": {
+                              "body": {
+                                "Properties": {
+                                  "batchId": "@triggerBody()['batchId']",
+                                  "url": "@{body('Get_Single_Item').Response[0].UIN}"
+                                }
+                              },
+                              "host": {
+                                "connection": {
+                                  "name": "@parameters('$connections')['servicebus']['connectionId']"
+                                }
+                              },
+                              "method": "post",
+                              "path": "[concat('/',variables('logicAppsSetting_name'),'/messages')]",
+                              "retryPolicy": {
+                                "count": 2,
+                                "interval": "PT20S",
+                                "type": "fixed"
+                              },
+                              "queries": {
+                                "systemProperties": "None"
+                              }
+                            },
+                            "runAfter": {},
+                            "type": "ApiConnection"
+                          }
+                        },
+                        "else": {
+                          "actions": {
+                            "LogicAppsErrorMessageLog_2": {
+                              "inputs": {
+                                "body": {
+                                  "action": "@actions('Get_Single_Item')",
+                                  "batchId": "@triggerBody()['batchId']",
+                                  "workflow": "@workflow()"
+                                },
+                                "function": {
+                                  "id": "[concat(subscription().id,'/resourceGroups/',resourceGroup().name,'/providers/Microsoft.Web/sites/',parameters('azureFunctionsName'),'/functions/LogicAppsErrorMessageLog')]"
+                                },
+                                "retryPolicy": {
+                                  "type": "none"
+                                }
+                              },
+                              "runAfter": {},
+                              "type": "Function"
+                            }
+                          }
+                        },
+                        "expression": "@equals(body('Get_Single_Item').StatusCode, 200)",
+                        "runAfter": {
+                          "Get_Single_Item": [
+                            "Succeeded"
+                          ]
+                        },
+                        "type": "If"
+                      },
+                      "Get_Single_Item": {
+                        "inputs": {
+                          "headers": {
+                            "Accept": "application/json"
+                          },
+                          "method": "GET",
+                          "uri": "https://eqm-services.digiminster.com/writtenquestions/list?parameters.skip=@{add(mul(50,triggerBody()['pageNo']),items('For_each_2'))}&parameters.take=1",
+                          "retryPolicy": {
+                            "count": 2,
+                            "interval": "PT20S",
+                            "type": "fixed"
+                          }
+                        },
+                        "runAfter": {},
+                        "type": "Http"
+                      }
+                    },
+                    "foreach": "@range(0,50)",
+                    "runAfter": {},
+                    "type": "Foreach"
+                  }
+                }
+              },
+              "expression": "@equals(outputs('Get_List')['statusCode'], 200)",
+              "runAfter": {
+                "Get_List": [
+                  "Succeeded"
+                ]
+              },
+              "type": "If"
+            },
+            "Get_List": {
+              "inputs": {
+                "headers": {
+                  "Accept": "application/json"
+                },
+                "method": "GET",
+                "retryPolicy": {
+                  "count": 2,
+                  "interval": "PT20S",
+                  "type": "fixed"
+                },
+                "uri": "http://13.93.40.140:8983/solr/select/?q=correctedItem_uri%3A*+AND+dateLastModified_dt%3A%5B@{ addDays(startOfDay(utcNow()), -1)}+TO+*%5D&version=2.2&start=@{mul(50,triggerBody()['pageNo'])}&rows=50&fl=highlighting"
+              },
+              "runAfter": {
+                "Response": [
+                  "Succeeded"
+                ]
+              },
+              "type": "Http"
+            },
+            "LogicAppsErrorMessageLog": {
+              "inputs": {
+                "body": {
+                  "action": "@actions('Get_List')",
+                  "batchId": "@triggerBody()['batchId']",
+                  "workflow": "@workflow()"
+                },
+                "function": {
+                  "id": "[concat(subscription().id,'/resourceGroups/',resourceGroup().name,'/providers/Microsoft.Web/sites/',parameters('azureFunctionsName'),'/functions/LogicAppsErrorMessageLog')]"
+                },
+                "retryPolicy": {
+                  "type": "none"
+                }
+              },
+              "runAfter": {
+                "Get_List": [
+                  "Failed"
+                ]
+              },
+              "type": "Function"
+            },
+            "Response": {
+              "inputs": {
+                "headers": {
+                  "batchId": "@triggerBody()['batchId']"
+                },
+                "statusCode": 202
+              },
+              "runAfter": {},
+              "type": "Response"
+            }
+          },
+          "contentVersion": "1.0.0.0",
+          "outputs": {},
+          "parameters": {
+            "$connections": {
+              "defaultValue": {},
+              "type": "Object"
+            }
+          },
+          "triggers": {
+            "manual": {
+              "inputs": {
+                "schema": {
+                  "properties": {
+                    "batchId": {
+                      "type": "string"
+                    },
+                    "pageNo": {
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "pageNo",
+                    "batchId"
+                  ],
+                  "type": "object"
+                }
+              },
+              "kind": "Http",
+              "type": "Request"
+            }
+          }
+        },
+        "parameters": {
+          "$connections": {
+            "value": {
+              "servicebus": {
+                "connectionId": "[concat(subscription().id,'/resourceGroups/',resourceGroup().name,'/providers/Microsoft.Web/connections/',parameters('serviceBusName'))]",
+                "connectionName": "[parameters('serviceBusName')]",
+                "id": "[concat(subscription().id,'/providers/Microsoft.Web/locations/',resourceGroup().location,'/managedApis/servicebus')]"
+              }
+            }
+          }
+        }
+      },
+      "resources": [],
+      "dependsOn": []
+    }
+  ]
+}

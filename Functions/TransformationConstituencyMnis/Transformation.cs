@@ -43,7 +43,8 @@ namespace Functions.TransformationConstituencyMnis
                 .ConstituencyGroupMnisId;
             string constituencyGroupOnsCode = deserializedSource.OfType<IOnsConstituencyGroup>()
                 .SingleOrDefault()
-                .ConstituencyGroupOnsCode;
+                .ConstituencyGroupOnsCode ?? string.Empty;
+                
             return new Dictionary<string, INode>()
             {
                 { "constituencyGroupMnisId", SparqlConstructor.GetNode(constituencyGroupMnisId) },
@@ -54,11 +55,11 @@ namespace Functions.TransformationConstituencyMnis
         public override IResource[] SynchronizeIds(IResource[] source, Uri subjectUri, IResource[] target)
         {
             IMnisConstituencyGroup constituency = source.OfType<IMnisConstituencyGroup>().SingleOrDefault();
-            IHouseSeat houseSeat= target.OfType<IHouseSeat>().SingleOrDefault();
+            IHouseSeat houseSeat = target.OfType<IHouseSeat>().SingleOrDefault();
             if ((constituency.ConstituencyGroupHasHouseSeat != null) && (constituency.ConstituencyGroupHasHouseSeat.Any()) &&
                 (houseSeat != null))
                 constituency.ConstituencyGroupHasHouseSeat.SingleOrDefault().Id = houseSeat.Id;
-            
+
             foreach (IConstituencyGroup constituencyGroup in source.OfType<IConstituencyGroup>())
                 constituencyGroup.Id = subjectUri;
             return source.OfType<IConstituencyGroup>().ToArray();

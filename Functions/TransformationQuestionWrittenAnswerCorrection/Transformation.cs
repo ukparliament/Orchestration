@@ -65,8 +65,10 @@ namespace Functions.TransformationQuestionWrittenAnswerCorrection
         public override IResource[] TransformSource(string response)
         {
             XDocument doc = XDocument.Parse(response);
-            var questionElements = doc.Element("response").Element("result").Element("doc").Elements("arr").ToList();
+            var questionElements = doc?.Element("response")?.Element("result")?.Element("doc")?.Elements("arr")?.ToList();
 
+            if (questionElements == null)
+                return null;
             Response data = new Response();
             data.QuestionUri = FindXElementByAttributeName(questionElements, "correctedItem_uri", "str").GetText();
             questionUriText = data.QuestionUri;
@@ -80,20 +82,24 @@ namespace Functions.TransformationQuestionWrittenAnswerCorrection
             ICorrectingAnswer correctingAnswer = new CorrectingAnswer();
             correctingAnswer.Id = GenerateNewId();
             correctingAnswer.AnswerText = new string[] { data.CorrectingAnswerText };
-            correctingAnswer.AnswerGivenDate = data.CorrectingDateOfAnswer;            
-            Uri ministerId = GetMemberId(data.CorrectingAnsweringMemberSesId, data.CorrectingDateOfAnswer, logger);
+            correctingAnswer.AnswerGivenDate = data.CorrectingDateOfAnswer;
+            if (string.IsNullOrWhiteSpace(data.CorrectingAnsweringMemberSesId))
+                logger.Warning("No information about correcting minister");
+            else
+            {
+                Uri ministerId = GetMemberId(data.CorrectingAnsweringMemberSesId, data.CorrectingDateOfAnswer, logger);
 
-            if (ministerId != null)
-                correctingAnswer.AnswerHasAnsweringPerson = new IPerson[]
-                    {
+                if (ministerId != null)
+                    correctingAnswer.AnswerHasAnsweringPerson = new IPerson[]
+                        {
                         new Person()
                         {
                             Id=ministerId
                         }
-                    };
-            else
-                logger.Warning($"Minister with Ses Id ({data.CorrectingAnsweringMemberSesId}) not found");
-
+                        };
+                else
+                    logger.Warning($"Minister with Ses Id ({data.CorrectingAnsweringMemberSesId}) not found");
+            }
             Uri questionId = IdRetrieval.GetSubject("indexingAndSearchUri", data.QuestionUri, false, logger);
 
             IQuestion question = null;

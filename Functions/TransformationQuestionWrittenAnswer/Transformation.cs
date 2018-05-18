@@ -63,8 +63,10 @@ namespace Functions.TransformationQuestionWrittenAnswer
         public override IResource[] TransformSource(string response)
         {
             XDocument doc = XDocument.Parse(response);
-            var arrElements = doc.Element("response").Element("result").Element("doc").Elements("arr").ToList();
-            var strElements = doc.Element("response").Element("result").Element("doc").Elements("str").ToList();
+            var arrElements = doc?.Element("response")?.Element("result")?.Element("doc")?.Elements("arr")?.ToList();
+            var strElements = doc?.Element("response")?.Element("result")?.Element("doc")?.Elements("str")?.ToList();
+            if ((arrElements == null) || (strElements == null))
+                return null;
 
             Response data = new Response();
             data.DateTabled = FindXElementByAttributeName(arrElements, "dateTabled_dt", "date").GetDate();
@@ -87,7 +89,7 @@ namespace Functions.TransformationQuestionWrittenAnswer
 
             if (data.AskingMemberSesId != null)
             {
-                Uri memberId = GetMemberId(data.AskingMemberSesId, data.DateTabled == null ? data.DateOfAnswer: data.DateTabled, logger);
+                Uri memberId = GetMemberId(data.AskingMemberSesId, data.DateTabled == null ? data.DateOfAnswer : data.DateTabled, logger);
                 if (memberId != null)
                     question.QuestionHasAskingPerson = new IPerson[]
                     {

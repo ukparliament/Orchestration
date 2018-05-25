@@ -19,6 +19,7 @@ namespace Functions.TransformationQuestionWrittenAnswer
         public DateTimeOffset? DateOfAnswer { get; set; }
         public string AnsweringMemberSesId { get; set; }
         public DateTimeOffset? DateForAnswer { get; set; }
+        public string Uin { get; set; }
     }
 
 }

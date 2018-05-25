@@ -20,7 +20,10 @@
                 ?s a parl:Question.
             }
             where{
-                ?s parl:indexingAndSearchUri @writtenQuestionUri.
+                { ?s parl:indexingAndSearchUri @writtenQuestionUri. }
+                union
+                { ?s parl:writtenQuestionIndexingAndSearchUin ?writtenQuestionUin;
+                     parl:questionAskedAt ?askedDate. }
             }";
             }
         }
@@ -32,7 +35,8 @@
                 return @"
             construct {
                 ?question 
-                    parl:indexingAndSearchUri ?writtenQuestionUri.
+                    parl:indexingAndSearchUri ?writtenQuestionUri;
+                    parl:writtenQuestionIndexingAndSearchUin ?writtenQuestionUin.
                 ?question a parl:Question;
 	                parl:questionAskedAt ?questionAskedAt;
                     parl:questionHeading ?questionHeading;
@@ -56,6 +60,7 @@
             where {
 	            bind(@subject as ?question)
 	            ?question parl:indexingAndSearchUri ?writtenQuestionUri.
+                optional {?question parl:writtenQuestionIndexingAndSearchUin ?writtenQuestionUin}
                 optional {?question parl:questionAskedAt ?questionAskedAt}
                 optional {?question parl:questionHeading ?questionHeading}
 	            optional {?question parl:questionText ?questionText}
@@ -83,7 +88,7 @@
 
         public string FullDataUrlParameterizedString(string dataUri)
         {
-            return $"http://13.93.40.140:8983/solr/select?indent=on&version=2.2&q=uri%3A%22{dataUri}%22&fq=&start=0&rows=10&fl=dateTabled_dt%2CquestionText_t%2Ctitle_t%2CaskingMember_ses%2CansweringDept_ses%2CheadingDueDate_dt%2CanswerText_t%2CdateOfAnswer_dt%2CansweringMember_ses%2CdateForAnswer_dt%2Curi&qt=&wt=&explainOther=&hl.fl=";
+            return $"http://13.93.40.140:8983/solr/select?indent=on&version=2.2&q=uri%3A%22{dataUri}%22&fq=&start=0&rows=10&fl=dateTabled_dt%2CquestionText_t%2Ctitle_t%2CaskingMember_ses%2CansweringDept_ses%2CheadingDueDate_dt%2CanswerText_t%2CdateOfAnswer_dt%2CansweringMember_ses%2CdateForAnswer_dt%2Curi%2Cuin_t&qt=&wt=&explainOther=&hl.fl=";
         }
     }
 }

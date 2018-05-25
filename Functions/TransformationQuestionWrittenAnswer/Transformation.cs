@@ -79,11 +79,14 @@ namespace Functions.TransformationQuestionWrittenAnswer
             data.DateOfAnswer = FindXElementByAttributeName(arrElements, "dateOfAnswer_dt", "date").GetDate();
             data.AnsweringMemberSesId = FindXElementByAttributeName(arrElements, "answeringMember_ses", "int").GetText();
             data.DateForAnswer = FindXElementByAttributeName(arrElements, "dateForAnswer_dt", "date").GetDate();
+            data.Uin = FindXElementByAttributeName(arrElements, "uin_t", "str").GetText();
 
-            Question question = new Question();
+            IndexingAndSearchWrittenQuestion question = new IndexingAndSearchWrittenQuestion();
             question.QuestionAskedAt = data.DateTabled;
             question.QuestionHeading = data.QuestionHeading;
             question.QuestionText = data.QuestionText;
+            question.WrittenQuestionIndexingAndSearchUin = new string[] { data.Uin };
+
             IndexingAndSearchThing iast = new IndexingAndSearchThing();
             iast.IndexingAndSearchUri = new String[] { strElements.Where(x => x.Attribute("name").Value == "uri").FirstOrDefault().GetText() };
 
@@ -114,20 +117,29 @@ namespace Functions.TransformationQuestionWrittenAnswer
 
         public override Dictionary<string, INode> GetKeysFromSource(IResource[] deserializedSource)
         {
-            string writtenQuestionEqmUri = deserializedSource.OfType<IIndexingAndSearchThing>()
+            string writtenQuestionUri = deserializedSource.Where(x=>x.GetType()== typeof(IndexingAndSearchThing))
+                .OfType<IndexingAndSearchThing>()
                 .SingleOrDefault()
                 .IndexingAndSearchUri.SingleOrDefault();
+            DateTimeOffset askedDate = deserializedSource.OfType<IndexingAndSearchWrittenQuestion>()
+                .SingleOrDefault().
+                QuestionAskedAt.GetValueOrDefault();
+            string writtenQuestionUin = deserializedSource.OfType<IndexingAndSearchWrittenQuestion>()
+                .SingleOrDefault().
+                WrittenQuestionIndexingAndSearchUin.SingleOrDefault();
             return new Dictionary<string, INode>()
             {
-                { "writtenQuestionUri", SparqlConstructor.GetNode(writtenQuestionEqmUri) }
+                { "writtenQuestionUri", SparqlConstructor.GetNode(writtenQuestionUri) },
+                { "writtenQuestionUin", SparqlConstructor.GetNode(writtenQuestionUin) },
+                { "askedDate", SparqlConstructor.GetNodeDate(askedDate) },
             };
         }
 
         public override IResource[] SynchronizeIds(IResource[] source, Uri subjectUri, IResource[] target)
         {
-            IQuestion question = source.OfType<IQuestion>().SingleOrDefault();
+            IIndexingAndSearchWrittenQuestion question = source.OfType<IndexingAndSearchWrittenQuestion>().SingleOrDefault();
             question.Id = subjectUri;
-            IIndexingAndSearchThing iast = source.OfType<IIndexingAndSearchThing>().SingleOrDefault();
+            IIndexingAndSearchThing iast = source.Where(x => x.GetType() == typeof(IndexingAndSearchThing)).OfType<IIndexingAndSearchThing>().SingleOrDefault();
             iast.Id = subjectUri;
             if ((question.QuestionHasAnsweringBodyAllocation != null) && (question.QuestionHasAnsweringBodyAllocation.Any()))
             {

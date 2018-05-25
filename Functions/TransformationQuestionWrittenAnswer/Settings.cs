@@ -22,8 +22,8 @@
             where{
                 { ?s parl:indexingAndSearchUri @writtenQuestionUri. }
                 union
-                { ?s parl:writtenQuestionIndexingAndSearchUin ?writtenQuestionUin;
-                     parl:questionAskedAt ?askedDate. }
+                { ?s parl:writtenQuestionIndexingAndSearchUin @writtenQuestionUin;
+                     parl:questionAskedAt @askedDate. }
             }";
             }
         }

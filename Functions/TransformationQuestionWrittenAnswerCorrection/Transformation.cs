@@ -71,6 +71,8 @@ namespace Functions.TransformationQuestionWrittenAnswerCorrection
                 return null;
             Response data = new Response();
             data.QuestionUri = FindXElementByAttributeName(questionElements, "correctedItem_uri", "str").GetText();
+            if (data.QuestionUri == null)
+                data.QuestionUri = FindXElementByAttributeName(questionElements, "correctedItem_t", "str").GetText();
             questionUriText = data.QuestionUri;
             data.CorrectingAnsweringDeptSesId = FindXElementByAttributeName(questionElements, "answeringDept_ses", "int").GetText();
             data.CorrectingAnsweringMemberSesId = FindXElementByAttributeName(questionElements, "correctingMember_ses", "int").GetText();
@@ -228,7 +230,7 @@ namespace Functions.TransformationQuestionWrittenAnswerCorrection
                 }
                 where{
                     bind(@question as ?question)
-                    ?question parl:questionHasAnswer ?originalAnswer.
+                    ?originalAnswer parl:answerHasQuestion ?question.
                     optional {?originalAnswer parl:answerReplacesAnswer ?replacedAnswer}
                     filter (bound(?replacedAnswer)=false)
                 }";

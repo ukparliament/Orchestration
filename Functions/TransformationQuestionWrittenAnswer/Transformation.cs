@@ -85,7 +85,8 @@ namespace Functions.TransformationQuestionWrittenAnswer
             question.QuestionAskedAt = data.DateTabled;
             question.QuestionHeading = data.QuestionHeading;
             question.QuestionText = data.QuestionText;
-            question.WrittenQuestionIndexingAndSearchUin = new string[] { data.Uin };
+            if (string.IsNullOrWhiteSpace(data.Uin) == false)
+                question.WrittenQuestionIndexingAndSearchUin = new string[] { data.Uin };
 
             IndexingAndSearchThing iast = new IndexingAndSearchThing();
             iast.IndexingAndSearchUri = new String[] { strElements.Where(x => x.Attribute("name").Value == "uri").FirstOrDefault().GetText() };
@@ -126,12 +127,12 @@ namespace Functions.TransformationQuestionWrittenAnswer
                 QuestionAskedAt.GetValueOrDefault();
             string writtenQuestionUin = deserializedSource.OfType<IndexingAndSearchWrittenQuestion>()
                 .SingleOrDefault().
-                WrittenQuestionIndexingAndSearchUin.SingleOrDefault();
+                WrittenQuestionIndexingAndSearchUin?.SingleOrDefault();
             return new Dictionary<string, INode>()
             {
                 { "writtenQuestionUri", SparqlConstructor.GetNode(writtenQuestionUri) },
-                { "writtenQuestionUin", SparqlConstructor.GetNode(writtenQuestionUin) },
-                { "askedDate", SparqlConstructor.GetNodeDate(askedDate) },
+                { "writtenQuestionUin", SparqlConstructor.GetNode(writtenQuestionUin !=null ? writtenQuestionUin : writtenQuestionUri)},
+                { "askedDate", SparqlConstructor.GetNodeDate(askedDate)},
             };
         }
 

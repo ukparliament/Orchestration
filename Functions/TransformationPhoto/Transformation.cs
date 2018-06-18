@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Parliament.Rdf;
+using Parliament.Rdf.Serialization;
 using Parliament.Model;
 using System;
 using System.Collections.Generic;
@@ -10,9 +10,9 @@ namespace Functions.TransformationPhoto
 {
     public class Transformation : BaseTransformation<Settings>
     {
-        public override IResource[] TransformSource(string response)
+        public override BaseResource[] TransformSource(string response)
         {
-            IMemberImage memberImage = new MemberImage();
+            MemberImage memberImage = new MemberImage();
             JObject jsonResponse = (JObject)JsonConvert.DeserializeObject(response);
 
             string imageResourceUri = ((JValue)jsonResponse.SelectToken("ImageResourceUri")).GetText();
@@ -27,7 +27,7 @@ namespace Functions.TransformationPhoto
             if (photoTakenDown == true)
             {
                 logger.Verbose("Image information marked as removed");
-                return new IResource[] { memberImage };
+                return new BaseResource[] { memberImage };
             }
 
             var mnisId = ((JValue)jsonResponse.SelectToken("Person_x0020_MnisId"))?.Value;
@@ -42,7 +42,7 @@ namespace Functions.TransformationPhoto
             Uri personUri = IdRetrieval.GetSubject("memberMnisId", mnisIdStr, false, logger);
             if (personUri != null)
             {
-                memberImage.MemberImageHasMember = new List<IMember>
+                memberImage.MemberImageHasMember = new List<Member>
                     {
                         new Member()
                         {
@@ -68,21 +68,19 @@ namespace Functions.TransformationPhoto
                 string.Format("POINT({0} {1})", midXStr, midYStr)
             };
 
-            return new IResource[] { memberImage };
+            return new BaseResource[] { memberImage };
         }
 
-        public override Uri GetSubjectFromSource(IResource[] deserializedSource)
+        public override Uri GetSubjectFromSource(BaseResource[] deserializedSource)
         {
-            return deserializedSource.OfType<IMemberImage>()
+            return deserializedSource.OfType<MemberImage>()
                 .SingleOrDefault()
                 .Id;            
         }
 
-        public override IResource[] SynchronizeIds(IResource[] source, Uri subjectUri, IResource[] target)
+        public override BaseResource[] SynchronizeIds(BaseResource[] source, Uri subjectUri, BaseResource[] target)
         {
-            IMemberImage memberImage = source.OfType<IMemberImage>().SingleOrDefault();
-
-            return new IResource[] { memberImage };
+            return source;
         }
         
     }

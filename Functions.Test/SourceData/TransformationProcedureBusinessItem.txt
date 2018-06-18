@@ -1,0 +1,91 @@
+﻿{
+    "@odata.context": "https://sharepointonline-logic-cp-westeurope.logic-ase-westeurope.p.azurewebsites.net/$metadata#datasets('https%253A%252F%252Fhopuk.sharepoint.com%252Fsites%252Fdatateam%252Fdatasources')/tables('d4c67a7c-6254-4b18-a936-4155536811e5')/items/$entity",
+    "@odata.etag": "\"3\"",
+    "ItemInternalId": "900",
+    "ID": 900,
+    "BelongsTo@odata.type": "#Collection(Microsoft.Azure.Connectors.SharePoint.SPListExpandedReference)",
+    "BelongsTo": [
+        {
+            "Id": 214,
+            "Value": "Water Supply (Water Quality) Regulations 2018"
+        }
+    ],
+    "BelongsTo#Id@odata.type": "#Collection(Int64)",
+    "BelongsTo#Id": [
+        214
+    ],
+    "Businessitem_x0020_date": "2018-06-15",
+    "Weblink": "http://www.legislation.gov.uk/wsi/2018/647/made",
+    "ActualisesProcedureStep@odata.type": "#Collection(Microsoft.Azure.Connectors.SharePoint.SPListExpandedReference)",
+    "ActualisesProcedureStep": [
+        {
+            "Id": 6,
+            "Value": "Instrument comes into effect as law []"
+        }
+    ],
+    "ActualisesProcedureStep#Id@odata.type": "#Collection(Int64)",
+    "ActualisesProcedureStep#Id": [
+        6
+    ],
+    "TripleStoreId": "uzba2EOh",
+    "BelongsTo_x003a_TripleStoreId@odata.type": "#Collection(Microsoft.Azure.Connectors.SharePoint.SPListExpandedReference)",
+    "BelongsTo_x003a_TripleStoreId": [
+        {
+            "Id": 214,
+            "Value": "K83vusrm"
+        }
+    ],
+    "BelongsTo_x003a_TripleStoreId#Id@odata.type": "#Collection(Int64)",
+    "BelongsTo_x003a_TripleStoreId#Id": [
+        214
+    ],
+    "BelongsTo_x003a_WorkPacakageable@odata.type": "#Collection(Microsoft.Azure.Connectors.SharePoint.SPListExpandedReference)",
+    "BelongsTo_x003a_WorkPacakageable": [
+        {
+            "Id": 214,
+            "Value": "YOVMhcqy"
+        }
+    ],
+    "BelongsTo_x003a_WorkPacakageable#Id@odata.type": "#Collection(Int64)",
+    "BelongsTo_x003a_WorkPacakageable#Id": [
+        214
+    ],
+    "ActualisesProcedureStep_x003a_Tr@odata.type": "#Collection(Microsoft.Azure.Connectors.SharePoint.SPListExpandedReference)",
+    "ActualisesProcedureStep_x003a_Tr": [
+        {
+            "Id": 6,
+            "Value": "OM5fjnQ3"
+        }
+    ],
+    "ActualisesProcedureStep_x003a_Tr#Id@odata.type": "#Collection(Int64)",
+    "ActualisesProcedureStep_x003a_Tr#Id": [
+        6
+    ],
+    "Modified": "2018-06-06T07:25:44Z",
+    "Created": "2018-06-01T11:12:33Z",
+    "Author": {
+        "@odata.type": "#Microsoft.Azure.Connectors.SharePoint.SPListExpandedUser",
+        "Claims": "i:0#.f|membership|daviesmo@parliament.uk",
+        "DisplayName": "DAVIES, Martin",
+        "Email": "DAVIESMO@parliament.uk",
+        "Picture": "https://hopuk.sharepoint.com/sites/datateam/datasources/_layouts/15/UserPhoto.aspx?Size=L&AccountName=DAVIESMO@parliament.uk",
+        "Department": "Research And Information",
+        "JobTitle": "Search & Indexing Manager"
+    },
+    "Author#Claims": "i:0#.f|membership|daviesmo@parliament.uk",
+    "Editor": {
+        "@odata.type": "#Microsoft.Azure.Connectors.SharePoint.SPListExpandedUser",
+        "Claims": "i:0#.f|membership|sunleyj@parliament.uk",
+        "DisplayName": "SUNLEY, Jayne",
+        "Email": "sunleyj@parliament.uk",
+        "Picture": "https://hopuk.sharepoint.com/sites/datateam/datasources/_layouts/15/UserPhoto.aspx?Size=L&AccountName=sunleyj@parliament.uk",
+        "Department": "Research And Information",
+        "JobTitle": "Senior Indexer"
+    },
+    "Editor#Claims": "i:0#.f|membership|sunleyj@parliament.uk",
+    "{Identifier}": "Lists%252fProcedureBusinessItem%252f900_.000",
+    "{Link}": "https://hopuk.sharepoint.com/sites/datateam/datasources/_layouts/15/listform.aspx?PageType=4&ListId=d4c67a7c-6254-4b18-a936-4155536811e5&ID=900&ContentTypeID=0x01000756230FC432DF47B3CD6330C8098148",
+    "{Name}": "",
+    "{FilenameWithExtension}": "",
+    "{Path}": "Lists/ProcedureBusinessItem/"
+}

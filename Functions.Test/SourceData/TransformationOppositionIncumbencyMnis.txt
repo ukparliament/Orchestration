@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<entry xml:base="http://data.parliament.uk/MembersDataPlatform/open/OData.svc/" xmlns="http://www.w3.org/2005/Atom" xmlns:d="http://schemas.microsoft.com/ado/2007/08/dataservices" xmlns:m="http://schemas.microsoft.com/ado/2007/08/dataservices/metadata">
+    <id>http://data.parliament.uk/MembersDataPlatform/open/OData.svc/MemberOppositionPosts(2068)</id>
+    <category term="MNISModel.MemberOppositionPost" scheme="http://schemas.microsoft.com/ado/2007/08/dataservices/scheme" />
+    <link rel="edit" title="MemberOppositionPost" href="MemberOppositionPosts(2068)" />
+    <title />
+    <updated>2018-06-13T11:24:47Z</updated>
+    <author>
+        <name />
+    </author>
+    <content type="application/xml">
+        <m:properties>
+            <d:MemberOppositionPost_Id m:type="Edm.Int32">2068</d:MemberOppositionPost_Id>
+            <d:Member_Id m:type="Edm.Int32">2</d:Member_Id>
+            <d:OppositionPost_Id m:type="Edm.Int32">1186</d:OppositionPost_Id>
+            <d:StartDate m:type="Edm.DateTime">2016-07-05T00:00:00</d:StartDate>
+            <d:EndDate m:type="Edm.DateTime">2016-10-07T00:00:00</d:EndDate>
+        </m:properties>
+    </content>
+</entry>

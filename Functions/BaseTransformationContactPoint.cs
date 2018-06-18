@@ -1,4 +1,4 @@
-﻿using Parliament.Rdf;
+﻿using Parliament.Rdf.Serialization;
 using Parliament.Model;
 using System;
 using System.Collections.Generic;
@@ -15,20 +15,20 @@ namespace Functions
         protected XNamespace d = "http://schemas.microsoft.com/ado/2007/08/dataservices";
         protected XNamespace m = "http://schemas.microsoft.com/ado/2007/08/dataservices/metadata";
 
-        public override IResource[] SynchronizeIds(IResource[] source, Uri subjectUri, IResource[] target)
+        public override BaseResource[] SynchronizeIds(BaseResource[] source, Uri subjectUri, BaseResource[] target)
         {
-            IMnisContactPoint contactPoint = source.OfType<IMnisContactPoint>().SingleOrDefault();
+            MnisContactPoint contactPoint = source.OfType<MnisContactPoint>().SingleOrDefault();
             contactPoint.Id = subjectUri;
-            IPostalAddress postalAddress = target.OfType<IPostalAddress>().SingleOrDefault();
+            PostalAddress postalAddress = target.OfType<PostalAddress>().SingleOrDefault();
             if ((postalAddress != null) && (contactPoint.ContactPointHasPostalAddress != null))
                 contactPoint.ContactPointHasPostalAddress.Id = postalAddress.Id;
 
-            return new IResource[] { contactPoint };
+            return new BaseResource[] { contactPoint };
         }
 
-        public override Dictionary<string, INode> GetKeysFromSource(IResource[] deserializedSource)
+        public override Dictionary<string, INode> GetKeysFromSource(BaseResource[] deserializedSource)
         {
-            string contactPointMnisId = deserializedSource.OfType<IMnisContactPoint>()
+            string contactPointMnisId = deserializedSource.OfType<MnisContactPoint>()
                 .SingleOrDefault()
                 .ContactPointMnisId;
             return new Dictionary<string, INode>()
@@ -37,9 +37,9 @@ namespace Functions
             };
         }
 
-        protected IPostalAddress GeneratePostalAddress(XElement contactPointElement)
+        protected PostalAddress GeneratePostalAddress(XElement contactPointElement)
         {
-            IPostalAddress postalAddress = null;
+            PostalAddress postalAddress = null;
             List<string> addresses = new List<string>();
             for (var i = 1; i <= 5; i++)
             {

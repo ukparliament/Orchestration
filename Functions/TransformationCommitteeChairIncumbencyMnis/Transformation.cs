@@ -1,5 +1,5 @@
 ﻿using Parliament.Model;
-using Parliament.Rdf;
+using Parliament.Rdf.Serialization;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,9 +15,9 @@ namespace Functions.TransformationCommitteeChairIncumbencyMnis
         XNamespace d = "http://schemas.microsoft.com/ado/2007/08/dataservices";
         XNamespace m = "http://schemas.microsoft.com/ado/2007/08/dataservices/metadata";
 
-        public override IResource[] TransformSource(string response)
+        public override BaseResource[] TransformSource(string response)
         {
-            IMnisFormalBodyChairIncumbency mnisIncumbency = new MnisFormalBodyChairIncumbency();
+            MnisFormalBodyChairIncumbency mnisIncumbency = new MnisFormalBodyChairIncumbency();
             XDocument doc = XDocument.Parse(response);
             XElement element = doc.Descendants(d + "MemberCommitteeChair_Id").SingleOrDefault();
             if ((element == null) || (element.Parent == null))
@@ -32,15 +32,15 @@ namespace Functions.TransformationCommitteeChairIncumbencyMnis
             if (elementMemberCommittee != null)
                 generateIncumbencyMemberAndCommittee(mnisIncumbency, elementMemberCommittee);
 
-            IPastIncumbency pastIncumbency = new PastIncumbency();
+            PastIncumbency pastIncumbency = new PastIncumbency();
             pastIncumbency.IncumbencyEndDate = elementIncumbency.Element(d + "EndDate").GetDate();
 
-            return new IResource[] { mnisIncumbency, pastIncumbency };
+            return new BaseResource[] { mnisIncumbency, pastIncumbency };
         }
 
-        public override Dictionary<string, INode> GetKeysFromSource(IResource[] deserializedSource)
+        public override Dictionary<string, INode> GetKeysFromSource(BaseResource[] deserializedSource)
         {
-            string formalBodyChairIncumbencyMnisId = deserializedSource.OfType<IMnisFormalBodyChairIncumbency>()
+            string formalBodyChairIncumbencyMnisId = deserializedSource.OfType<MnisFormalBodyChairIncumbency>()
                 .SingleOrDefault()
                 .FormalBodyChairIncumbencyMnisId;
             return new Dictionary<string, INode>()
@@ -49,15 +49,15 @@ namespace Functions.TransformationCommitteeChairIncumbencyMnis
             };
         }
 
-        public override IResource[] SynchronizeIds(IResource[] source, Uri subjectUri, IResource[] target)
+        public override BaseResource[] SynchronizeIds(BaseResource[] source, Uri subjectUri, BaseResource[] target)
         {
-            foreach (IIncumbency incumbency in source.OfType<IIncumbency>())
+            foreach (BaseResource incumbency in source)
                 incumbency.Id = subjectUri;
 
-            return source.OfType<IIncumbency>().ToArray();
+            return source;
         }
 
-        private void generateIncumbencyMemberAndCommittee(IMnisFormalBodyChairIncumbency mnisIncumbency, XElement elementMemberCommittee)
+        private void generateIncumbencyMemberAndCommittee(MnisFormalBodyChairIncumbency mnisIncumbency, XElement elementMemberCommittee)
         {
             string memberId = elementMemberCommittee.Parent.Element(d + "Member_Id").GetText();
             if (string.IsNullOrWhiteSpace(memberId) == false)

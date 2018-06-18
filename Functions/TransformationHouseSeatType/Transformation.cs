@@ -1,18 +1,17 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Parliament.Rdf;
 using Parliament.Model;
+using Parliament.Rdf.Serialization;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace Functions.TransformationHouseSeatType
 {
     public class Transformation : BaseTransformation<Settings>
     {
-        public override IResource[] TransformSource(string response)
+        public override BaseResource[] TransformSource(string response)
         {
-            IMnisHouseSeatType houseSeatType = new MnisHouseSeatType();
+            MnisHouseSeatType houseSeatType = new MnisHouseSeatType();
             JObject jsonResponse = (JObject)JsonConvert.DeserializeObject(response);
             
             string id = ((JValue)jsonResponse.SelectToken("ID0")).GetText();
@@ -44,21 +43,19 @@ namespace Functions.TransformationHouseSeatType
             else
                 logger.Verbose("No mnis id found");
 
-            return new IResource[] { houseSeatType };
+            return new BaseResource[] { houseSeatType };
         }
 
-        public override Uri GetSubjectFromSource(IResource[] deserializedSource)
+        public override Uri GetSubjectFromSource(BaseResource[] deserializedSource)
         {
-            return deserializedSource.OfType<IHouseSeatType>()
+            return deserializedSource.OfType<MnisHouseSeatType>()
                 .SingleOrDefault()
                 .Id;            
         }
 
-        public override IResource[] SynchronizeIds(IResource[] source, Uri subjectUri, IResource[] target)
+        public override BaseResource[] SynchronizeIds(BaseResource[] source, Uri subjectUri, BaseResource[] target)
         {
-            IHouseSeatType houseSeatTypes = source.OfType<IHouseSeatType>().SingleOrDefault();
-
-            return new IResource[] { houseSeatTypes };
+            return source;
         }
     }
 }

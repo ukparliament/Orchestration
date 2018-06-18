@@ -1,0 +1,76 @@
+﻿{
+    "@odata.context": "https://sharepointonline-logic-cp-westeurope.logic-ase-westeurope.p.azurewebsites.net/$metadata#datasets('https%253A%252F%252Fhopuk.sharepoint.com%252Fsites%252Fdatateam%252Fdatasources')/tables('0c651f3a-630a-4ca6-b8c6-3a85f381b41d')/items/$entity",
+    "@odata.etag": "\"1\"",
+    "ItemInternalId": "600",
+    "ID": 600,
+    "Procedure": {
+        "@odata.type": "#Microsoft.Azure.Connectors.SharePoint.SPListExpandedReference",
+        "Id": 4,
+        "Value": "Draft Affirmative"
+    },
+    "Procedure#Id": 4,
+    "FromStep": {
+        "@odata.type": "#Microsoft.Azure.Connectors.SharePoint.SPListExpandedReference",
+        "Id": 30,
+        "Value": "Delegated Legislation Committee (DLC) debate [\"Commons\"]"
+    },
+    "FromStep#Id": 30,
+    "RouteType": {
+        "@odata.type": "#Microsoft.Azure.Connectors.SharePoint.SPListExpandedReference",
+        "Id": 2,
+        "Value": "Allows"
+    },
+    "RouteType#Id": 2,
+    "ToStep": {
+        "@odata.type": "#Microsoft.Azure.Connectors.SharePoint.SPListExpandedReference",
+        "Id": 45,
+        "Value": "Decision on motion to approve the instrument [\"Commons\"]"
+    },
+    "ToStep#Id": 45,
+    "TripleStoreId": "oat0KGUW",
+    "Procedure_x003a_TripleStoreId": {
+        "@odata.type": "#Microsoft.Azure.Connectors.SharePoint.SPListExpandedReference",
+        "Id": 4,
+        "Value": "H5YJQsK2"
+    },
+    "Procedure_x003a_TripleStoreId#Id": 4,
+    "FromStep_x003a_TripleStoreId": {
+        "@odata.type": "#Microsoft.Azure.Connectors.SharePoint.SPListExpandedReference",
+        "Id": 30,
+        "Value": "FLHAXypO"
+    },
+    "FromStep_x003a_TripleStoreId#Id": 30,
+    "ToStep_x003a_TripleStoreId": {
+        "@odata.type": "#Microsoft.Azure.Connectors.SharePoint.SPListExpandedReference",
+        "Id": 45,
+        "Value": "nveorPPO"
+    },
+    "ToStep_x003a_TripleStoreId#Id": 45,
+    "Modified": "2018-05-07T19:51:30Z",
+    "Created": "2018-05-07T19:51:30Z",
+    "Author": {
+        "@odata.type": "#Microsoft.Azure.Connectors.SharePoint.SPListExpandedUser",
+        "Claims": "i:0#.f|membership|somervillea@parliament.uk",
+        "DisplayName": "SOMERVILLE, Anya",
+        "Email": "somervillea@parliament.uk",
+        "Picture": "https://hopuk.sharepoint.com/sites/datateam/datasources/_layouts/15/UserPhoto.aspx?Size=L&AccountName=somervillea@parliament.uk",
+        "Department": "Research And Information",
+        "JobTitle": "Head of Indexing & Data Management Section"
+    },
+    "Author#Claims": "i:0#.f|membership|somervillea@parliament.uk",
+    "Editor": {
+        "@odata.type": "#Microsoft.Azure.Connectors.SharePoint.SPListExpandedUser",
+        "Claims": "i:0#.f|membership|somervillea@parliament.uk",
+        "DisplayName": "SOMERVILLE, Anya",
+        "Email": "somervillea@parliament.uk",
+        "Picture": "https://hopuk.sharepoint.com/sites/datateam/datasources/_layouts/15/UserPhoto.aspx?Size=L&AccountName=somervillea@parliament.uk",
+        "Department": "Research And Information",
+        "JobTitle": "Head of Indexing & Data Management Section"
+    },
+    "Editor#Claims": "i:0#.f|membership|somervillea@parliament.uk",
+    "{Identifier}": "Lists%252fProcedureRoute%252f600_.000",
+    "{Link}": "https://hopuk.sharepoint.com/sites/datateam/datasources/_layouts/15/listform.aspx?PageType=4&ListId=0c651f3a-630a-4ca6-b8c6-3a85f381b41d&ID=600&ContentTypeID=0x0100E508E45938956A41B056DC4C067E77FB",
+    "{Name}": "",
+    "{FilenameWithExtension}": "",
+    "{Path}": "Lists/ProcedureRoute/"
+}

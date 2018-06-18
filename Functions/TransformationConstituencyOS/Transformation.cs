@@ -1,5 +1,5 @@
 ﻿using Functions.TransformationConstituencyOS.EastingNorthingConversion;
-using Parliament.Rdf;
+using Parliament.Rdf.Serialization;
 using Parliament.Model;
 using System;
 using System.Collections.Generic;
@@ -13,7 +13,7 @@ namespace Functions.TransformationConstituencyOS
 {
     public class Transformation : BaseTransformation<Settings>
     {
-        public override IResource[] TransformSource(string response)
+        public override BaseResource[] TransformSource(string response)
         {
             RDF sourceConstituency = new RDF();
             using (StringReader reader = new StringReader(response))
@@ -21,19 +21,19 @@ namespace Functions.TransformationConstituencyOS
                 XmlSerializer serializer = new XmlSerializer(typeof(RDF));
                 sourceConstituency = (RDF)serializer.Deserialize(reader);
             }
-            IOnsConstituencyGroup constituency = new OnsConstituencyGroup();
+            OnsConstituencyGroup constituency = new OnsConstituencyGroup();
             if ((sourceConstituency != null) && (sourceConstituency.Description != null))
             {
                 constituency.ConstituencyGroupOnsCode = sourceConstituency.Description.gssCode;
                 if (sourceConstituency.Description.asGML != null)
                     constituency.ConstituencyGroupHasConstituencyArea = generateConstituencyArea(sourceConstituency.Description);
             }
-            return new IResource[] { constituency };
+            return new BaseResource[] { constituency };
         }
 
-        public override Dictionary<string, INode> GetKeysFromSource(IResource[] deserializedSource)
+        public override Dictionary<string, INode> GetKeysFromSource(BaseResource[] deserializedSource)
         {
-            string constituencyGroupOnsCode = deserializedSource.OfType<IOnsConstituencyGroup>()
+            string constituencyGroupOnsCode = deserializedSource.OfType<OnsConstituencyGroup>()
                 .SingleOrDefault()
                 .ConstituencyGroupOnsCode;
             return new Dictionary<string, INode>()
@@ -42,20 +42,20 @@ namespace Functions.TransformationConstituencyOS
             };
         }
 
-        public override IResource[] SynchronizeIds(IResource[] source, Uri subjectUri, IResource[] target)
+        public override BaseResource[] SynchronizeIds(BaseResource[] source, Uri subjectUri, BaseResource[] target)
         {
-            IOnsConstituencyGroup constituency = source.OfType<IOnsConstituencyGroup>().SingleOrDefault();
+            OnsConstituencyGroup constituency = source.OfType<OnsConstituencyGroup>().SingleOrDefault();
             constituency.Id = subjectUri;
-            IConstituencyArea constituencyArea = target.OfType<IConstituencyArea>().SingleOrDefault();
+            ConstituencyArea constituencyArea = target.OfType<ConstituencyArea>().SingleOrDefault();
             if ((constituencyArea != null) && (constituency.ConstituencyGroupHasConstituencyArea != null))
                 constituency.ConstituencyGroupHasConstituencyArea.Id = constituencyArea.Id;
 
-            return new IResource[] { constituency };
+            return new BaseResource[] { constituency };
         }
 
-        private IConstituencyArea generateConstituencyArea(RDFDescription description)
+        private ConstituencyArea generateConstituencyArea(RDFDescription description)
         {
-            IConstituencyArea constituencyArea = new ConstituencyArea();
+            ConstituencyArea constituencyArea = new ConstituencyArea();
             constituencyArea.Id = GenerateNewId();
             if (description.lat != null)
                 constituencyArea.ConstituencyAreaLatitude = description.lat.Value;

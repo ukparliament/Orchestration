@@ -1,4 +1,4 @@
-﻿using Parliament.Rdf;
+﻿using Parliament.Rdf.Serialization;
 using Parliament.Model;
 using System;
 using System.Collections.Generic;
@@ -14,9 +14,9 @@ namespace Functions.TransformationPartyMembershipMnis
         private XNamespace d = "http://schemas.microsoft.com/ado/2007/08/dataservices";
         private XNamespace m = "http://schemas.microsoft.com/ado/2007/08/dataservices/metadata";
 
-        public override IResource[] TransformSource(string response)
+        public override BaseResource[] TransformSource(string response)
         {
-            IPastPartyMembership partyMembership = new PastPartyMembership();
+            PastPartyMembership partyMembership = new PastPartyMembership();
             XDocument doc = XDocument.Parse(response);
             XElement partyElement = doc.Element(atom + "entry")
                 .Element(atom + "content")
@@ -46,15 +46,15 @@ namespace Functions.TransformationPartyMembershipMnis
             };
             partyMembership.PartyMembershipStartDate = partyElement.Element(d + "StartDate").GetDate();
             partyMembership.PartyMembershipEndDate = partyElement.Element(d + "EndDate").GetDate();
-            IMnisPartyMembership mnisPartyMembership = new MnisPartyMembership();
+            MnisPartyMembership mnisPartyMembership = new MnisPartyMembership();
             mnisPartyMembership.PartyMembershipMnisId = partyElement.Element(d + "MemberParty_Id").GetText();
 
-            return new IResource[] { partyMembership, mnisPartyMembership };
+            return new BaseResource[] { partyMembership, mnisPartyMembership };
         }
 
-        public override Dictionary<string, INode> GetKeysFromSource(IResource[] deserializedSource)
+        public override Dictionary<string, INode> GetKeysFromSource(BaseResource[] deserializedSource)
         {
-            string partyMembershipMnisId = deserializedSource.OfType<IMnisPartyMembership>()
+            string partyMembershipMnisId = deserializedSource.OfType<MnisPartyMembership>()
                 .SingleOrDefault()
                 .PartyMembershipMnisId;
             return new Dictionary<string, INode>()
@@ -63,11 +63,11 @@ namespace Functions.TransformationPartyMembershipMnis
             };
         }
 
-        public override IResource[] SynchronizeIds(IResource[] source, Uri subjectUri, IResource[] target)
+        public override BaseResource[] SynchronizeIds(BaseResource[] source, Uri subjectUri, BaseResource[] target)
         {
-            foreach (IPartyMembership partyMembership in source.OfType<IPartyMembership>())
+            foreach (BaseResource partyMembership in source)
                 partyMembership.Id = subjectUri;
-            return source.OfType<IPartyMembership>().ToArray();
+            return source;
         }
 
     }

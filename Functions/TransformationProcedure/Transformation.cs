@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Parliament.Model;
-using Parliament.Rdf;
+using Parliament.Rdf.Serialization;
 using System;
 using System.Linq;
 
@@ -9,9 +9,9 @@ namespace Functions.TransformationProcedure
 {
     public class Transformation : BaseTransformation<Settings>
     {
-        public override IResource[] TransformSource(string response)
+        public override BaseResource[] TransformSource(string response)
         {
-            IProcedure procedure = new Procedure();
+            Procedure procedure = new Procedure();
             JObject jsonResponse = (JObject)JsonConvert.DeserializeObject(response);
 
             string id = ((JValue)jsonResponse.SelectToken("TripleStoreId")).GetText();
@@ -32,21 +32,19 @@ namespace Functions.TransformationProcedure
             }
             procedure.ProcedureName = ((JValue)jsonResponse.SelectToken("Title")).GetText();
 
-            return new IResource[] { procedure };
+            return new BaseResource[] { procedure };
         }
 
-        public override Uri GetSubjectFromSource(IResource[] deserializedSource)
+        public override Uri GetSubjectFromSource(BaseResource[] deserializedSource)
         {
-            return deserializedSource.OfType<IProcedure>()
+            return deserializedSource.OfType<Procedure>()
                 .SingleOrDefault()
                 .Id;
         }
 
-        public override IResource[] SynchronizeIds(IResource[] source, Uri subjectUri, IResource[] target)
+        public override BaseResource[] SynchronizeIds(BaseResource[] source, Uri subjectUri, BaseResource[] target)
         {
-            IProcedure procedure = source.OfType<IProcedure>().SingleOrDefault();
-
-            return new IResource[] { procedure };
+            return source;
         }
     }
 }

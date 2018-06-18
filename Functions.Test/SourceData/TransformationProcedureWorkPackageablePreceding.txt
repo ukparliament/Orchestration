@@ -1,0 +1,57 @@
+﻿{
+    "@odata.context": "https://sharepointonline-logic-cp-westeurope.logic-ase-westeurope.p.azurewebsites.net/$metadata#datasets('https%253A%252F%252Fhopuk.sharepoint.com%252Fsites%252Fdatateam%252Fdatasources')/tables('24a1a168-c956-4da5-a7e7-aaf8ed54b38c')/items/$entity",
+    "@odata.etag": "\"3\"",
+    "ItemInternalId": "1",
+    "ID": 1,
+    "PrecedingWorkPackageableThing": {
+        "@odata.type": "#Microsoft.Azure.Connectors.SharePoint.SPListExpandedReference",
+        "Id": 233,
+        "Value": "Animal By-Products and Pet Passport Fees (England) Regulations 2018"
+    },
+    "PrecedingWorkPackageableThing#Id": 233,
+    "FollowingWorkPackageableThing": {
+        "@odata.type": "#Microsoft.Azure.Connectors.SharePoint.SPListExpandedReference",
+        "Id": 232,
+        "Value": "Animal Gatherings (Fees) (England) Order 2018"
+    },
+    "FollowingWorkPackageableThing#Id": 232,
+    "PrecedingWorkPackageableThing_x0": {
+        "@odata.type": "#Microsoft.Azure.Connectors.SharePoint.SPListExpandedReference",
+        "Id": 233,
+        "Value": "cmbxjWzh"
+    },
+    "PrecedingWorkPackageableThing_x0#Id": 233,
+    "FollowingWorkPackageableThing_x0": {
+        "@odata.type": "#Microsoft.Azure.Connectors.SharePoint.SPListExpandedReference",
+        "Id": 232,
+        "Value": "ZZqT1pd0"
+    },
+    "FollowingWorkPackageableThing_x0#Id": 232,
+    "Modified": "2018-06-13T13:38:14Z",
+    "Created": "2018-05-02T15:14:37Z",
+    "Author": {
+        "@odata.type": "#Microsoft.Azure.Connectors.SharePoint.SPListExpandedUser",
+        "Claims": "i:0#.f|membership|alcockc@parliament.uk",
+        "DisplayName": "ALCOCK, Christopher",
+        "Email": "alcockc@parliament.uk",
+        "Picture": "https://hopuk.sharepoint.com/sites/datateam/datasources/_layouts/15/UserPhoto.aspx?Size=L&AccountName=alcockc@parliament.uk",
+        "Department": "Digital Service",
+        "JobTitle": "Developer"
+    },
+    "Author#Claims": "i:0#.f|membership|alcockc@parliament.uk",
+    "Editor": {
+        "@odata.type": "#Microsoft.Azure.Connectors.SharePoint.SPListExpandedUser",
+        "Claims": "i:0#.f|membership|stawiarskiw@parliament.uk",
+        "DisplayName": "STAWIARSKI, Wojciech",
+        "Email": "stawiarskiw@parliament.uk",
+        "Picture": "https://hopuk.sharepoint.com/sites/datateam/datasources/_layouts/15/UserPhoto.aspx?Size=L&AccountName=stawiarskiw@parliament.uk",
+        "Department": "Digital Service",
+        "JobTitle": "Software Developer"
+    },
+    "Editor#Claims": "i:0#.f|membership|stawiarskiw@parliament.uk",
+    "{Identifier}": "Lists%252fProcedureWorkPackageableThingPreceding%252f1_.000",
+    "{Link}": "https://hopuk.sharepoint.com/sites/datateam/datasources/_layouts/15/listform.aspx?PageType=4&ListId=24a1a168-c956-4da5-a7e7-aaf8ed54b38c&ID=1&ContentTypeID=0x0100BABEB65374784A448A1D80183D3B7D27",
+    "{Name}": "",
+    "{FilenameWithExtension}": "",
+    "{Path}": "Lists/ProcedureWorkPackageableThingPreceding/"
+}

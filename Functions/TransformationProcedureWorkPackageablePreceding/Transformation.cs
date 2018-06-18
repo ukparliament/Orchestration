@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Parliament.Model;
-using Parliament.Rdf;
+using Parliament.Rdf.Serialization;
 using System;
 using System.Linq;
 
@@ -9,9 +9,9 @@ namespace Functions.TransformationProcedureWorkPackageablePreceding
 {
     public class Transformation : BaseTransformation<Settings>
     {
-        public override IResource[] TransformSource(string response)
+        public override BaseResource[] TransformSource(string response)
         {
-            IWorkPackageableThing workPackageableThing = new WorkPackageableThing();
+            WorkPackageableThing workPackageableThing = new WorkPackageableThing();
             JObject jsonResponse = (JObject)JsonConvert.DeserializeObject(response);
 
             Uri idUri = giveMeUri(jsonResponse, "FollowingWorkPackageableThing_x0");
@@ -23,19 +23,19 @@ namespace Functions.TransformationProcedureWorkPackageablePreceding
             if (precedingUri == null)
                 return null;
             else
-                workPackageableThing.WorkPackageableThingPrecedesWorkPackageableThing = new IWorkPackageableThing[] { new WorkPackageableThing() { Id = precedingUri } };
+                workPackageableThing.WorkPackageableThingPrecedesWorkPackageableThing = new WorkPackageableThing[] { new WorkPackageableThing() { Id = precedingUri } };
 
-            return new IResource[] { workPackageableThing };
+            return new BaseResource[] { workPackageableThing };
         }
 
-        public override Uri GetSubjectFromSource(IResource[] deserializedSource)
+        public override Uri GetSubjectFromSource(BaseResource[] deserializedSource)
         {
-            return deserializedSource.OfType<IWorkPackageableThing>()
+            return deserializedSource.OfType<WorkPackageableThing>()
                 .SingleOrDefault()
                 .Id;
         }
 
-        public override IResource[] SynchronizeIds(IResource[] source, Uri subjectUri, IResource[] target)
+        public override BaseResource[] SynchronizeIds(BaseResource[] source, Uri subjectUri, BaseResource[] target)
         {
             return source;
         }

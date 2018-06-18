@@ -1,6 +1,5 @@
-﻿using Functions.Transformation;
-using Parliament.Rdf;
-using Parliament.Model;
+﻿using Parliament.Model;
+using Parliament.Rdf.Serialization;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,9 +14,9 @@ namespace Functions.TransformationConstituencyMnis
         protected XNamespace d = "http://schemas.microsoft.com/ado/2007/08/dataservices";
         protected XNamespace m = "http://schemas.microsoft.com/ado/2007/08/dataservices/metadata";
 
-        public override IResource[] TransformSource(string response)
+        public override BaseResource[] TransformSource(string response)
         {
-            IMnisConstituencyGroup mnisConstituency = new MnisConstituencyGroup();
+            MnisConstituencyGroup mnisConstituency = new MnisConstituencyGroup();
             XDocument doc = XDocument.Parse(response);
             XElement constituencyElement = doc.Element(atom + "entry")
                 .Element(atom + "content")
@@ -26,25 +25,25 @@ namespace Functions.TransformationConstituencyMnis
             mnisConstituency.ConstituencyGroupMnisId = constituencyElement.Element(d + "Constituency_Id").GetText();
             mnisConstituency.ConstituencyGroupName = constituencyElement.Element(d + "Name").GetText();
             mnisConstituency.ConstituencyGroupStartDate = constituencyElement.Element(d + "StartDate").GetDate();
-            IHouseSeat houseSeat = generateHouseSeat();
-            mnisConstituency.ConstituencyGroupHasHouseSeat = new IHouseSeat[] { houseSeat };
-            IOnsConstituencyGroup onsConstituencyGroup = new OnsConstituencyGroup();
+            HouseSeat houseSeat = generateHouseSeat();
+            mnisConstituency.ConstituencyGroupHasHouseSeat = new HouseSeat[] { houseSeat };
+            OnsConstituencyGroup onsConstituencyGroup = new OnsConstituencyGroup();
             onsConstituencyGroup.ConstituencyGroupOnsCode = constituencyElement.Element(d + "ONSCode").GetText();
-            IPastConstituencyGroup pastConstituencyGroup = new PastConstituencyGroup();
+            PastConstituencyGroup pastConstituencyGroup = new PastConstituencyGroup();
             pastConstituencyGroup.ConstituencyGroupEndDate = constituencyElement.Element(d + "EndDate").GetDate();
 
-            return new IResource[] { mnisConstituency, onsConstituencyGroup, pastConstituencyGroup };
+            return new BaseResource[] { mnisConstituency, onsConstituencyGroup, pastConstituencyGroup };
         }
 
-        public override Dictionary<string, INode> GetKeysFromSource(IResource[] deserializedSource)
+        public override Dictionary<string, INode> GetKeysFromSource(BaseResource[] deserializedSource)
         {
-            string constituencyGroupMnisId = deserializedSource.OfType<IMnisConstituencyGroup>()
+            string constituencyGroupMnisId = deserializedSource.OfType<MnisConstituencyGroup>()
                 .SingleOrDefault()
                 .ConstituencyGroupMnisId;
-            string constituencyGroupOnsCode = deserializedSource.OfType<IOnsConstituencyGroup>()
+            string constituencyGroupOnsCode = deserializedSource.OfType<OnsConstituencyGroup>()
                 .SingleOrDefault()
                 .ConstituencyGroupOnsCode ?? string.Empty;
-                
+
             return new Dictionary<string, INode>()
             {
                 { "constituencyGroupMnisId", SparqlConstructor.GetNode(constituencyGroupMnisId) },
@@ -52,32 +51,36 @@ namespace Functions.TransformationConstituencyMnis
             };
         }
 
-        public override IResource[] SynchronizeIds(IResource[] source, Uri subjectUri, IResource[] target)
+        public override Dictionary<string, INode> GetKeysForTarget(BaseResource[] deserializedSource)
         {
-            IMnisConstituencyGroup constituency = source.OfType<IMnisConstituencyGroup>().SingleOrDefault();
-            IHouseSeat houseSeat = target.OfType<IHouseSeat>().SingleOrDefault();
+            return new Dictionary<string, INode>()
+            {
+                {"houseOfCommonsId", SparqlConstructor.GetNode(new Uri(HouseOfCommonsId)) }
+            };
+        }
+
+        public override BaseResource[] SynchronizeIds(BaseResource[] source, Uri subjectUri, BaseResource[] target)
+        {
+            MnisConstituencyGroup constituency = source.OfType<MnisConstituencyGroup>().SingleOrDefault();
+            HouseSeat houseSeat = target.OfType<HouseSeat>().SingleOrDefault();
             if ((constituency.ConstituencyGroupHasHouseSeat != null) && (constituency.ConstituencyGroupHasHouseSeat.Any()) &&
                 (houseSeat != null))
                 constituency.ConstituencyGroupHasHouseSeat.SingleOrDefault().Id = houseSeat.Id;
 
-            foreach (IConstituencyGroup constituencyGroup in source.OfType<IConstituencyGroup>())
-                constituencyGroup.Id = subjectUri;
-            return source.OfType<IConstituencyGroup>().ToArray();
+            source.OfType<MnisConstituencyGroup>().SingleOrDefault().Id = subjectUri;
+            source.OfType<OnsConstituencyGroup>().SingleOrDefault().Id = subjectUri;
+            source.OfType<PastConstituencyGroup>().SingleOrDefault().Id = subjectUri;
+            return source;
         }
 
-
-        private IHouseSeat generateHouseSeat()
+        private HouseSeat generateHouseSeat()
         {
-            IHouseSeat houseSeat = new HouseSeat();
+            HouseSeat houseSeat = new HouseSeat();
             houseSeat.Id = GenerateNewId();
-            Uri houseUri = IdRetrieval.GetSubject("houseName", "House of Commons", false, logger);
-            if (houseUri == null)
-                logger.Warning("No house found");
-            else
-                houseSeat.HouseSeatHasHouse = new House()
-                {
-                    Id = houseUri
-                };
+            houseSeat.HouseSeatHasHouse = new House()
+            {
+                Id = new Uri(HouseOfCommonsId)
+            };
             return houseSeat;
         }
     }

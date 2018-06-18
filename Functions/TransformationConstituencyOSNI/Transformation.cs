@@ -1,5 +1,5 @@
 ﻿using Newtonsoft.Json;
-using Parliament.Rdf;
+using Parliament.Rdf.Serialization;
 using Parliament.Model;
 using System;
 using System.Collections.Generic;
@@ -10,10 +10,10 @@ namespace Functions.TransformationConstituencyOSNI
 {
     public class Transformation : BaseTransformation<Settings>
     {
-        public override IResource[] TransformSource(string response)
+        public override BaseResource[] TransformSource(string response)
         {
             Rootobject sourceConstituency = JsonConvert.DeserializeObject<Rootobject>(response);
-            IOnsConstituencyGroup constituency = new OnsConstituencyGroup();
+            OnsConstituencyGroup constituency = new OnsConstituencyGroup();
             if ((sourceConstituency != null) && (sourceConstituency.features != null) && (sourceConstituency.features.Any()) && (sourceConstituency.features.SingleOrDefault().attributes != null))
             {
                 Feature feature = sourceConstituency.features.SingleOrDefault();
@@ -21,12 +21,12 @@ namespace Functions.TransformationConstituencyOSNI
                 if ((feature.geometry != null) && (feature.geometry.rings != null) && (feature.geometry.rings.Any()))
                     constituency.ConstituencyGroupHasConstituencyArea = generateConstituencyArea(feature.geometry.rings);
             }
-            return new IResource[] { constituency };
+            return new BaseResource[] { constituency };
         }
 
-        public override Dictionary<string, INode> GetKeysFromSource(IResource[] deserializedSource)
+        public override Dictionary<string, INode> GetKeysFromSource(BaseResource[] deserializedSource)
         {
-            string constituencyGroupOnsCode = deserializedSource.OfType<IOnsConstituencyGroup>()
+            string constituencyGroupOnsCode = deserializedSource.OfType<OnsConstituencyGroup>()
                 .SingleOrDefault()
                 .ConstituencyGroupOnsCode;
             return new Dictionary<string, INode>()
@@ -35,20 +35,20 @@ namespace Functions.TransformationConstituencyOSNI
             };
         }
 
-        public override IResource[] SynchronizeIds(IResource[] source, Uri subjectUri, IResource[] target)
+        public override BaseResource[] SynchronizeIds(BaseResource[] source, Uri subjectUri, BaseResource[] target)
         {
-            IOnsConstituencyGroup constituency = source.OfType<IOnsConstituencyGroup>().SingleOrDefault();
+            OnsConstituencyGroup constituency = source.OfType<OnsConstituencyGroup>().SingleOrDefault();
             constituency.Id = subjectUri;
-            IConstituencyArea constituencyArea = target.OfType<IConstituencyArea>().SingleOrDefault();
+            ConstituencyArea constituencyArea = target.OfType<ConstituencyArea>().SingleOrDefault();
             if ((constituencyArea != null) && (constituency.ConstituencyGroupHasConstituencyArea != null))
                 constituency.ConstituencyGroupHasConstituencyArea.Id = constituencyArea.Id;
 
-            return new IResource[] { constituency };
+            return new BaseResource[] { constituency };
         }
 
-        private IConstituencyArea generateConstituencyArea(decimal[][][] rings)
+        private ConstituencyArea generateConstituencyArea(decimal[][][] rings)
         {
-            IConstituencyArea constituencyArea = new ConstituencyArea();
+            ConstituencyArea constituencyArea = new ConstituencyArea();
             constituencyArea.Id = GenerateNewId();
             constituencyArea.ConstituencyAreaExtent = generateConstituencyAreaExtent(rings);
             return constituencyArea;

@@ -1,4 +1,4 @@
-﻿using Parliament.Rdf;
+﻿using Parliament.Rdf.Serialization;
 using Parliament.Model;
 using System;
 using System.Collections.Generic;
@@ -15,15 +15,15 @@ namespace Functions.TransformationSeatIncumbencyMnis
         private XNamespace d = "http://schemas.microsoft.com/ado/2007/08/dataservices";
         private XNamespace m = "http://schemas.microsoft.com/ado/2007/08/dataservices/metadata";
 
-        public override IResource[] TransformSource(string response)
+        public override BaseResource[] TransformSource(string response)
         {
-            IMember member = new Member();
+            Member member = new Member();
             XDocument doc = XDocument.Parse(response);
             XElement seatIncumbencyElement = doc.Element(atom + "entry")
                 .Element(atom + "content")
                 .Element(m + "properties");
 
-            IPastParliamentaryIncumbency incumbency = new PastParliamentaryIncumbency();
+            PastParliamentaryIncumbency incumbency = new PastParliamentaryIncumbency();
             incumbency.ParliamentaryIncumbencyStartDate = seatIncumbencyElement.Element(d + "StartDate").GetDate();
             incumbency.ParliamentaryIncumbencyEndDate = seatIncumbencyElement.Element(d + "EndDate").GetDate();
             string memberId = seatIncumbencyElement.Element(d + "Member_Id").GetText();
@@ -37,11 +37,11 @@ namespace Functions.TransformationSeatIncumbencyMnis
             {
                 Id = memberUri
             };
-            IMnisSeatIncumbency seatIncumbency = new MnisSeatIncumbency();
+            MnisSeatIncumbency seatIncumbency = new MnisSeatIncumbency();
             seatIncumbency.CommonsSeatIncumbencyMnisId = seatIncumbencyElement.Element(d + "MemberConstituency_Id").GetText();
-            IParliamentPeriod parliamentPeriod = generateSeatIncumbencyParliamentPeriod(incumbency.ParliamentaryIncumbencyStartDate.Value, incumbency.ParliamentaryIncumbencyEndDate);
+            ParliamentPeriod parliamentPeriod = generateSeatIncumbencyParliamentPeriod(incumbency.ParliamentaryIncumbencyStartDate.Value, incumbency.ParliamentaryIncumbencyEndDate);
             if (parliamentPeriod != null)
-                seatIncumbency.SeatIncumbencyHasParliamentPeriod = new IParliamentPeriod[] { parliamentPeriod };
+                seatIncumbency.SeatIncumbencyHasParliamentPeriod = new ParliamentPeriod[] { parliamentPeriod };
 
             string constituencyId = seatIncumbencyElement.Element(d + "Constituency_Id").GetText();
             string houseSeatCommand = @"
@@ -62,12 +62,12 @@ namespace Functions.TransformationSeatIncumbencyMnis
                     Id = houseSeatUri
                 };
 
-            return new IResource[] { incumbency, seatIncumbency };
+            return new BaseResource[] { incumbency, seatIncumbency };
         }
 
-        public override Dictionary<string, INode> GetKeysFromSource(IResource[] deserializedSource)
+        public override Dictionary<string, INode> GetKeysFromSource(BaseResource[] deserializedSource)
         {
-            string commonsSeatIncumbencyMnisId = deserializedSource.OfType<IMnisSeatIncumbency>()
+            string commonsSeatIncumbencyMnisId = deserializedSource.OfType<MnisSeatIncumbency>()
                 .SingleOrDefault()
                 .CommonsSeatIncumbencyMnisId;
             return new Dictionary<string, INode>()
@@ -76,14 +76,14 @@ namespace Functions.TransformationSeatIncumbencyMnis
             };
         }
 
-        public override IResource[] SynchronizeIds(IResource[] source, Uri subjectUri, IResource[] target)
+        public override BaseResource[] SynchronizeIds(BaseResource[] source, Uri subjectUri, BaseResource[] target)
         {
-            foreach (IParliamentaryIncumbency incumbency in source.OfType<IParliamentaryIncumbency>())
+            foreach (BaseResource incumbency in source)
                 incumbency.Id = subjectUri;
-            return source.OfType<IParliamentaryIncumbency>().ToArray();
+            return source;
         }
 
-        private IParliamentPeriod generateSeatIncumbencyParliamentPeriod(DateTimeOffset startDate, DateTimeOffset? endDate)
+        private ParliamentPeriod generateSeatIncumbencyParliamentPeriod(DateTimeOffset startDate, DateTimeOffset? endDate)
         {
             string sparqlCommand = @"
         construct {

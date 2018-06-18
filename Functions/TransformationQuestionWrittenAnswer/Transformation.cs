@@ -1,4 +1,4 @@
-﻿using Parliament.Rdf;
+﻿using Parliament.Rdf.Serialization;
 using Parliament.Model;
 using System;
 using System.Collections.Generic;
@@ -60,7 +60,7 @@ namespace Functions.TransformationQuestionWrittenAnswer
             logger.Verbose($"Found existing ({result})");
             return result;
         }
-        public override IResource[] TransformSource(string response)
+        public override BaseResource[] TransformSource(string response)
         {
             XDocument doc = XDocument.Parse(response);
             var arrElements = doc?.Element("response")?.Element("result")?.Element("doc")?.Elements("arr")?.ToList();
@@ -85,7 +85,8 @@ namespace Functions.TransformationQuestionWrittenAnswer
             question.QuestionAskedAt = data.DateTabled;
             question.QuestionHeading = data.QuestionHeading;
             question.QuestionText = data.QuestionText;
-            question.WrittenQuestionIndexingAndSearchUin = new string[] { data.Uin };
+            if (string.IsNullOrWhiteSpace(data.Uin) == false)
+                question.WrittenQuestionIndexingAndSearchUin = new string[] { data.Uin };
 
             IndexingAndSearchThing iast = new IndexingAndSearchThing();
             iast.IndexingAndSearchUri = new String[] { strElements.Where(x => x.Attribute("name").Value == "uri").FirstOrDefault().GetText() };
@@ -94,7 +95,7 @@ namespace Functions.TransformationQuestionWrittenAnswer
             {
                 Uri memberId = GetMemberId(data.AskingMemberSesId, data.DateTabled == null ? data.DateOfAnswer : data.DateTabled, logger);
                 if (memberId != null)
-                    question.QuestionHasAskingPerson = new IPerson[]
+                    question.QuestionHasAskingPerson = new Person[]
                     {
                             new Person()
                             {
@@ -105,19 +106,19 @@ namespace Functions.TransformationQuestionWrittenAnswer
                     logger.Warning($"Member with Ses Id ({data.AskingMemberSesId}) not found");
             }
 
-            IAnsweringBodyAllocation answeringBodyAllocation = giveMeAnsweringBodyAllocation(data);
+            AnsweringBodyAllocation answeringBodyAllocation = giveMeAnsweringBodyAllocation(data);
             if (answeringBodyAllocation != null)
-                question.QuestionHasAnsweringBodyAllocation = new IAnsweringBodyAllocation[] { answeringBodyAllocation };
-            IWrittenAnswerExpectation writtenAnswerExpectation = giveMeWrittenAnswerExpectation(data);
+                question.QuestionHasAnsweringBodyAllocation = new AnsweringBodyAllocation[] { answeringBodyAllocation };
+            WrittenAnswerExpectation writtenAnswerExpectation = giveMeWrittenAnswerExpectation(data);
             if (writtenAnswerExpectation != null)
-                question.QuestionHasWrittenAnswerExpectation = new IWrittenAnswerExpectation[] { writtenAnswerExpectation };
+                question.QuestionHasWrittenAnswerExpectation = new WrittenAnswerExpectation[] { writtenAnswerExpectation };
 
-            return new IResource[] { question, iast };
+            return new BaseResource[] { question, iast };
         }
 
-        public override Dictionary<string, INode> GetKeysFromSource(IResource[] deserializedSource)
+        public override Dictionary<string, INode> GetKeysFromSource(BaseResource[] deserializedSource)
         {
-            string writtenQuestionUri = deserializedSource.Where(x=>x.GetType()== typeof(IndexingAndSearchThing))
+            string writtenQuestionUri = deserializedSource.Where(x => x.GetType() == typeof(IndexingAndSearchThing))
                 .OfType<IndexingAndSearchThing>()
                 .SingleOrDefault()
                 .IndexingAndSearchUri.SingleOrDefault();
@@ -126,24 +127,24 @@ namespace Functions.TransformationQuestionWrittenAnswer
                 QuestionAskedAt.GetValueOrDefault();
             string writtenQuestionUin = deserializedSource.OfType<IndexingAndSearchWrittenQuestion>()
                 .SingleOrDefault().
-                WrittenQuestionIndexingAndSearchUin.SingleOrDefault();
+                WrittenQuestionIndexingAndSearchUin?.SingleOrDefault();
             return new Dictionary<string, INode>()
             {
                 { "writtenQuestionUri", SparqlConstructor.GetNode(writtenQuestionUri) },
-                { "writtenQuestionUin", SparqlConstructor.GetNode(writtenQuestionUin) },
-                { "askedDate", SparqlConstructor.GetNodeDate(askedDate) },
+                { "writtenQuestionUin", SparqlConstructor.GetNode(writtenQuestionUin !=null ? writtenQuestionUin : writtenQuestionUri)},
+                { "askedDate", SparqlConstructor.GetNodeDate(askedDate)},
             };
         }
 
-        public override IResource[] SynchronizeIds(IResource[] source, Uri subjectUri, IResource[] target)
+        public override BaseResource[] SynchronizeIds(BaseResource[] source, Uri subjectUri, BaseResource[] target)
         {
-            IIndexingAndSearchWrittenQuestion question = source.OfType<IndexingAndSearchWrittenQuestion>().SingleOrDefault();
+            IndexingAndSearchWrittenQuestion question = source.OfType<IndexingAndSearchWrittenQuestion>().SingleOrDefault();
             question.Id = subjectUri;
-            IIndexingAndSearchThing iast = source.Where(x => x.GetType() == typeof(IndexingAndSearchThing)).OfType<IIndexingAndSearchThing>().SingleOrDefault();
+            IndexingAndSearchThing iast = source.Where(x => x.GetType() == typeof(IndexingAndSearchThing)).OfType<IndexingAndSearchThing>().SingleOrDefault();
             iast.Id = subjectUri;
             if ((question.QuestionHasAnsweringBodyAllocation != null) && (question.QuestionHasAnsweringBodyAllocation.Any()))
             {
-                IAnsweringBodyAllocation answeringBodyAllocationTarget = target.OfType<IAnsweringBodyAllocation>().SingleOrDefault();
+                AnsweringBodyAllocation answeringBodyAllocationTarget = target.OfType<AnsweringBodyAllocation>().SingleOrDefault();
                 if (answeringBodyAllocationTarget != null)
                     question.QuestionHasAnsweringBodyAllocation.SingleOrDefault().Id = answeringBodyAllocationTarget.Id;
                 if (question.QuestionHasAnsweringBodyAllocation.SingleOrDefault()?.AnsweringBodyAllocationHasAnsweringBody?.AnsweringBodyHasWrittenAnswer != null)
@@ -153,14 +154,14 @@ namespace Functions.TransformationQuestionWrittenAnswer
                     .AnsweringBodyAllocationHasAnsweringBody
                     .AnsweringBodyHasWrittenAnswer
                     .SingleOrDefault()
-                    .AnswerHasQuestion = new IQuestion[]
+                    .AnswerHasQuestion = new Question[]
                     {
                         new Question()
                         {
                             Id = subjectUri
                         }
                     };
-                    IWrittenAnswer answerTarget = target.OfType<IWrittenAnswer>().SingleOrDefault();
+                    WrittenAnswer answerTarget = target.OfType<WrittenAnswer>().SingleOrDefault();
                     if (answerTarget != null)
                     {
                         question.QuestionHasAnsweringBodyAllocation
@@ -174,19 +175,19 @@ namespace Functions.TransformationQuestionWrittenAnswer
             }
             if ((question.QuestionHasWrittenAnswerExpectation != null) && (question.QuestionHasWrittenAnswerExpectation.Any()))
             {
-                IWrittenAnswerExpectation expectationTarget = target.OfType<IWrittenAnswerExpectation>().SingleOrDefault();
+                WrittenAnswerExpectation expectationTarget = target.OfType<WrittenAnswerExpectation>().SingleOrDefault();
                 if (expectationTarget != null)
                     question.QuestionHasWrittenAnswerExpectation
                         .SingleOrDefault()
                         .Id = expectationTarget.Id;
             }
 
-            return new IResource[] { question, iast };
+            return new BaseResource[] { question, iast };
         }
 
-        private IAnsweringBodyAllocation giveMeAnsweringBodyAllocation(Response data)
+        private AnsweringBodyAllocation giveMeAnsweringBodyAllocation(Response data)
         {
-            IAnsweringBodyAllocation answeringBodyAllocation = null;
+            AnsweringBodyAllocation answeringBodyAllocation = null;
 
             if (data.AnsweringDeptSesId != null)
             {
@@ -201,11 +202,11 @@ namespace Functions.TransformationQuestionWrittenAnswer
                             Id = answeringBodyId
                         }
                     };
-                    IWrittenAnswer writtenAnswer = giveMeWrittenAnswer(data);
+                    WrittenAnswer writtenAnswer = giveMeWrittenAnswer(data);
                     if (writtenAnswer != null)
                         answeringBodyAllocation
                             .AnsweringBodyAllocationHasAnsweringBody
-                            .AnsweringBodyHasWrittenAnswer = new IWrittenAnswer[] { writtenAnswer };
+                            .AnsweringBodyHasWrittenAnswer = new WrittenAnswer[] { writtenAnswer };
                 }
                 else
                     logger.Warning($"Answering body with Ses Id ({data.AnsweringDeptSesId}) not found");
@@ -214,9 +215,9 @@ namespace Functions.TransformationQuestionWrittenAnswer
             return answeringBodyAllocation;
         }
 
-        private IWrittenAnswer giveMeWrittenAnswer(Response data)
+        private WrittenAnswer giveMeWrittenAnswer(Response data)
         {
-            IWrittenAnswer writtenAnswer = null;
+            WrittenAnswer writtenAnswer = null;
 
             if ((string.IsNullOrWhiteSpace(data.AnswerText) == false) || (data.DateOfAnswer.HasValue))
             {
@@ -231,7 +232,7 @@ namespace Functions.TransformationQuestionWrittenAnswer
                     Uri ministerId = GetMemberId(data.AnsweringMemberSesId, data.DateOfAnswer, logger);
 
                     if (ministerId != null)
-                        writtenAnswer.AnswerHasAnsweringPerson = new IPerson[]
+                        writtenAnswer.AnswerHasAnsweringPerson = new Person[]
                             {
                                 new Person()
                                 {
@@ -246,9 +247,9 @@ namespace Functions.TransformationQuestionWrittenAnswer
             return writtenAnswer;
         }
 
-        private IWrittenAnswerExpectation giveMeWrittenAnswerExpectation(Response data)
+        private WrittenAnswerExpectation giveMeWrittenAnswerExpectation(Response data)
         {
-            IWrittenAnswerExpectation writtenAnswerExpectation = null;
+            WrittenAnswerExpectation writtenAnswerExpectation = null;
 
             if (data.DateForAnswer.HasValue)
                 writtenAnswerExpectation = new WrittenAnswerExpectation()

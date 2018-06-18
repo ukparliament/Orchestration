@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Parliament.Model;
-using Parliament.Rdf;
+using Parliament.Rdf.Serialization;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,10 +10,10 @@ namespace Functions.TransformationProcedureBusinessItem
 {
     public class Transformation : BaseTransformation<Settings>
     {
-        public override IResource[] TransformSource(string response)
+        public override BaseResource[] TransformSource(string response)
         {
-            IBusinessItem businessItem = new BusinessItem();
-            ILaying laying = new Laying();
+            BusinessItem businessItem = new BusinessItem();
+            Laying laying = new Laying();
             JObject jsonResponse = (JObject)JsonConvert.DeserializeObject(response);
 
             Uri idUri = giveMeUri(jsonResponse, "TripleStoreId");
@@ -37,7 +37,7 @@ namespace Functions.TransformationProcedureBusinessItem
             string url = ((JValue)jsonResponse.SelectToken("Weblink")).GetText();
             if ((string.IsNullOrWhiteSpace(url) == false) &&
                 (Uri.TryCreate(url, UriKind.Absolute, out Uri uri)))
-                businessItem.BusinessItemHasBusinessItemWebLink = new List<IBusinessItemWebLink>()
+                businessItem.BusinessItemHasBusinessItemWebLink = new List<BusinessItemWebLink>()
                 {
                     new BusinessItemWebLink()
                     {
@@ -55,17 +55,17 @@ namespace Functions.TransformationProcedureBusinessItem
                     .Select(u => new LayableThing() { Id = u })
                     .SingleOrDefault();
             }
-            return new IResource[] { businessItem, laying };
+            return new BaseResource[] { businessItem, laying };
         }
 
-        public override Uri GetSubjectFromSource(IResource[] deserializedSource)
+        public override Uri GetSubjectFromSource(BaseResource[] deserializedSource)
         {
-            return deserializedSource.OfType<IBusinessItem>()
+            return deserializedSource.OfType<BusinessItem>()
                 .FirstOrDefault()
                 .Id;
         }
 
-        public override IResource[] SynchronizeIds(IResource[] source, Uri subjectUri, IResource[] target)
+        public override BaseResource[] SynchronizeIds(BaseResource[] source, Uri subjectUri, BaseResource[] target)
         {
             return source;
         }

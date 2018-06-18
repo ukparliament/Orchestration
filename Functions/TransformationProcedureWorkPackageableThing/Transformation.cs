@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Parliament.Model;
-using Parliament.Rdf;
+using Parliament.Rdf.Serialization;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,10 +10,10 @@ namespace Functions.TransformationProcedureWorkPackageableThing
 {
     public class Transformation : BaseTransformation<Settings>
     {
-        public override IResource[] TransformSource(string response)
+        public override BaseResource[] TransformSource(string response)
         {
-            IWorkPackageableThing workPackageableThing = new WorkPackageableThing();
-            IStatutoryInstrument statutoryInstrument = new StatutoryInstrument();            
+            WorkPackageableThing workPackageableThing = new WorkPackageableThing();
+            StatutoryInstrument statutoryInstrument = new StatutoryInstrument();            
             JObject jsonResponse = (JObject)JsonConvert.DeserializeObject(response);
 
             string id = ((JValue)jsonResponse.SelectToken("WorkPacakageableThingTripleStore")).GetText();
@@ -42,7 +42,7 @@ namespace Functions.TransformationProcedureWorkPackageableThing
             string url = ((JValue)jsonResponse.SelectToken("WorkPackageableThingUrl")).GetText();
             if ((string.IsNullOrWhiteSpace(url) == false) &&
                 (Uri.TryCreate(url, UriKind.Absolute, out Uri uri)))
-                workPackageableThing.WorkPackageableThingHasWorkPackageableThingWebLink = new List<IWorkPackageableThingWebLink>()
+                workPackageableThing.WorkPackageableThingHasWorkPackageableThingWebLink = new List<WorkPackageableThingWebLink>()
                 {
                     new WorkPackageableThingWebLink()
                     {
@@ -54,17 +54,17 @@ namespace Functions.TransformationProcedureWorkPackageableThing
             statutoryInstrument.StatutoryInstrumentNumberPrefix = ((JValue)jsonResponse.SelectToken("SIPrefix")).GetText();
             statutoryInstrument.StatutoryInstrumentNumberYear = ((JValue)jsonResponse.SelectToken("SIYear")).GetInteger();
 
-            return new IResource[] { workPackageableThing, statutoryInstrument };
+            return new BaseResource[] { workPackageableThing, statutoryInstrument };
         }
 
-        public override Uri GetSubjectFromSource(IResource[] deserializedSource)
+        public override Uri GetSubjectFromSource(BaseResource[] deserializedSource)
         {
-            return deserializedSource.OfType<IWorkPackageableThing>()
+            return deserializedSource.OfType<WorkPackageableThing>()
                 .FirstOrDefault()
                 .Id;
         }
 
-        public override IResource[] SynchronizeIds(IResource[] source, Uri subjectUri, IResource[] target)
+        public override BaseResource[] SynchronizeIds(BaseResource[] source, Uri subjectUri, BaseResource[] target)
         {
             return source;
         }

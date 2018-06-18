@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Parliament.Rdf;
+using Parliament.Rdf.Serialization;
 using Parliament.Model;
 using System;
 using System.Collections.Generic;
@@ -12,9 +12,9 @@ namespace Functions.TransformationLordsSeatIncumbencyInterruption
     public class Transformation : BaseTransformation<Settings>
     {
         
-        public override IResource[] TransformSource(string response)
+        public override BaseResource[] TransformSource(string response)
         {
-            IIncumbencyInterruption incumbencyInterruption = new IncumbencyInterruption();
+            IncumbencyInterruption incumbencyInterruption = new IncumbencyInterruption();
             JObject jsonResponse = (JObject)JsonConvert.DeserializeObject(response);
 
             string id = ((JValue)jsonResponse.SelectToken("tripleStoreId")).GetText();
@@ -38,7 +38,7 @@ namespace Functions.TransformationLordsSeatIncumbencyInterruption
             if (incumbencyUri == null)
                 return null;
             else
-                incumbencyInterruption.IncumbencyInterruptionHasIncumbency = new SeatIncumbency()
+                incumbencyInterruption.IncumbencyInterruptionHasIncumbency = new Incumbency()
                 {
                     Id = incumbencyUri
                 };
@@ -46,25 +46,25 @@ namespace Functions.TransformationLordsSeatIncumbencyInterruption
             incumbencyInterruption.IncumbencyInterruptionStartDate = ((JValue)jsonResponse.SelectToken("startDate")).GetDate();
 
 
-            IPastIncumbencyInterruption pastInterruption = new PastIncumbencyInterruption();
+            PastIncumbencyInterruption pastInterruption = new PastIncumbencyInterruption();
             pastInterruption.Id = incumbencyInterruption.Id;
             pastInterruption.IncumbencyInterruptionEndDate= ((JValue)jsonResponse.SelectToken("endDate")).GetDate();
 
-            return new IResource[] { incumbencyInterruption, pastInterruption };
+            return new BaseResource[] { incumbencyInterruption, pastInterruption };
         }
 
-        public override Uri GetSubjectFromSource(IResource[] deserializedSource)
+        public override Uri GetSubjectFromSource(BaseResource[] deserializedSource)
         {
-            return deserializedSource.OfType<IIncumbencyInterruption>()
+            return deserializedSource.OfType<IncumbencyInterruption>()
                 .FirstOrDefault()
                 .Id;            
         }
 
-        public override IResource[] SynchronizeIds(IResource[] source, Uri subjectUri, IResource[] target)
+        public override BaseResource[] SynchronizeIds(BaseResource[] source, Uri subjectUri, BaseResource[] target)
         {
-            IIncumbencyInterruption[] interruptions = source.OfType<IIncumbencyInterruption>().ToArray();
+            IncumbencyInterruption[] interruptions = source.OfType<IncumbencyInterruption>().ToArray();
 
-            return interruptions as IResource[];
+            return interruptions as BaseResource[];
         }
 
         private Uri giveMeUri(JObject jsonResponse, string tokenName)

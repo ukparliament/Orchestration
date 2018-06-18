@@ -1,5 +1,4 @@
 ﻿using Newtonsoft.Json;
-using Parliament.Rdf;
 using Parliament.Rdf.Serialization;
 using System;
 using System.Collections.Generic;
@@ -16,10 +15,12 @@ namespace Functions
 {
     public class BaseTransformation<T> where T : ITransformationSettings, new()
     {
-        protected Logger logger;
+        protected Logger logger=new Logger(new Microsoft.Azure.WebJobs.ExecutionContext());
 
         protected static readonly string schemaNamespace = Environment.GetEnvironmentVariable("SchemaNamespace", EnvironmentVariableTarget.Process);
         protected static readonly string idNamespace = Environment.GetEnvironmentVariable("IdNamespace", EnvironmentVariableTarget.Process);
+        public static readonly string HouseOfCommonsId = "https://id.parliament.uk/1AFu55Hs";
+        public static readonly string HouseOfLordsId = "https://id.parliament.uk/WkUWUBMx";
 
         public async Task<object> Run(HttpRequestMessage req, T settings, Microsoft.Azure.WebJobs.ExecutionContext executionContext)
         {
@@ -44,27 +45,27 @@ namespace Functions
             return req.CreateResponse();
         }
 
-        public virtual IResource[] TransformSource(string response)
+        public virtual BaseResource[] TransformSource(string response)
         {
             throw new NotImplementedException();
         }
 
-        public virtual Dictionary<string, INode> GetKeysFromSource(IResource[] deserializedSource)
+        public virtual Dictionary<string, INode> GetKeysFromSource(BaseResource[] deserializedSource)
         {
             return null;
         }
 
-        public virtual Uri GetSubjectFromSource(IResource[] deserializedSource)
+        public virtual Uri GetSubjectFromSource(BaseResource[] deserializedSource)
         {
             return null;
         }
 
-        public virtual Dictionary<string, INode> GetKeysForTarget(IResource[] deserializedSource)
+        public virtual Dictionary<string, INode> GetKeysForTarget(BaseResource[] deserializedSource)
         {
             return new Dictionary<string, INode> { };
         }
 
-        public virtual IResource[] SynchronizeIds(IResource[] source, Uri id, IResource[] deserializedTarget)
+        public virtual BaseResource[] SynchronizeIds(BaseResource[] source, Uri id, BaseResource[] deserializedTarget)
         {
             throw new NotImplementedException();
         }
@@ -93,7 +94,7 @@ namespace Functions
             }
         }
 
-        private IGraph serializeSource(IResource[] source)
+        private IGraph serializeSource(BaseResource[] source)
         {
             Graph result = null;
             try
@@ -149,9 +150,9 @@ namespace Functions
             return GraphRetrieval.GetGraph(sparqlConstructor.Sparql.ToString(), logger);
         }
 
-        private IEnumerable<IResource> deserializeTarget(IGraph target)
+        private IEnumerable<BaseResource> deserializeTarget(IGraph target)
         {
-            IEnumerable<IResource> result = null;
+            IEnumerable<BaseResource> result = null;
             try
             {
                 logger.Verbose("Deserialize target");
@@ -171,7 +172,7 @@ namespace Functions
             if (string.IsNullOrWhiteSpace(response))
                 return await communicateBack(callbackUrl, "Problem while getting source data");
 
-            IResource[] deserializedSource;
+            BaseResource[] deserializedSource;
             try
             {
                 logger.Verbose("Deserializing source");
@@ -220,12 +221,12 @@ namespace Functions
             if (existingGraph == null)
                 return await communicateBack(callbackUrl, $"Problem while retrieving old graph for {subjectUri}");
 
-            IResource[] deserializedTarget;
+            BaseResource[] deserializedTarget;
             deserializedTarget = deserializeTarget(existingGraph).ToArray();
             if (deserializedTarget == null)
                 return await communicateBack(callbackUrl, $"Problem while deserializing target");
 
-            IResource[] deserializedSourceWithIds;
+            BaseResource[] deserializedSourceWithIds;
             try
             {
                 logger.Verbose("Assigning ids");

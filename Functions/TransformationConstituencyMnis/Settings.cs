@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Xml;
-
-namespace Functions.Transformation
+﻿namespace Functions.TransformationConstituencyMnis
 {
     public class Settings : ITransformationSettings
     {
@@ -52,9 +49,11 @@ namespace Functions.Transformation
                     parl:constituencyGroupHasHouseSeat ?seat.
                 ?seat a parl:HouseSeat;
                     parl:houseSeatHasHouse ?house.
+                ?house a parl:House.
             }
             where {
                 bind(@subject as ?constituencyGroup)
+                bind(@houseOfCommonsId as ?house)
                 ?constituencyGroup parl:constituencyGroupMnisId ?constituencyGroupMnisId.
                 optional {?constituencyGroup parl:constituencyGroupOnsCode ?constituencyGroupOnsCode}
                 optional {?constituencyGroup parl:constituencyGroupName ?constituencyGroupName}
@@ -64,7 +63,6 @@ namespace Functions.Transformation
                     ?constituencyGroup parl:constituencyGroupHasHouseSeat ?seat.
                     optional {
                         ?seat parl:houseSeatHasHouse ?house.
-                        ?house parl:houseName ""House of Commons"".
                     }
                 }
             }";

@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<entry xml:base="http://data.parliament.uk/MembersDataPlatform/open/OData.svc/" xmlns="http://www.w3.org/2005/Atom" xmlns:d="http://schemas.microsoft.com/ado/2007/08/dataservices" xmlns:m="http://schemas.microsoft.com/ado/2007/08/dataservices/metadata">
+    <id>http://data.parliament.uk/MembersDataPlatform/open/OData.svc/MemberGovernmentPosts(24)</id>
+    <category term="MNISModel.MemberGovernmentPost" scheme="http://schemas.microsoft.com/ado/2007/08/dataservices/scheme" />
+    <link rel="edit" title="MemberGovernmentPost" href="MemberGovernmentPosts(24)" />
+    <title />
+    <updated>2018-06-13T11:16:28Z</updated>
+    <author>
+        <name />
+    </author>
+    <content type="application/xml">
+        <m:properties>
+            <d:MemberGovernmentPost_Id m:type="Edm.Int32">24</d:MemberGovernmentPost_Id>
+            <d:Member_Id m:type="Edm.Int32">22</d:Member_Id>
+            <d:GovernmentPost_Id m:type="Edm.Int32">411</d:GovernmentPost_Id>
+            <d:StartDate m:type="Edm.DateTime">1994-07-20T00:00:00</d:StartDate>
+            <d:EndDate m:type="Edm.DateTime">1995-02-11T00:00:00</d:EndDate>
+        </m:properties>
+    </content>
+</entry>

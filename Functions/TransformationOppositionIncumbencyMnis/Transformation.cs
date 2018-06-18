@@ -1,5 +1,5 @@
 ﻿using Parliament.Model;
-using Parliament.Rdf;
+using Parliament.Rdf.Serialization;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,14 +14,14 @@ namespace Functions.TransformationOppositionIncumbencyMnis
         private XNamespace d = "http://schemas.microsoft.com/ado/2007/08/dataservices";
         private XNamespace m = "http://schemas.microsoft.com/ado/2007/08/dataservices/metadata";
 
-        public override IResource[] TransformSource(string response)
+        public override BaseResource[] TransformSource(string response)
         {
             XDocument doc = XDocument.Parse(response);
             XElement oppositionIncumbencyElement = doc.Element(atom + "entry")
                 .Element(atom + "content")
                 .Element(m + "properties");
 
-            IMnisOppositionIncumbency oppositionIncumbency = new MnisOppositionIncumbency();
+            MnisOppositionIncumbency oppositionIncumbency = new MnisOppositionIncumbency();
             oppositionIncumbency.OppositionIncumbencyMnisId = oppositionIncumbencyElement.Element(d + "MemberOppositionPost_Id").GetText();
             oppositionIncumbency.IncumbencyStartDate = oppositionIncumbencyElement.Element(d + "StartDate").GetDate();
             string oppositionPositionMnisId = oppositionIncumbencyElement.Element(d + "OppositionPost_Id").GetText();
@@ -46,16 +46,16 @@ namespace Functions.TransformationOppositionIncumbencyMnis
             {
                 Id = memberUri
             };
-            IPastIncumbency incumbency = new PastIncumbency();
+            PastIncumbency incumbency = new PastIncumbency();
             incumbency.Id = oppositionIncumbency.Id;
             incumbency.IncumbencyEndDate = oppositionIncumbencyElement.Element(d + "EndDate").GetDate();
 
-            return new IResource[] { oppositionIncumbency, incumbency };
+            return new BaseResource[] { oppositionIncumbency, incumbency };
         }
 
-        public override Dictionary<string, INode> GetKeysFromSource(IResource[] deserializedSource)
+        public override Dictionary<string, INode> GetKeysFromSource(BaseResource[] deserializedSource)
         {
-            string oppositionIncumbencyMnisId = deserializedSource.OfType<IMnisOppositionIncumbency>()
+            string oppositionIncumbencyMnisId = deserializedSource.OfType<MnisOppositionIncumbency>()
                 .SingleOrDefault()
                 .OppositionIncumbencyMnisId;
             return new Dictionary<string, INode>()
@@ -64,11 +64,11 @@ namespace Functions.TransformationOppositionIncumbencyMnis
             };
         }
 
-        public override IResource[] SynchronizeIds(IResource[] source, Uri subjectUri, IResource[] target)
+        public override BaseResource[] SynchronizeIds(BaseResource[] source, Uri subjectUri, BaseResource[] target)
         {
-            foreach (IIncumbency incumbency in source.OfType<IIncumbency>())
+            foreach (BaseResource incumbency in source)
                 incumbency.Id = subjectUri;
-            return source.OfType<IIncumbency>().ToArray();
+            return source;
         }
 
     }

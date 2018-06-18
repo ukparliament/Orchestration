@@ -1,0 +1,74 @@
+﻿@prefix void: <http://rdfs.org/ns/void#>.
+@prefix id: <https://id.parliament.uk/>.
+@prefix parl: <https://id.parliament.uk/schema/>.
+@prefix dcterms: <http://purl.org/dc/terms/>.
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#>.
+@prefix ex: <http://example.com/>.
+
+id:dataset1 a void:Dataset;
+	dcterms:title "Members MNIS";
+	dcterms:description "Bla bla bla";
+	dcterms:creator <https://www.parliament.uk>;
+	dcterms:source id:sourceOfData1;
+	dcterms:modified "blablabla"^^xsd:date;
+	ex:sourceKey parl:memberMnisId;
+	void:classPartition id:classPartition1, 
+		id:classPartition2;
+	void:propertyPartition id:propertyPartition1,
+		id:propertyPartition2,
+		id:propertyPartition3,
+		id:propertyPartition4,
+		id:propertyPartition5,
+		id:propertyPartition6,
+		id:propertyPartition7,
+		id:propertyPartition8,
+		id:propertyPartition9,
+		id:propertyPartition10,
+		id:propertyPartition11,
+		id:propertyPartition12.
+
+id:classPartition1 void:class parl:Person.
+id:classPartition2 void:class parl:GenderIdentity.
+
+id:propertyPartition1 void:property parl:personDateOfBirth;
+	ex:sourceXPath "default:entry/default:content/m:properties/d:DateOfBirth".
+id:propertyPartition2 void:property parl:personGivenName;
+	ex:sourceXPath "default:entry/default:content/m:properties/d:Forename".
+id:propertyPartition3 void:property parl:personOtherNames;
+	ex:sourceXPath "default:entry/default:content/m:properties/d:MiddleNames".
+id:propertyPartition4 void:property parl:personFamilyName;
+	ex:sourceXPath "default:entry/default:content/m:properties/d:Surname".
+id:propertyPartition5 void:property parl:personDateOfDeath;
+	ex:sourceXPath "default:entry/default:content/m:properties/d:DateOfDeath".
+id:propertyPartition6 void:property parl:memberMnisId;
+	ex:sourceXPath "default:entry/default:content/m:properties/d:Member_Id".
+id:propertyPartition7 void:property parl:personPimsId;
+	ex:sourceXPath "default:entry/default:content/m:properties/d:Pims_Id".
+id:propertyPartition8 void:property parl:personHasGenderIdentity.
+id:propertyPartition9 void:property parl:genderIdentityHasGender;
+	ex:sourceXPath "default:entry/default:content/m:properties/d:Gender";
+	ex:matchingSingleSubjectBasedOnPredicatesObject parl:genderMnisId;
+	ex:subject parl:personHasGenderIdentity.
+id:propertyPartition10 void:property <http://example.com/F31CBD81AD8343898B49DC65743F0BDF>;
+	ex:sourceXPath "default:entry/default:content/m:properties/d:NameDisplayAs".
+id:propertyPartition11 void:property <http://example.com/A5EE13ABE03C4D3A8F1A274F57097B6C>;
+	ex:sourceXPath "default:entry/default:content/m:properties/d:NameListAs".
+id:propertyPartition12 void:property <http://example.com/D79B0BAC513C4A9A87C9D5AFF1FC632F>;
+	ex:sourceXPath "default:entry/default:content/m:properties/d:NameFullTitle".
+
+id:sourceOfData1 a ex:SourceOfData;
+	ex:listOfItemsRequest id:listOfItemsRequest1; 
+	ex:singleItemRequest id:singleItemRequest1.
+
+id:listOfItemsRequest1 ex:requestUrl "http://data.parliament.uk/MembersDataPlatform/open/OData.svc/Members?$select=Member_Id"^^xsd:anyURI;
+	ex:header id:header1.
+	
+id:header1 ex:headerName "Accept";
+	ex:headerValue "application/atom+xml".
+	
+id:singleItemRequest1 ex:requestUrl "[idXPathValue]?$select=Surname,MiddleNames,Forename,DateOfBirth,DateOfDeath,Gender,Member_Id,House,StartDate,EndDate,Dods_Id,Pims_Id,NameDisplayAs,NameListAs,NameFullTitle";
+	ex:idXPath "/default:feed/default:entry/default:id";
+	ex:header id:header2.
+	
+id:header2 ex:headerName "Accept";
+	ex:headerValue "application/atom+xml".

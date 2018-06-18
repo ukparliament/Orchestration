@@ -32,12 +32,15 @@
                 return @"
         construct {
         	?formalBodyMembership a parl:FormalBodyMembership;
-                parl:formalBodyMnisId ?formalBodyMnisId;
+                parl:formalBodyMembershipMnisId ?formalBodyMembershipMnisId;
                 parl:formalBodyMembershipStartDate ?formalBodyMembershipStartDate;
                 parl:formalBodyMembershipEndDate ?formalBodyMembershipEndDate;
                 parl:formalBodyMembershipHasFormalBody ?formalBodyMembershipHasFormalBody;
                 parl:exOfficioMembershipHasMember ?exOfficioMembershipHasMember;
-                parl:alternateMembershipHasMember ?alternateMembershipHasMember.
+                parl:formalBodyMembershipHasPerson ?formalBodyMembershipHasPerson.
+            ?formalBodyMembershipHasFormalBody a parl:FormalBody.
+            ?exOfficioMembershipHasMember a parl:Member.
+            ?formalBodyMembershipHasPerson a parl:Person.
         }
         where {
             bind(@subject as ?formalBodyMembership)
@@ -46,7 +49,7 @@
             optional {?formalBodyMembership parl:formalBodyMembershipEndDate ?formalBodyMembershipEndDate}
             optional {?formalBodyMembership parl:formalBodyMembershipHasFormalBody ?formalBodyMembershipHasFormalBody}
             optional {?formalBodyMembership parl:exOfficioMembershipHasMember ?exOfficioMembershipHasMember}
-            optional {?formalBodyMembership parl:alternateMembershipHasMember ?alternateMembershipHasMember}
+            optional {?formalBodyMembership parl:formalBodyMembershipHasPerson ?formalBodyMembershipHasPerson}
         }";
             }
         }

@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Parliament.Rdf;
+using Parliament.Rdf.Serialization;
 using Parliament.Model;
 using System;
 using System.Collections.Generic;
@@ -10,9 +10,9 @@ namespace Functions.TransformationCommitteeType
 {
     public class Transformation : BaseTransformation<Settings>
     {
-        public override IResource[] TransformSource(string response)
+        public override BaseResource[] TransformSource(string response)
         {
-            IFormalBodyType formalBodyType = new FormalBodyType();
+            FormalBodyType formalBodyType = new FormalBodyType();
             JObject jsonResponse = (JObject)JsonConvert.DeserializeObject(response);
 
             string id = ((JValue)jsonResponse.SelectToken("TripleStoreId")).GetText();
@@ -33,19 +33,19 @@ namespace Functions.TransformationCommitteeType
             }
             formalBodyType.FormalBodyTypeName= ((JValue)jsonResponse.SelectToken("Title")).GetText();
 
-            return new IResource[] { formalBodyType };
+            return new BaseResource[] { formalBodyType };
         }
 
-        public override Uri GetSubjectFromSource(IResource[] deserializedSource)
+        public override Uri GetSubjectFromSource(BaseResource[] deserializedSource)
         {
-            return deserializedSource.OfType<IFormalBodyType>()
+            return deserializedSource.OfType<FormalBodyType>()
                 .SingleOrDefault()
                 .Id;            
         }
 
-        public override IResource[] SynchronizeIds(IResource[] source, Uri subjectUri, IResource[] target)
+        public override BaseResource[] SynchronizeIds(BaseResource[] source, Uri subjectUri, BaseResource[] target)
         {
-            return source.OfType<IFormalBodyType>().ToArray();
+            return source;
         }
 
     }

@@ -1,5 +1,5 @@
 ﻿using Newtonsoft.Json;
-using Parliament.Rdf;
+using Parliament.Rdf.Serialization;
 using Parliament.Model;
 using System;
 using System.Collections.Generic;
@@ -11,11 +11,12 @@ namespace Functions.TransformationEPetition
     public class Transformation : BaseTransformation<Settings>
     {
 
-        public override IResource[] TransformSource(string response)
+        public override BaseResource[] TransformSource(string response)
         {
             Rootobject sourceEPetition = JsonConvert.DeserializeObject<Rootobject>(response, new JsonSerializerSettings() { DateTimeZoneHandling = DateTimeZoneHandling.Utc });
             DateTime petitionRetrievalTimestamp = DateTime.UtcNow;
-            IUkgapEPetition ukgapEPetition = new UkgapEPetition();
+            UkgapEPetition ukgapEPetition = new UkgapEPetition();
+            BaseResource[] moderations = null;
             if ((sourceEPetition != null) && (sourceEPetition.data != null) && (sourceEPetition.data.attributes != null))
             {
                 ukgapEPetition.EPetitionUkgapId = sourceEPetition.data.id.ToString();
@@ -27,28 +28,28 @@ namespace Functions.TransformationEPetition
                 ukgapEPetition.Action = DeserializerHelper.GiveMeSingleTextValue(sourceEPetition.data.attributes.action);
                 if (sourceEPetition.data.attributes.government_response != null)
                 {
-                    IGovernmentResponse governmentResponse = generateGovernmentResponse(sourceEPetition.data.attributes.government_response);
-                    ukgapEPetition.EPetitionHasGovernmentResponse = new IGovernmentResponse[] { governmentResponse };
+                    GovernmentResponse governmentResponse = generateGovernmentResponse(sourceEPetition.data.attributes.government_response);
+                    ukgapEPetition.EPetitionHasGovernmentResponse = new GovernmentResponse[] { governmentResponse };
                 }
                 if (sourceEPetition.data.attributes.debate != null)
                 {
-                    IDebate debate = generateDebate(sourceEPetition.data.attributes.debate, sourceEPetition.data.attributes.scheduled_debate_date);
-                    ukgapEPetition.EPetitionHasDebate = new IDebate[] { debate };
+                    Parliament.Model.Debate debate = generateDebate(sourceEPetition.data.attributes.debate, sourceEPetition.data.attributes.scheduled_debate_date);
+                    ukgapEPetition.EPetitionHasDebate = new Parliament.Model.Debate[] { debate };
                 }
-                ukgapEPetition.EPetitionHasModeration = generateModerations(sourceEPetition.data.attributes.open_at, sourceEPetition.data.attributes.rejected_at, sourceEPetition.data.attributes.rejection);
+                moderations = generateModerations(sourceEPetition.data.attributes.open_at, sourceEPetition.data.attributes.rejected_at, sourceEPetition.data.attributes.rejection);
                 ukgapEPetition.EPetitionHasThresholdAttainment = generateThresholdAttainments(sourceEPetition.data.attributes.moderation_threshold_reached_at, sourceEPetition.data.attributes.response_threshold_reached_at, sourceEPetition.data.attributes.debate_threshold_reached_at);
-                List<ILocatedSignatureCount> signatures = new List<ILocatedSignatureCount>();
+                List<LocatedSignatureCount> signatures = new List<LocatedSignatureCount>();
                 signatures.AddRange(generateInternationalAreasSignatures(sourceEPetition.data.attributes.signatures_by_country, petitionRetrievalTimestamp));
                 signatures.AddRange(generateConstituencySignatures(sourceEPetition.data.attributes.signatures_by_constituency, petitionRetrievalTimestamp));
                 ukgapEPetition.EPetitionHasLocatedSignatureCount = signatures;
             }
 
-            return new IResource[] { ukgapEPetition };
+            return moderations.Concat(ukgapEPetition.AsEnumerable()).ToArray();
         }
 
-        public override Dictionary<string, INode> GetKeysFromSource(IResource[] deserializedSource)
+        public override Dictionary<string, INode> GetKeysFromSource(BaseResource[] deserializedSource)
         {
-            string ePetitionUkgapId = deserializedSource.OfType<IUkgapEPetition>()
+            string ePetitionUkgapId = deserializedSource.OfType<UkgapEPetition>()
                 .SingleOrDefault()
                 .EPetitionUkgapId;
             return new Dictionary<string, INode>()
@@ -57,45 +58,68 @@ namespace Functions.TransformationEPetition
             };
         }
 
-        public override IResource[] SynchronizeIds(IResource[] source, Uri subjectUri, IResource[] target)
+        public override BaseResource[] SynchronizeIds(BaseResource[] source, Uri subjectUri, BaseResource[] target)
         {
-            IUkgapEPetition ePetition = source.OfType<IUkgapEPetition>().SingleOrDefault();
+            UkgapEPetition ePetition = source.OfType<UkgapEPetition>().SingleOrDefault();
             ePetition.Id = subjectUri;
 
-            IGovernmentResponse governmentResponse = target.OfType<IGovernmentResponse>().SingleOrDefault();
+            GovernmentResponse governmentResponse = target.OfType<GovernmentResponse>().SingleOrDefault();
             if (governmentResponse != null)
                 ePetition.EPetitionHasGovernmentResponse.SingleOrDefault().Id = governmentResponse.Id;
-            IDebate debate = target.OfType<IDebate>().SingleOrDefault();
+            Parliament.Model.Debate debate = target.OfType<Parliament.Model.Debate>().SingleOrDefault();
             if (debate != null)
                 ePetition.EPetitionHasDebate.SingleOrDefault().Id = debate.Id;
-            IEnumerable<IModeration> moderations = target.OfType<IModeration>();
-            foreach (IModeration moderation in moderations)
+            IEnumerable<Approval> approvals = target.OfType<Approval>();
+            List<Approval> ePetitionApprovals = source.OfType<Approval>().ToList();
+            foreach (Approval approval in approvals)
             {
-                IModeration foundModeration = null;
-                if (moderation is IApproval)
-                    foundModeration = ePetition.EPetitionHasModeration
-                        .Where(m=>m is IApproval)
-                        .SingleOrDefault(m => ((IApproval)m).ApprovedAt == ((IApproval)moderation).ApprovedAt);
-                if (moderation is IRejection)
-                    foundModeration = ePetition.EPetitionHasModeration
-                        .Where(m=>m is IRejection)
-                        .SingleOrDefault(m => ((IRejection)m).RejectedAt == ((IRejection)moderation).RejectedAt);
+                Approval foundModeration = ePetitionApprovals
+                        .SingleOrDefault(m => m.ApprovedAt == approval.ApprovedAt);
                 if (foundModeration != null)
-                    foundModeration.Id = moderation.Id;
+                    foundModeration.Id = approval.Id;
                 else
-                    ePetition.EPetitionHasModeration = ePetition.EPetitionHasModeration.Concat(new IModeration[] { moderation });
+                    ePetitionApprovals.Add(approval);
             }
-            IEnumerable<IThresholdAttainment> thresholdAttainments = target.OfType<IThresholdAttainment>();
-            foreach (IThresholdAttainment thresholdAttainment in thresholdAttainments)
+            foreach (Approval approval in ePetitionApprovals)
+                approval.ApprovalHasApprovedEPetition = new ApprovedEPetition[]
+                    {
+                        new ApprovedEPetition()
+                        {
+                            Id=subjectUri
+                        }
+                    };
+
+            IEnumerable<Parliament.Model.Rejection> rejects = target.OfType<Parliament.Model.Rejection>();
+            List<Parliament.Model.Rejection> ePetitionRejections = source.OfType<Parliament.Model.Rejection>().ToList();
+            foreach (Parliament.Model.Rejection rejection in rejects)
             {
-                IThresholdAttainment foundThresholdAttainment = ePetition.EPetitionHasThresholdAttainment.SingleOrDefault(t => t.ThresholdAttainmentAt == thresholdAttainment.ThresholdAttainmentAt);
+                Parliament.Model.Rejection foundModeration = ePetitionRejections
+                        .SingleOrDefault(m => m.RejectedAt == rejection.RejectedAt);
+                if (foundModeration != null)
+                    foundModeration.Id = rejection.Id;
+                else
+                    ePetitionRejections.Add(rejection);
+            }
+            foreach (Parliament.Model.Rejection rejection in ePetitionRejections)
+                rejection.RejectionHasRejectedEPetition = new RejectedEPetition[]
+                    {
+                        new RejectedEPetition()
+                        {
+                            Id=subjectUri
+                        }
+                    };
+
+            IEnumerable<ThresholdAttainment> thresholdAttainments = target.OfType<ThresholdAttainment>();
+            foreach (ThresholdAttainment thresholdAttainment in thresholdAttainments)
+            {
+                ThresholdAttainment foundThresholdAttainment = ePetition.EPetitionHasThresholdAttainment.SingleOrDefault(t => t.ThresholdAttainmentAt == thresholdAttainment.ThresholdAttainmentAt);
                 if (foundThresholdAttainment != null)
                     foundThresholdAttainment.Id = thresholdAttainment.Id;
             }
-            IEnumerable<ILocatedSignatureCount> signatures = target.OfType<ILocatedSignatureCount>();
-            foreach (ILocatedSignatureCount signature in signatures)
+            IEnumerable<LocatedSignatureCount> signatures = target.OfType<LocatedSignatureCount>();
+            foreach (LocatedSignatureCount signature in signatures)
             {
-                ILocatedSignatureCount foundLocatedSignatureCount = ePetition.EPetitionHasLocatedSignatureCount
+                LocatedSignatureCount foundLocatedSignatureCount = ePetition.EPetitionHasLocatedSignatureCount
                     .SingleOrDefault(s => s.LocatedSignatureCountHasPlace.Id == signature.LocatedSignatureCountHasPlace.Id);
                 if (foundLocatedSignatureCount != null)
                 {
@@ -105,12 +129,12 @@ namespace Functions.TransformationEPetition
                 }
             }
 
-            return new IResource[] { ePetition };
+            return ePetitionApprovals.AsEnumerable<BaseResource>().Concat(ePetitionRejections).Concat(ePetition.AsEnumerable()).ToArray();
         }
 
-        private IGovernmentResponse generateGovernmentResponse(Government_Response sourceGovernmentResponse)
+        private GovernmentResponse generateGovernmentResponse(Government_Response sourceGovernmentResponse)
         {
-            IGovernmentResponse governmentResponse = new GovernmentResponse();
+            GovernmentResponse governmentResponse = new GovernmentResponse();
             governmentResponse.Id = GenerateNewId();
             governmentResponse.GovernmentResponseCreatedAt = DeserializerHelper.GiveMeSingleDateValue(sourceGovernmentResponse.created_at);
             governmentResponse.GovernmentResponseUpdatedAt = DeserializerHelper.GiveMeSingleDateValue(sourceGovernmentResponse.updated_at);
@@ -120,9 +144,9 @@ namespace Functions.TransformationEPetition
             return governmentResponse;
         }
 
-        private IDebate generateDebate(Debate sourceDebate, DateTime? scheduledDebateDate)
+        private Parliament.Model.Debate generateDebate(Debate sourceDebate, DateTime? scheduledDebateDate)
         {
-            IDebate debate = new Parliament.Model.Debate();
+            Parliament.Model.Debate debate = new Parliament.Model.Debate();
             debate.Id = GenerateNewId();
             debate.DebateProposedDate = DeserializerHelper.GiveMeSingleDateValue(scheduledDebateDate);
             debate.DebateDate = DeserializerHelper.GiveMeSingleDateValue(sourceDebate.debated_on);
@@ -133,19 +157,19 @@ namespace Functions.TransformationEPetition
             return debate;
         }
 
-        private IModeration[] generateModerations(DateTime? openedAt, DateTime? rejectedAt, Rejection sourceRejection)
+        private BaseResource[] generateModerations(DateTime? openedAt, DateTime? rejectedAt, Rejection sourceRejection)
         {
-            List<IModeration> moderations = new List<IModeration>();
+            List<BaseResource> moderations = new List<BaseResource>();
             if (openedAt.HasValue)
             {
-                IApproval approval = new Approval();
+                Approval approval = new Approval();
                 approval.Id = GenerateNewId();
                 approval.ApprovedAt = openedAt;
                 moderations.Add(approval);
             }
             if (rejectedAt.HasValue)
             {
-                IRejection rejection = new Parliament.Model.Rejection();
+                Parliament.Model.Rejection rejection = new Parliament.Model.Rejection();
                 rejection.Id = GenerateNewId();
                 rejection.RejectedAt = rejectedAt;
                 rejection.RejectionDetails = DeserializerHelper.GiveMeSingleTextValue(sourceRejection.details);
@@ -167,9 +191,9 @@ namespace Functions.TransformationEPetition
             return moderations.ToArray();
         }
 
-        private IThresholdAttainment[] generateThresholdAttainments(DateTime? moderatedAt, DateTime? respondedAt, DateTime? debatedAt)
+        private ThresholdAttainment[] generateThresholdAttainments(DateTime? moderatedAt, DateTime? respondedAt, DateTime? debatedAt)
         {
-            List<IThresholdAttainment> thresholdAttainments = new List<IThresholdAttainment>();
+            List<ThresholdAttainment> thresholdAttainments = new List<ThresholdAttainment>();
             Dictionary<string, string> thresholds = IdRetrieval.GetSubjectsDictionary("thresholdName", logger);
             foreach (KeyValuePair<string, string> threshold in thresholds)
             {
@@ -188,7 +212,7 @@ namespace Functions.TransformationEPetition
                 }
                 if (timestamp.HasValue)
                 {
-                    IThresholdAttainment thresholdAttainment = new ThresholdAttainment();
+                    ThresholdAttainment thresholdAttainment = new ThresholdAttainment();
                     thresholdAttainment.Id = GenerateNewId();
                     thresholdAttainment.ThresholdAttainmentAt = timestamp;
                     thresholdAttainment.ThresholdAttainmentHasThreshold = new Threshold()
@@ -201,26 +225,26 @@ namespace Functions.TransformationEPetition
             return thresholdAttainments.ToArray();
         }
 
-        private ILocatedSignatureCount[] generateInternationalAreasSignatures(Signatures_By_Country[] signaturesByCountry, DateTime petitionRetrievalTimestamp)
+        private LocatedSignatureCount[] generateInternationalAreasSignatures(Signatures_By_Country[] signaturesByCountry, DateTime petitionRetrievalTimestamp)
         {
-            List<ILocatedSignatureCount> signatures = new List<ILocatedSignatureCount>();
+            List<LocatedSignatureCount> signatures = new List<LocatedSignatureCount>();
             Dictionary<string, string> countries = IdRetrieval.GetSubjectsDictionary("countryGovRegisterId", logger);
             Dictionary<string, string> territories = IdRetrieval.GetSubjectsDictionary("territoryGovRegisterId", logger);
             foreach (Signatures_By_Country country in signaturesByCountry)
             {
-                ILocatedSignatureCount locatedSignatureCount = new LocatedSignatureCount();
+                LocatedSignatureCount locatedSignatureCount = new LocatedSignatureCount();
                 locatedSignatureCount.Id = GenerateNewId();
                 locatedSignatureCount.SignatureCount = DeserializerHelper.GiveMeSingleIntegerValue(country.signature_count);
                 locatedSignatureCount.SignatureCountRetrievedAt = DeserializerHelper.GiveMeSingleDateValue(petitionRetrievalTimestamp);
-                IPlace place = null;
+                Place place = null;
                 if (territories.ContainsKey(country.code))
-                    place = new Territory()
+                    place = new Place()
                     {
                         Id = new Uri(territories[country.code])
                     };
                 else
                     if (countries.ContainsKey(country.code))
-                    place = new Country()
+                    place = new Place()
                     {
                         Id = new Uri(countries[country.code])
                     };
@@ -235,19 +259,19 @@ namespace Functions.TransformationEPetition
             return signatures.ToArray();
         }
 
-        private ILocatedSignatureCount[] generateConstituencySignatures(Signatures_By_Constituency[] signaturesByConstituency, DateTime petitionRetrievalTimestamp)
+        private LocatedSignatureCount[] generateConstituencySignatures(Signatures_By_Constituency[] signaturesByConstituency, DateTime petitionRetrievalTimestamp)
         {
-            List<ILocatedSignatureCount> signatures = new List<ILocatedSignatureCount>();
+            List<LocatedSignatureCount> signatures = new List<LocatedSignatureCount>();
             Dictionary<string, string> constituencies = IdRetrieval.GetSubjectsDictionary("constituencyGroupOnsCode", logger);
             foreach (Signatures_By_Constituency constituency in signaturesByConstituency)
             {
-                ILocatedSignatureCount locatedSignatureCount = new LocatedSignatureCount();
+                LocatedSignatureCount locatedSignatureCount = new LocatedSignatureCount();
                 locatedSignatureCount.Id = GenerateNewId();
                 locatedSignatureCount.SignatureCount = DeserializerHelper.GiveMeSingleIntegerValue(constituency.signature_count);
                 locatedSignatureCount.SignatureCountRetrievedAt = DeserializerHelper.GiveMeSingleDateValue(petitionRetrievalTimestamp);
                 if (constituencies.ContainsKey(constituency.ons_code))
                 {
-                    locatedSignatureCount.LocatedSignatureCountHasPlace = new ConstituencyArea()
+                    locatedSignatureCount.LocatedSignatureCountHasPlace = new Place()
                     {
                         Id = new Uri(constituencies[constituency.ons_code])
                     };

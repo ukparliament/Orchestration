@@ -1,5 +1,5 @@
-﻿using Parliament.Rdf;
-using Parliament.Model;
+﻿using Parliament.Model;
+using Parliament.Rdf.Serialization;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,9 +11,9 @@ namespace Functions.TransformationAnsweringBodyMnis
 {
     public class Transformation : BaseTransformation<Settings>
     {
-        public override IResource[] TransformSource(string response)
+        public override BaseResource[] TransformSource(string response)
         {
-            IMnisAnsweringBody answeringBody = new MnisAnsweringBody();
+            MnisAnsweringBody answeringBody = new MnisAnsweringBody();
             XDocument doc = XDocument.Parse(response);
             XNamespace d = "http://schemas.microsoft.com/ado/2007/08/dataservices";
             XNamespace m = "http://schemas.microsoft.com/ado/2007/08/dataservices/metadata";
@@ -48,14 +48,12 @@ namespace Functions.TransformationAnsweringBodyMnis
                 answeringBody.GroupName = currentName;
             }
 
-            IMnisDepartmentGroup department = null;
             string departmentId = element.Element(d + "Department_Id").GetText();
             if (string.IsNullOrWhiteSpace(departmentId) == false)
             {
-                department = new MnisDepartmentGroup();
                 Uri departmentUri = IdRetrieval.GetSubject("mnisDepartmentId", departmentId, false, logger);
                 if (departmentUri != null)
-                    department.Id = departmentUri;
+                    answeringBody.Id = departmentUri;
                 else
                 {
                     logger.Warning($"Department ({departmentId}) not found for Answering Body ({answeringBody.AnsweringBodyMnisId})");
@@ -63,12 +61,12 @@ namespace Functions.TransformationAnsweringBodyMnis
                 }
             }
 
-            return new IResource[] { answeringBody, department };
+            return new BaseResource[] { answeringBody };
         }
 
-        public override Dictionary<string, INode> GetKeysFromSource(IResource[] deserializedSource)
+        public override Dictionary<string, INode> GetKeysFromSource(BaseResource[] deserializedSource)
         {
-            string answeringBodyMnisId = deserializedSource.OfType<IMnisAnsweringBody>()
+            string answeringBodyMnisId = deserializedSource.OfType<MnisAnsweringBody>()
                 .SingleOrDefault()
                 .AnsweringBodyMnisId;
             return new Dictionary<string, INode>()
@@ -77,16 +75,18 @@ namespace Functions.TransformationAnsweringBodyMnis
             };
         }
 
-        public override IResource[] SynchronizeIds(IResource[] source, Uri subjectUri, IResource[] target)
+        public override Uri GetSubjectFromSource(BaseResource[] deserializedSource)
         {
-            IMnisAnsweringBody answeringBody = source.OfType<IMnisAnsweringBody>().SingleOrDefault();
-            IMnisDepartmentGroup departmentGroup = source.OfType<IMnisDepartmentGroup>().SingleOrDefault();
-            if (departmentGroup != null)
-                answeringBody.Id = departmentGroup.Id;
-            else
+            return deserializedSource.OfType<MnisAnsweringBody>().SingleOrDefault().Id;
+        }
+
+        public override BaseResource[] SynchronizeIds(BaseResource[] source, Uri subjectUri, BaseResource[] target)
+        {
+            MnisAnsweringBody answeringBody = source.OfType<MnisAnsweringBody>().SingleOrDefault();
+            if (answeringBody.Id == null)
                 answeringBody.Id = subjectUri;
 
-            return new IResource[] { answeringBody };
+            return new BaseResource[] { answeringBody };
         }
 
     }

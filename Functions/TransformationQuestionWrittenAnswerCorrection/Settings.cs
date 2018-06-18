@@ -49,8 +49,7 @@
             }
             where {
 	            bind(@subject as ?correctingAnswer)
-	            bind(@questionUri as ?questionUri)
-                ?question parl:indexingAndSearchUri ?questionUri.
+	            bind(@question as ?question)
                 ?question parl:questionHasAnsweringBodyAllocation ?questionHasCorrectingAnsweringBodyAllocation.
                 ?correctingAnswer parl:indexingAndSearchUri ?correctingAnswerUri;
                     parl:correctingAnswerHasQuestion ?question;
@@ -66,7 +65,7 @@
 
         public string FullDataUrlParameterizedString(string dataUri)
         {
-            return $"http://13.93.40.140:8983/solr/select?indent=on&version=2.2&q=uri%3A%22{dataUri}%22&fq=&start=0&rows=10&fl=correctedItem_uri%2CansweringDept_ses%2CcorrectingMember_ses%2Ccontent_t%2Cdate_dt%2CleadMember_ses%2Curi&qt=&wt=&explainOther=&hl.fl=";
+            return $"http://13.93.40.140:8983/solr/select?indent=on&version=2.2&q=uri%3A%22{dataUri}%22&fq=&start=0&rows=10&fl=correctedItem_uri%2CcorrectedItem_t%2CansweringDept_ses%2CcorrectingMember_ses%2Ccontent_t%2Cdate_dt%2CleadMember_ses%2Curi&qt=&wt=&explainOther=&hl.fl=";
         }
     }
 }

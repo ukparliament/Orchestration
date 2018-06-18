@@ -1,0 +1,40 @@
+﻿{
+    "@odata.context": "https://sharepointonline-logic-cp-westeurope.logic-ase-westeurope.p.azurewebsites.net/$metadata#datasets('https%253A%252F%252Fhopuk.sharepoint.com%252Fsites%252Fdatateam%252Fdatasources')/tables('ffcfa882-ee6d-4467-b146-68cd62924256')/items/$entity",
+    "@odata.etag": "\"1\"",
+    "ItemInternalId": "85",
+    "ID": 85,
+    "TripleStoreId": "jwdJxdWb",
+    "parliamentPeriodNumber": 28,
+    "parliamentPeriodStartDate": "1906-02-13",
+    "parliamentPeriodEndDate": "1910-01-10",
+    "parliamentPeriodWikidataId": "Q21084445",
+    "ImmediatelyPreviousParliamentPer": "nF5gnWus",
+    "ImmediatelyFollowingParliamentPe": "oUFpWekO",
+    "Modified": "2018-02-07T12:16:16Z",
+    "Created": "2018-02-07T12:16:16Z",
+    "Author": {
+        "@odata.type": "#Microsoft.Azure.Connectors.SharePoint.SPListExpandedUser",
+        "Claims": "i:0#.f|membership|leungr@parliament.uk",
+        "DisplayName": "LEUNG, Raphael",
+        "Email": "leungr@parliament.uk",
+        "Picture": "https://hopuk.sharepoint.com/sites/datateam/datasources/_layouts/15/UserPhoto.aspx?Size=L&AccountName=leungr@parliament.uk",
+        "Department": "Digital Service",
+        "JobTitle": "Developer"
+    },
+    "Author#Claims": "i:0#.f|membership|leungr@parliament.uk",
+    "Editor": {
+        "@odata.type": "#Microsoft.Azure.Connectors.SharePoint.SPListExpandedUser",
+        "Claims": "i:0#.f|membership|leungr@parliament.uk",
+        "DisplayName": "LEUNG, Raphael",
+        "Email": "leungr@parliament.uk",
+        "Picture": "https://hopuk.sharepoint.com/sites/datateam/datasources/_layouts/15/UserPhoto.aspx?Size=L&AccountName=leungr@parliament.uk",
+        "Department": "Digital Service",
+        "JobTitle": "Developer"
+    },
+    "Editor#Claims": "i:0#.f|membership|leungr@parliament.uk",
+    "{Identifier}": "Lists%252fParliamentPeriod3%252f85_.000",
+    "{Link}": "https://hopuk.sharepoint.com/sites/datateam/datasources/_layouts/15/listform.aspx?PageType=4&ListId=ffcfa882-ee6d-4467-b146-68cd62924256&ID=85&ContentTypeID=0x01001E5993B412CED54BA274DB5FA536093F",
+    "{Name}": "",
+    "{FilenameWithExtension}": "",
+    "{Path}": "Lists/ParliamentPeriod3/"
+}

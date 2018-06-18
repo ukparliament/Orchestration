@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Parliament.Rdf;
+using Parliament.Rdf.Serialization;
 using Parliament.Model;
 using System;
 using System.Collections.Generic;
@@ -11,9 +11,9 @@ namespace Functions.TransformationCountry
 {
     public class Transformation : BaseTransformation<Settings>
     {
-        public override IResource[] TransformSource(string response)
+        public override BaseResource[] TransformSource(string response)
         {
-            IGovRegisterCountry country = new GovRegisterCountry();
+            GovRegisterCountry country = new GovRegisterCountry();
             JObject jsonResponse = (JObject)JsonConvert.DeserializeObject(response);
 
             JValue jValue = (JValue)jsonResponse.First.First.SelectToken("key");
@@ -29,12 +29,12 @@ namespace Functions.TransformationCountry
             jValue = (JValue)jsonResponse.First.First.SelectToken("item[0].end-date");
             country.GovRegisterCountryEndDate = DeserializerHelper.GiveMeSingleDateValue(jValue.GetDate());
 
-            return new IResource[] { country };
+            return new BaseResource[] { country };
         }
 
-        public override Dictionary<string, INode> GetKeysFromSource(IResource[] deserializedSource)
+        public override Dictionary<string, INode> GetKeysFromSource(BaseResource[] deserializedSource)
         {
-            string countryGovRegisterId = deserializedSource.OfType<IGovRegisterCountry>()
+            string countryGovRegisterId = deserializedSource.OfType<GovRegisterCountry>()
                 .SingleOrDefault()
                 .CountryGovRegisterId;
             return new Dictionary<string, INode>()
@@ -43,12 +43,12 @@ namespace Functions.TransformationCountry
             };
         }
 
-        public override IResource[] SynchronizeIds(IResource[] source, Uri subjectUri, IResource[] target)
+        public override BaseResource[] SynchronizeIds(BaseResource[] source, Uri subjectUri, BaseResource[] target)
         {
-            IGovRegisterCountry country = source.OfType<IGovRegisterCountry>().SingleOrDefault();
+            GovRegisterCountry country = source.OfType<GovRegisterCountry>().SingleOrDefault();
             country.Id = subjectUri;
 
-            return new IResource[] { country };
+            return new BaseResource[] { country };
         }
     }
 }

@@ -1,0 +1,48 @@
+﻿{
+    "@odata.context": "https://sharepointonline-logic-cp-westeurope.logic-ase-westeurope.p.azurewebsites.net/$metadata#datasets('https%253A%252F%252Fhopuk.sharepoint.com%252Fsites%252Fdatateam%252Fdatasources')/tables('4a000e4a-aa78-4338-806d-92c0dd42e1a6')/items/$entity",
+    "@odata.etag": "\"2\"",
+    "ItemInternalId": "1",
+    "ID": 1,
+    "ID0": "4fwDydk0",
+    "Type_x0020_ID_x0020__x0028_for_x": {
+        "@odata.type": "#Microsoft.Azure.Connectors.SharePoint.SPListExpandedReference",
+        "Id": 3,
+        "Value": "ptAYHfdF"
+    },
+    "Type_x0020_ID_x0020__x0028_for_x#Id": 3,
+    "Type_x0020_ID_x0020__x0028_for_x0": {
+        "@odata.type": "#Microsoft.Azure.Connectors.SharePoint.SPListExpandedReference",
+        "Id": 3,
+        "Value": "Hereditary"
+    },
+    "Type_x0020_ID_x0020__x0028_for_x0#Id": 3,
+    "Name": "Sempill",
+    "OData__OldID": 1,
+    "Modified": "2017-11-16T13:33:11Z",
+    "Created": "2017-11-16T13:26:55Z",
+    "Author": {
+        "@odata.type": "#Microsoft.Azure.Connectors.SharePoint.SPListExpandedUser",
+        "Claims": "i:0#.f|membership|alcockc@parliament.uk",
+        "DisplayName": "ALCOCK, Christopher",
+        "Email": "alcockc@parliament.uk",
+        "Picture": "https://hopuk.sharepoint.com/sites/datateam/datasources/_layouts/15/UserPhoto.aspx?Size=L&AccountName=alcockc@parliament.uk",
+        "Department": "Digital Service",
+        "JobTitle": "Developer"
+    },
+    "Author#Claims": "i:0#.f|membership|alcockc@parliament.uk",
+    "Editor": {
+        "@odata.type": "#Microsoft.Azure.Connectors.SharePoint.SPListExpandedUser",
+        "Claims": "i:0#.f|membership|alcockc@parliament.uk",
+        "DisplayName": "ALCOCK, Christopher",
+        "Email": "alcockc@parliament.uk",
+        "Picture": "https://hopuk.sharepoint.com/sites/datateam/datasources/_layouts/15/UserPhoto.aspx?Size=L&AccountName=alcockc@parliament.uk",
+        "Department": "Digital Service",
+        "JobTitle": "Developer"
+    },
+    "Editor#Claims": "i:0#.f|membership|alcockc@parliament.uk",
+    "{Identifier}": "Lists%252fSeat_1%252f1_.000",
+    "{Link}": "https://hopuk.sharepoint.com/sites/datateam/datasources/_layouts/15/listform.aspx?PageType=4&ListId=4a000e4a-aa78-4338-806d-92c0dd42e1a6&ID=1&ContentTypeID=0x01009522AEBC9B2D0447B904101821D282D3",
+    "{Name}": "",
+    "{FilenameWithExtension}": "",
+    "{Path}": "Lists/Seat_1/"
+}

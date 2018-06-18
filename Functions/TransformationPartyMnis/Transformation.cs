@@ -1,4 +1,4 @@
-﻿using Parliament.Rdf;
+﻿using Parliament.Rdf.Serialization;
 using Parliament.Model;
 using System;
 using System.Collections.Generic;
@@ -10,9 +10,9 @@ namespace Functions.TransformationPartyMnis
 {
     public class Transformation : BaseTransformation<Settings>
     {
-        public override IResource[] TransformSource(string response)
+        public override BaseResource[] TransformSource(string response)
         {
-            IMnisParty party = new MnisParty();
+            MnisParty party = new MnisParty();
             XDocument doc = XDocument.Parse(response);
             XNamespace d = "http://schemas.microsoft.com/ado/2007/08/dataservices";
             XNamespace m = "http://schemas.microsoft.com/ado/2007/08/dataservices/metadata";
@@ -21,12 +21,12 @@ namespace Functions.TransformationPartyMnis
             party.PartyMnisId = element.Element(d + "Party_Id").GetText();
             party.PartyName = element.Element(d + "Name").GetText();
 
-            return new IResource[] { party };
+            return new BaseResource[] { party };
         }
 
-        public override Dictionary<string, INode> GetKeysFromSource(IResource[] deserializedSource)
+        public override Dictionary<string, INode> GetKeysFromSource(BaseResource[] deserializedSource)
         {
-            string partyMnisId = deserializedSource.OfType<IMnisParty>()
+            string partyMnisId = deserializedSource.OfType<MnisParty>()
                 .SingleOrDefault()
                 .PartyMnisId;
             return new Dictionary<string, INode>()
@@ -35,12 +35,12 @@ namespace Functions.TransformationPartyMnis
             };
         }
 
-        public override IResource[] SynchronizeIds(IResource[] source, Uri subjectUri, IResource[] target)
+        public override BaseResource[] SynchronizeIds(BaseResource[] source, Uri subjectUri, BaseResource[] target)
         {
-            IMnisParty party = source.OfType<IMnisParty>().SingleOrDefault();
+            MnisParty party = source.OfType<MnisParty>().SingleOrDefault();
             party.Id = subjectUri;
 
-            return new IResource[] { party };
+            return new BaseResource[] { party };
         }
     }
 }

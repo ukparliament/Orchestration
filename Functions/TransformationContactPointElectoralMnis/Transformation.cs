@@ -1,4 +1,4 @@
-﻿using Parliament.Rdf;
+﻿using Parliament.Rdf.Serialization;
 using Parliament.Model;
 using System;
 using System.Xml.Linq;
@@ -8,9 +8,9 @@ namespace Functions.TransformationContactPointElectoralMnis
 {
     public class Transformation : BaseTransformationContactPoint<Settings>
     {
-        public override IResource[] TransformSource(string response)
+        public override BaseResource[] TransformSource(string response)
         {
-            IMnisContactPoint contactPoint = new MnisContactPoint();
+            MnisContactPoint contactPoint = new MnisContactPoint();
             XDocument doc = XDocument.Parse(response);
             XElement contactPointElement = doc.Element(atom + "entry")
                 .Element(atom + "content")
@@ -21,16 +21,16 @@ namespace Functions.TransformationContactPointElectoralMnis
             contactPoint.FaxNumber = contactPointElement.Element(d + "Fax").GetText();
             contactPoint.PhoneNumber = contactPointElement.Element(d + "Phone").GetText();
             contactPoint.ContactPointHasPostalAddress = GeneratePostalAddress(contactPointElement);
-            IElectoralIncumbency incumbency = generateIncumbency(contactPointElement);
+            ElectoralIncumbency incumbency = generateIncumbency(contactPointElement);
             if (incumbency != null)
-                contactPoint.ContactPointHasElectoralIncumbency = new IElectoralIncumbency[] { incumbency };
+                contactPoint.ContactPointHasElectoralIncumbency = new ElectoralIncumbency[] { incumbency };
 
-            return new IResource[] { contactPoint };
+            return new BaseResource[] { contactPoint };
         }
 
-        private IElectoralIncumbency generateIncumbency(XElement contactPointElement)
+        private ElectoralIncumbency generateIncumbency(XElement contactPointElement)
         {
-            IElectoralIncumbency incumbency = null;
+            ElectoralIncumbency incumbency = null;
             string incumbencyCommand = @"
         construct {
             ?id a parl:ParliamentaryIncumbency.

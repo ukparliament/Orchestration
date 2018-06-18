@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Parliament.Rdf;
+using Parliament.Rdf.Serialization;
 using Parliament.Model;
 using System;
 using System.Collections.Generic;
@@ -11,9 +11,9 @@ namespace Functions.TransformationContactPointHouse
 {
     public class Transformation : BaseTransformation<Settings>
     {
-        public override IResource[] TransformSource(string response)
+        public override BaseResource[] TransformSource(string response)
         {
-            IContactPoint contactPoint = new ContactPoint();
+            ContactPoint contactPoint = new ContactPoint();
             JObject jsonResponse = (JObject)JsonConvert.DeserializeObject(response);
             
             string id = ((JValue)jsonResponse.SelectToken("TripleStoreID")).GetText();
@@ -26,7 +26,7 @@ namespace Functions.TransformationContactPointHouse
             else
             {
                 if (Uri.TryCreate($"{idNamespace}{id}", UriKind.Absolute, out uri))
-                    contactPoint.ContactPointHasHouse = new IHouse[]
+                    contactPoint.ContactPointHasHouse = new House[]
                     {
                         new House()
                         {
@@ -50,12 +50,12 @@ namespace Functions.TransformationContactPointHouse
                 PostCode = ((JValue)jsonResponse.SelectToken("postCode")).GetText(),
             };
             
-            return new IResource[] { contactPoint };
+            return new BaseResource[] { contactPoint };
         }
 
-        public override Dictionary<string, INode> GetKeysFromSource(IResource[] deserializedSource)
+        public override Dictionary<string, INode> GetKeysFromSource(BaseResource[] deserializedSource)
         {
-            Uri contactPointHasHouse = deserializedSource.OfType<IContactPoint>()
+            Uri contactPointHasHouse = deserializedSource.OfType<ContactPoint>()
                 .SingleOrDefault()
                 .ContactPointHasHouse
                 .SingleOrDefault()
@@ -66,19 +66,19 @@ namespace Functions.TransformationContactPointHouse
             };
         }
 
-        public override IResource[] SynchronizeIds(IResource[] source, Uri subjectUri, IResource[] target)
+        public override BaseResource[] SynchronizeIds(BaseResource[] source, Uri subjectUri, BaseResource[] target)
         {
-            IContactPoint contactPoint = source.OfType<IContactPoint>().SingleOrDefault();
+            ContactPoint contactPoint = source.OfType<ContactPoint>().SingleOrDefault();
             contactPoint.Id = subjectUri;
 
             if (contactPoint.ContactPointHasPostalAddress != null)
             {
-                IPostalAddress postalAddress = target.OfType<IPostalAddress>().SingleOrDefault();
+                PostalAddress postalAddress = target.OfType<PostalAddress>().SingleOrDefault();
                 if (postalAddress != null)
                     contactPoint.ContactPointHasPostalAddress.Id = postalAddress.Id;
             }
 
-            return new IResource[] { contactPoint };
+            return new BaseResource[] { contactPoint };
         }
     }
 }

@@ -1,0 +1,60 @@
+﻿{
+    "@odata.context": "https://sharepointonline-logic-cp-westeurope.logic-ase-westeurope.p.azurewebsites.net/$metadata#datasets('https%253A%252F%252Fhopuk.sharepoint.com%252Fsites%252Fdatateam%252Fdatasources')/tables('25101afd-6e12-4e13-b981-e3b2a12f112e')/items/$entity",
+    "@odata.etag": "\"9\"",
+    "ItemInternalId": "100",
+    "ID": 100,
+    "Title": "The Enterprise Act 2002 (Turnover Test) (Amendment) Order 2018",
+    "SubjectTo": {
+        "@odata.type": "#Microsoft.Azure.Connectors.SharePoint.SPListExpandedReference",
+        "Id": 1,
+        "Value": "Made Negative"
+    },
+    "SubjectTo#Id": 1,
+    "SubjectTo_x003a_TripleStoreId": {
+        "@odata.type": "#Microsoft.Azure.Connectors.SharePoint.SPListExpandedReference",
+        "Id": 1,
+        "Value": "5S6p4YsP"
+    },
+    "SubjectTo_x003a_TripleStoreId#Id": 1,
+    "WorkPacakageableThingTripleStore": "LFLdzMuO",
+    "SIPrefix": "SI",
+    "SIYear": "2018",
+    "SINumber": "593",
+    "ComingIntoForceNote": "in accordance with article 1(2)",
+    "WorkPackagableThingType": {
+        "@odata.type": "#Microsoft.Azure.Connectors.SharePoint.SPListExpandedReference",
+        "Id": 1,
+        "Value": "Statutory Instrument"
+    },
+    "WorkPackagableThingType#Id": 1,
+    "WorkPackageableThingUrl": "http://www.legislation.gov.uk/uksi/2018/593/made",
+    "ObjectionDeadline": "2018-07-02",
+    "Author": {
+        "@odata.type": "#Microsoft.Azure.Connectors.SharePoint.SPListExpandedUser",
+        "Claims": "i:0#.f|membership|daviesmo@parliament.uk",
+        "DisplayName": "DAVIES, Martin",
+        "Email": "DAVIESMO@parliament.uk",
+        "Picture": "https://hopuk.sharepoint.com/sites/datateam/datasources/_layouts/15/UserPhoto.aspx?Size=L&AccountName=DAVIESMO@parliament.uk",
+        "Department": "Research And Information",
+        "JobTitle": "Search & Indexing Manager"
+    },
+    "Author#Claims": "i:0#.f|membership|daviesmo@parliament.uk",
+    "Editor": {
+        "@odata.type": "#Microsoft.Azure.Connectors.SharePoint.SPListExpandedUser",
+        "Claims": "i:0#.f|membership|somervillea@parliament.uk",
+        "DisplayName": "SOMERVILLE, Anya",
+        "Email": "somervillea@parliament.uk",
+        "Picture": "https://hopuk.sharepoint.com/sites/datateam/datasources/_layouts/15/UserPhoto.aspx?Size=L&AccountName=somervillea@parliament.uk",
+        "Department": "Research And Information",
+        "JobTitle": "Head of Indexing & Data Management Section"
+    },
+    "Editor#Claims": "i:0#.f|membership|somervillea@parliament.uk",
+    "OData__x0076_dy9": "lq49zoKs",
+    "Modified": "2018-05-31T16:12:21Z",
+    "Created": "2018-05-21T14:00:15Z",
+    "{Identifier}": "Lists%252fProcedureWorkPackage%252f100_.000",
+    "{Link}": "https://hopuk.sharepoint.com/sites/datateam/datasources/_layouts/15/listform.aspx?PageType=4&ListId=25101afd-6e12-4e13-b981-e3b2a12f112e&ID=100&ContentTypeID=0x0100DB42F99AAF7A2141BE1DC811CCF1767B",
+    "{Name}": "The Enterprise Act 2002 (Turnover Test) (Amendment) Order 2018",
+    "{FilenameWithExtension}": "The Enterprise Act 2002 (Turnover Test) (Amendment) Order 2018",
+    "{Path}": "Lists/ProcedureWorkPackage/"
+}

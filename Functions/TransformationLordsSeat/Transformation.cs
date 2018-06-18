@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Parliament.Model;
-using Parliament.Rdf;
+using Parliament.Rdf.Serialization;
 using System;
 using System.Linq;
 
@@ -10,9 +10,9 @@ namespace Functions.TransformationLordsSeat
     public class Transformation : BaseTransformation<Settings>
     {
         
-        public override IResource[] TransformSource(string response)
+        public override BaseResource[] TransformSource(string response)
         {
-            IHouseSeat houseSeat = new HouseSeat();
+            HouseSeat houseSeat = new HouseSeat();
             JObject jsonResponse = (JObject)JsonConvert.DeserializeObject(response);
 
             string id = ((JValue)jsonResponse.SelectToken("ID0")).GetText();
@@ -44,27 +44,24 @@ namespace Functions.TransformationLordsSeat
                 };
 
 
-            Uri houseOfLordsUri = IdRetrieval.GetSubject("houseName", "House of Lords", false, logger);
             houseSeat.HouseSeatHasHouse = new House()
             {
-                Id = houseOfLordsUri
+                Id = new Uri(HouseOfLordsId)
             };
 
-            return new IResource[] { houseSeat };
+            return new BaseResource[] { houseSeat };
         }
 
-        public override Uri GetSubjectFromSource(IResource[] deserializedSource)
+        public override Uri GetSubjectFromSource(BaseResource[] deserializedSource)
         {
-            return deserializedSource.OfType<IHouseSeat>()
+            return deserializedSource.OfType<HouseSeat>()
                 .SingleOrDefault()
                 .Id;            
         }
 
-        public override IResource[] SynchronizeIds(IResource[] source, Uri subjectUri, IResource[] target)
+        public override BaseResource[] SynchronizeIds(BaseResource[] source, Uri subjectUri, BaseResource[] target)
         {
-            IHouseSeat houseSeatTypes = source.OfType<IHouseSeat>().SingleOrDefault();
-
-            return new IResource[] { houseSeatTypes };
+            return source;
         }
 
         private Uri giveMeUri(JObject jsonResponse, string tokenName)

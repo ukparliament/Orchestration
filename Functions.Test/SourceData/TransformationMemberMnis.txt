@@ -1,0 +1,30 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<entry xml:base="http://data.parliament.uk/MembersDataPlatform/open/OData.svc/" xmlns="http://www.w3.org/2005/Atom" xmlns:d="http://schemas.microsoft.com/ado/2007/08/dataservices" xmlns:m="http://schemas.microsoft.com/ado/2007/08/dataservices/metadata">
+    <id>http://data.parliament.uk/MembersDataPlatform/open/OData.svc/Members(326)</id>
+    <category term="MNISModel.Member" scheme="http://schemas.microsoft.com/ado/2007/08/dataservices/scheme" />
+    <link rel="edit" title="Member" href="Members(326)" />
+    <title />
+    <updated>2018-06-12T12:23:06Z</updated>
+    <author>
+        <name />
+    </author>
+    <content type="application/xml">
+        <m:properties>
+            <d:Member_Id m:type="Edm.Int32">326</d:Member_Id>
+            <d:Forename>Anthony</d:Forename>
+            <d:MiddleNames>Neil Wedgwood</d:MiddleNames>
+            <d:Surname>Benn</d:Surname>
+            <d:DateOfBirth m:type="Edm.DateTime">1925-04-03T00:00:00</d:DateOfBirth>
+            <d:DateOfDeath m:type="Edm.DateTime">2014-03-13T00:00:00</d:DateOfDeath>
+            <d:Gender>M</d:Gender>
+            <d:NameDisplayAs>Mr Tony Benn</d:NameDisplayAs>
+            <d:NameListAs>Benn, Mr Tony</d:NameListAs>
+            <d:NameFullTitle>Rt Hon Tony Benn</d:NameFullTitle>
+            <d:House>Commons</d:House>
+            <d:EndDate m:type="Edm.DateTime">2001-06-07T00:00:00</d:EndDate>
+            <d:StartDate m:type="Edm.DateTime">1984-03-01T00:00:00</d:StartDate>
+            <d:Dods_Id m:type="Edm.Int32" m:null="true" />
+            <d:Pims_Id m:type="Edm.Int32">3954</d:Pims_Id>
+        </m:properties>
+    </content>
+</entry>

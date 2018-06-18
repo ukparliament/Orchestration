@@ -1,23 +1,22 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Parliament.Rdf;
 using Parliament.Model;
+using Parliament.Rdf.Serialization;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace Functions.TransformationDepartmentGovernmentOrganisation
 {
     public class Transformation : BaseTransformation<Settings>
     {
-        public override IResource[] TransformSource(string response)
+        public override BaseResource[] TransformSource(string response)
         {
-            IGovRegisterGovernmentOrganisation department = new GovRegisterGovernmentOrganisation();            
+            GovRegisterGovernmentOrganisation department = new GovRegisterGovernmentOrganisation();
             JObject jsonResponse = (JObject)JsonConvert.DeserializeObject(response);
 
             string id = ((JValue)jsonResponse.SelectToken("GovRegisterID")).GetText();
             department.GovernmentOrganisationGovRegisterId = id;
-            int? mnisId = ((JValue)jsonResponse.SelectToken("mnisID")).GetFloat();
+            int? mnisId = ((JValue)jsonResponse.SelectToken("mnisID")).GetNumber();
             if (mnisId.HasValue)
             {
                 Uri departmentUri = IdRetrieval.GetSubject("mnisDepartmentId", mnisId.ToString(), false, logger);
@@ -28,21 +27,19 @@ namespace Functions.TransformationDepartmentGovernmentOrganisation
             }
             else
                 return null;
-            return new IResource[] { department };
+            return new BaseResource[] { department };
         }
 
-        public override Uri GetSubjectFromSource(IResource[] deserializedSource)
+        public override Uri GetSubjectFromSource(BaseResource[] deserializedSource)
         {
-            return deserializedSource.OfType<IGovRegisterGovernmentOrganisation>()
+            return deserializedSource.OfType<GovRegisterGovernmentOrganisation>()
                 .SingleOrDefault()
-                .Id;            
+                .Id;
         }
 
-        public override IResource[] SynchronizeIds(IResource[] source, Uri subjectUri, IResource[] target)
+        public override BaseResource[] SynchronizeIds(BaseResource[] source, Uri subjectUri, BaseResource[] target)
         {
-            IGovRegisterGovernmentOrganisation department = source.OfType<IGovRegisterGovernmentOrganisation>().SingleOrDefault();
-            
-            return new IResource[] { department };
+            return source;
         }
     }
 }

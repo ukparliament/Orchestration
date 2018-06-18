@@ -40,6 +40,7 @@
                 parl:formalBodyHasParentFormalBody ?formalBodyHasParentFormalBody;
                 parl:formalBodyHasFormalBodyChair ?formalBodyHasFormalBodyChair.
             ?formalBodyHasFormalBodyChair a parl:FormalBodyChair.
+            ?formalBodyHasParentFormalBody a parl:FormalBody.
         }
         where {
             bind(@subject as ?formalBody)

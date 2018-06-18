@@ -1,4 +1,4 @@
-﻿using Parliament.Rdf;
+﻿using Parliament.Rdf.Serialization;
 using Parliament.Model;
 using System;
 using System.Xml.Linq;
@@ -7,9 +7,9 @@ namespace Functions.TransformationContactPointPersonMnis
 {
     public class Transformation : BaseTransformationContactPoint<Settings>
     {
-        public override IResource[] TransformSource(string response)
+        public override BaseResource[] TransformSource(string response)
         {
-            IMnisContactPoint contactPoint = new MnisContactPoint();
+            MnisContactPoint contactPoint = new MnisContactPoint();
             XDocument doc = XDocument.Parse(response);
             XElement contactPointElement = doc.Element(atom + "entry")
                 .Element(atom + "content")
@@ -20,16 +20,16 @@ namespace Functions.TransformationContactPointPersonMnis
             contactPoint.FaxNumber = contactPointElement.Element(d + "Fax").GetText();
             contactPoint.PhoneNumber = contactPointElement.Element(d + "Phone").GetText();
             contactPoint.ContactPointHasPostalAddress = GeneratePostalAddress(contactPointElement);
-            IPerson person = generatePerson(contactPointElement);
+            Person person = generatePerson(contactPointElement);
             if (person != null)
-                contactPoint.ContactPointHasPerson = new IPerson[] { person };
+                contactPoint.ContactPointHasPerson = new Person[] { person };
 
-            return new IResource[] { contactPoint };
+            return new BaseResource[] { contactPoint };
         }
 
-        private IPerson generatePerson(XElement contactPointElement)
+        private Person generatePerson(XElement contactPointElement)
         {
-            IPerson person = null;
+            Person person = null;
             string mnisId = contactPointElement.Element(d + "Member_Id").GetText();
             if (string.IsNullOrWhiteSpace(mnisId))
             {

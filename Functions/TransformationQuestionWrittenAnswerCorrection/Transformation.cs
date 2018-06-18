@@ -1,4 +1,4 @@
-﻿using Parliament.Rdf;
+﻿using Parliament.Rdf.Serialization;
 using Parliament.Model;
 using System;
 using System.Collections.Generic;
@@ -62,7 +62,7 @@ namespace Functions.TransformationQuestionWrittenAnswerCorrection
             return result;
         }
 
-        public override IResource[] TransformSource(string response)
+        public override BaseResource[] TransformSource(string response)
         {
             XDocument doc = XDocument.Parse(response);
             var questionElements = doc?.Element("response")?.Element("result")?.Element("doc")?.Elements("arr")?.ToList();
@@ -71,6 +71,8 @@ namespace Functions.TransformationQuestionWrittenAnswerCorrection
                 return null;
             Response data = new Response();
             data.QuestionUri = FindXElementByAttributeName(questionElements, "correctedItem_uri", "str").GetText();
+            if (data.QuestionUri == null)
+                data.QuestionUri = FindXElementByAttributeName(questionElements, "correctedItem_t", "str").GetText();
             questionUriText = data.QuestionUri;
             data.CorrectingAnsweringDeptSesId = FindXElementByAttributeName(questionElements, "answeringDept_ses", "int").GetText();
             data.CorrectingAnsweringMemberSesId = FindXElementByAttributeName(questionElements, "correctingMember_ses", "int").GetText();
@@ -79,7 +81,7 @@ namespace Functions.TransformationQuestionWrittenAnswerCorrection
             var dateElements = doc.Element("response").Element("result").Element("doc").Elements("date").ToList();
             data.CorrectingDateOfAnswer = dateElements.Where(x => x.Attribute("name").Value == "date_dt").FirstOrDefault().GetDate();
 
-            ICorrectingAnswer correctingAnswer = new CorrectingAnswer();
+            CorrectingAnswer correctingAnswer = new CorrectingAnswer();
             correctingAnswer.Id = GenerateNewId();
             correctingAnswer.AnswerText = new string[] { data.CorrectingAnswerText };
             correctingAnswer.AnswerGivenDate = data.CorrectingDateOfAnswer;
@@ -90,7 +92,7 @@ namespace Functions.TransformationQuestionWrittenAnswerCorrection
                 Uri ministerId = GetMemberId(data.CorrectingAnsweringMemberSesId, data.CorrectingDateOfAnswer, logger);
 
                 if (ministerId != null)
-                    correctingAnswer.AnswerHasAnsweringPerson = new IPerson[]
+                    correctingAnswer.AnswerHasAnsweringPerson = new Person[]
                         {
                         new Person()
                         {
@@ -102,14 +104,14 @@ namespace Functions.TransformationQuestionWrittenAnswerCorrection
             }
             Uri questionId = IdRetrieval.GetSubject("indexingAndSearchUri", data.QuestionUri, false, logger);
 
-            IQuestion question = null;
+            Question question = null;
             if (questionId != null)
             {
                 question = new Question()
                 {
                     Id = questionId
                 };
-                correctingAnswer.CorrectingAnswerHasQuestion = new IQuestion[] { question };
+                correctingAnswer.CorrectingAnswerHasQuestion = new Question[] { question };
             }
             else
             {
@@ -117,7 +119,7 @@ namespace Functions.TransformationQuestionWrittenAnswerCorrection
                 return null;
             }
 
-            IAnswer originalAnswer = giveMeOriginalAnswer(questionId);
+            Answer originalAnswer = giveMeOriginalAnswer(questionId);
             if (originalAnswer != null)
                 correctingAnswer.AnswerReplacesAnswer = originalAnswer;
             else
@@ -126,12 +128,12 @@ namespace Functions.TransformationQuestionWrittenAnswerCorrection
                 return null;
             }
 
-            IAnsweringBodyAllocation correctingAnsweringBodyAllocation = giveMeCorrectingAnsweringBodyAllocation(data, questionId);
+            AnsweringBodyAllocation correctingAnsweringBodyAllocation = giveMeCorrectingAnsweringBodyAllocation(data, questionId);
             if (correctingAnsweringBodyAllocation != null)
             {
-                question.QuestionHasAnsweringBodyAllocation = new IAnsweringBodyAllocation[] { correctingAnsweringBodyAllocation };
+                question.QuestionHasAnsweringBodyAllocation = new AnsweringBodyAllocation[] { correctingAnsweringBodyAllocation };
                 correctingAnsweringBodyAllocation.AnsweringBodyAllocationHasAnsweringBody.AnsweringBodyHasWrittenAnswer
-                    = new IWrittenAnswer[] { new WrittenAnswer() { Id = correctingAnswer.Id } };
+                    = new WrittenAnswer[] { new WrittenAnswer() { Id = correctingAnswer.Id } };
             }
             else
                 return null;
@@ -140,12 +142,12 @@ namespace Functions.TransformationQuestionWrittenAnswerCorrection
             var uriElements = doc.Element("response").Element("result").Element("doc").Elements("str").ToList();
             iast.IndexingAndSearchUri = new String[] { uriElements.Where(x => x.Attribute("name").Value == "uri").FirstOrDefault().GetText() };
 
-            return new IResource[] { correctingAnswer, iast };
+            return new BaseResource[] { correctingAnswer, iast };
         }
 
-        public override Dictionary<string, INode> GetKeysFromSource(IResource[] deserializedSource)
+        public override Dictionary<string, INode> GetKeysFromSource(BaseResource[] deserializedSource)
         {
-            string correctingAnswerUri = deserializedSource.OfType<IIndexingAndSearchThing>()
+            string correctingAnswerUri = deserializedSource.OfType<IndexingAndSearchThing>()
                 .SingleOrDefault()
                 .IndexingAndSearchUri
                 .SingleOrDefault();
@@ -155,17 +157,22 @@ namespace Functions.TransformationQuestionWrittenAnswerCorrection
             };
         }
 
-        public override Dictionary<string, INode> GetKeysForTarget(IResource[] deserializedSource)
+        public override Dictionary<string, INode> GetKeysForTarget(BaseResource[] deserializedSource)
         {
+            Uri id = deserializedSource.OfType<CorrectingAnswer>()
+                .SingleOrDefault()
+                .CorrectingAnswerHasQuestion
+                .SingleOrDefault()
+                .Id;
             return new Dictionary<string, INode>()
             {
-                { "questionUri", SparqlConstructor.GetNode(questionUriText) }
+                { "question", SparqlConstructor.GetNode(id) }
             };
         }
 
-        public override IResource[] SynchronizeIds(IResource[] source, Uri subjectUri, IResource[] target)
+        public override BaseResource[] SynchronizeIds(BaseResource[] source, Uri subjectUri, BaseResource[] target)
         {
-            ICorrectingAnswer correctingAnswer = source.OfType<ICorrectingAnswer>().SingleOrDefault();
+            CorrectingAnswer correctingAnswer = source.OfType<CorrectingAnswer>().SingleOrDefault();
             correctingAnswer.Id = subjectUri;
             correctingAnswer.CorrectingAnswerHasQuestion
                 .SingleOrDefault()
@@ -175,15 +182,15 @@ namespace Functions.TransformationQuestionWrittenAnswerCorrection
                 .AnsweringBodyHasWrittenAnswer
                 .SingleOrDefault()
                 .Id = subjectUri;
-            IIndexingAndSearchThing iast = source.OfType<IIndexingAndSearchThing>().SingleOrDefault();
+            IndexingAndSearchThing iast = source.OfType<IndexingAndSearchThing>().SingleOrDefault();
             iast.Id = subjectUri;
 
-            return new IResource[] { correctingAnswer, iast };
+            return new BaseResource[] { correctingAnswer, iast };
         }
 
-        private IAnsweringBodyAllocation giveMeCorrectingAnsweringBodyAllocation(Response data, Uri questionId)
+        private AnsweringBodyAllocation giveMeCorrectingAnsweringBodyAllocation(Response data, Uri questionId)
         {
-            IAnsweringBodyAllocation answeringBodyAllocation = null;
+            AnsweringBodyAllocation answeringBodyAllocation = null;
 
             if (data.CorrectingAnsweringDeptSesId != null)
             {
@@ -206,7 +213,7 @@ namespace Functions.TransformationQuestionWrittenAnswerCorrection
                     IGraph graph = GraphRetrieval.GetGraph(sparql.ToString(), logger, "true");
                     answeringBodyAllocation = new AnsweringBodyAllocation()
                     {
-                        Id = graph.IsEmpty? GenerateNewId(): (graph.Triples.SingleOrDefault().Object as IUriNode).Uri,
+                        Id = graph.IsEmpty ? GenerateNewId() : (graph.Triples.SingleOrDefault().Object as IUriNode).Uri,
                         AnsweringBodyAllocationHasAnsweringBody = new AnsweringBody()
                         {
                             Id = answeringBodyId
@@ -220,7 +227,7 @@ namespace Functions.TransformationQuestionWrittenAnswerCorrection
             return answeringBodyAllocation;
         }
 
-        private IAnswer giveMeOriginalAnswer(Uri questionId)
+        private Answer giveMeOriginalAnswer(Uri questionId)
         {
             string command = @"
                 construct{
@@ -228,7 +235,7 @@ namespace Functions.TransformationQuestionWrittenAnswerCorrection
                 }
                 where{
                     bind(@question as ?question)
-                    ?question parl:questionHasAnswer ?originalAnswer.
+                    ?originalAnswer parl:answerHasQuestion ?question.
                     optional {?originalAnswer parl:answerReplacesAnswer ?replacedAnswer}
                     filter (bound(?replacedAnswer)=false)
                 }";

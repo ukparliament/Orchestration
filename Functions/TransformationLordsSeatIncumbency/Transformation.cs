@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Parliament.Rdf;
+using Parliament.Rdf.Serialization;
 using Parliament.Model;
 using System;
 using System.Collections.Generic;
@@ -12,9 +12,9 @@ namespace Functions.TransformationLordsSeatIncumbency
     public class Transformation : BaseTransformation<Settings>
     {
         
-        public override IResource[] TransformSource(string response)
+        public override BaseResource[] TransformSource(string response)
         {
-            IMnisSeatIncumbency mnisSeatIncumbency = new MnisSeatIncumbency();
+            MnisSeatIncumbency mnisSeatIncumbency = new MnisSeatIncumbency();
             JObject jsonResponse = (JObject)JsonConvert.DeserializeObject(response);
 
             string id = ((JValue)jsonResponse.SelectToken("ID0")).GetText();
@@ -57,7 +57,7 @@ namespace Functions.TransformationLordsSeatIncumbency
                 mnisSeatIncumbency.LordsSeatIncumbencyMnisId = Convert.ToInt32(mnisId.Value).ToString();
             mnisSeatIncumbency.ParliamentaryIncumbencyStartDate= ((JValue)jsonResponse.SelectToken("Start_x0020_Date")).GetDate();
 
-            IPastParliamentaryIncumbency pastIncumbency = new PastParliamentaryIncumbency();
+            PastParliamentaryIncumbency pastIncumbency = new PastParliamentaryIncumbency();
             pastIncumbency.Id = mnisSeatIncumbency.Id;
             pastIncumbency.ParliamentaryIncumbencyEndDate= ((JValue)jsonResponse.SelectToken("End_x0020_Date")).GetDate();
 
@@ -65,21 +65,19 @@ namespace Functions.TransformationLordsSeatIncumbency
             if (mnisSeatIncumbency.SeatIncumbencyHasParliamentPeriod == null)
                 return null;
 
-            return new IResource[] { mnisSeatIncumbency, pastIncumbency };
+            return new BaseResource[] { mnisSeatIncumbency, pastIncumbency };
         }
 
-        public override Uri GetSubjectFromSource(IResource[] deserializedSource)
+        public override Uri GetSubjectFromSource(BaseResource[] deserializedSource)
         {
-            return deserializedSource.OfType<IMnisSeatIncumbency>()
+            return deserializedSource.OfType<MnisSeatIncumbency>()
                 .SingleOrDefault()
                 .Id;            
         }
 
-        public override IResource[] SynchronizeIds(IResource[] source, Uri subjectUri, IResource[] target)
+        public override BaseResource[] SynchronizeIds(BaseResource[] source, Uri subjectUri, BaseResource[] target)
         {
-            IParliamentaryIncumbency[] incumbencies = source.OfType<IParliamentaryIncumbency>().ToArray();
-
-            return incumbencies as IResource[];
+            return source;
         }
 
         private Uri giveMeUri(JObject jsonResponse, string tokenName)
@@ -102,7 +100,7 @@ namespace Functions.TransformationLordsSeatIncumbency
             }
         }
 
-        private IEnumerable<IParliamentPeriod> giveMeParliamentPeriods(DateTimeOffset startDate, DateTimeOffset? endDate)
+        private IEnumerable<ParliamentPeriod> giveMeParliamentPeriods(DateTimeOffset startDate, DateTimeOffset? endDate)
         {
             string sparqlCommand = @"
         construct {

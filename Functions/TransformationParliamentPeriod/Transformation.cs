@@ -1,9 +1,8 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Parliament.Rdf;
 using Parliament.Model;
+using Parliament.Rdf.Serialization;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace Functions.TransformationParliamentPeriod
@@ -11,9 +10,9 @@ namespace Functions.TransformationParliamentPeriod
     public class Transformation : BaseTransformation<Settings>
     {
         
-        public override IResource[] TransformSource(string response)
+        public override BaseResource[] TransformSource(string response)
         {
-            IPastParliamentPeriod pastParliamentPeriod = new PastParliamentPeriod();
+            PastParliamentPeriod pastParliamentPeriod = new PastParliamentPeriod();
             JObject jsonResponse = (JObject)JsonConvert.DeserializeObject(response);
 
             Uri id = giveMeUri(jsonResponse, "TripleStoreId");
@@ -45,7 +44,7 @@ namespace Functions.TransformationParliamentPeriod
                 };
             Uri followingId = giveMeUri(jsonResponse, "ImmediatelyFollowingParliamentPe");
             if (followingId != null)
-                pastParliamentPeriod.ParliamentPeriodHasImmediatelyFollowingParliamentPeriod = new IParliamentPeriod[]
+                pastParliamentPeriod.ParliamentPeriodHasImmediatelyFollowingParliamentPeriod = new ParliamentPeriod[]
                 {
                     new ParliamentPeriod()
                     {
@@ -53,28 +52,25 @@ namespace Functions.TransformationParliamentPeriod
                     }
                 };
 
-            IWikidataParliamentPeriod wikidataParliamentPeriod = new WikidataParliamentPeriod();
+            WikidataParliamentPeriod wikidataParliamentPeriod = new WikidataParliamentPeriod();
             wikidataParliamentPeriod.ParliamentPeriodWikidataId = ((JValue)jsonResponse.SelectToken("parliamentPeriodWikidataId")).GetText();
 
-            return new IResource[] { pastParliamentPeriod, wikidataParliamentPeriod };
+            return new BaseResource[] { pastParliamentPeriod, wikidataParliamentPeriod };
         }
 
-        public override Uri GetSubjectFromSource(IResource[] deserializedSource)
+        public override Uri GetSubjectFromSource(BaseResource[] deserializedSource)
         {
-            return deserializedSource.OfType<IPastParliamentPeriod>()
+            return deserializedSource.OfType<PastParliamentPeriod>()
                 .SingleOrDefault()
                 .Id;            
         }
 
-        public override IResource[] SynchronizeIds(IResource[] source, Uri subjectUri, IResource[] target)
+        public override BaseResource[] SynchronizeIds(BaseResource[] source, Uri subjectUri, BaseResource[] target)
         {
-            IParliamentPeriod[] parliamentPeriods = source.OfType<IParliamentPeriod>().ToArray();
-            foreach (IParliamentPeriod period in parliamentPeriods)
-            {
+            foreach (BaseResource period in source)
                 period.Id = subjectUri;
-            };
-
-            return parliamentPeriods as IResource[];
+            
+            return source;
         }
 
         private Uri giveMeUri(JObject jsonResponse, string tokenName)

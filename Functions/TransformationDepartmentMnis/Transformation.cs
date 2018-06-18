@@ -1,4 +1,4 @@
-﻿using Parliament.Rdf;
+﻿using Parliament.Rdf.Serialization;
 using Parliament.Model;
 using System;
 using System.Collections.Generic;
@@ -14,9 +14,9 @@ namespace Functions.TransformationDepartmentMnis
         private XNamespace d = "http://schemas.microsoft.com/ado/2007/08/dataservices";
         private XNamespace m = "http://schemas.microsoft.com/ado/2007/08/dataservices/metadata";
 
-        public override IResource[] TransformSource(string response)
+        public override BaseResource[] TransformSource(string response)
         {
-            IMnisDepartmentGroup department = new MnisDepartmentGroup();
+            MnisDepartmentGroup department = new MnisDepartmentGroup();
 
             XDocument doc = XDocument.Parse(response);
             XElement departmentElement = doc.Element(atom + "entry")
@@ -26,15 +26,15 @@ namespace Functions.TransformationDepartmentMnis
             department.GroupName = departmentElement.Element(d + "Name").GetText();
             department.GroupStartDate = departmentElement.Element(d + "StartDate").GetDate();
             department.MnisDepartmentId = departmentElement.Element(d + "Department_Id").GetText();
-            IPastGroup pastGroup = new PastGroup();
+            PastGroup pastGroup = new PastGroup();
             pastGroup.GroupEndDate = departmentElement.Element(d + "EndDate").GetDate();
 
-            return new IResource[] { department, pastGroup };
+            return new BaseResource[] { department, pastGroup };
         }
 
-        public override Dictionary<string, INode> GetKeysFromSource(IResource[] deserializedSource)
+        public override Dictionary<string, INode> GetKeysFromSource(BaseResource[] deserializedSource)
         {
-            string mnisDepartmentId = deserializedSource.OfType<IMnisDepartmentGroup>()
+            string mnisDepartmentId = deserializedSource.OfType<MnisDepartmentGroup>()
                 .SingleOrDefault()
                 .MnisDepartmentId;
             return new Dictionary<string, INode>()
@@ -43,13 +43,12 @@ namespace Functions.TransformationDepartmentMnis
             };
         }
 
-        public override IResource[] SynchronizeIds(IResource[] source, Uri subjectUri, IResource[] target)
+        public override BaseResource[] SynchronizeIds(BaseResource[] source, Uri subjectUri, BaseResource[] target)
         {
-            foreach (IGroup group in source.OfType<IGroup>())
+            foreach (BaseResource group in source)
                 group.Id = subjectUri;
 
-            IResource[] groups = source.OfType<IGroup>().ToArray();
-            return groups.ToArray();
+            return source;
         }
     }
 }

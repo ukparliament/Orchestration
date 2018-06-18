@@ -1,0 +1,43 @@
+﻿<response>
+  <lst name="responseHeader">
+    <int name="status">0</int>
+    <int name="QTime">2</int>
+    <lst name="params">
+      <str name="indent">on</str>
+      <str name="version">2.2</str>
+      <str name="q">uri:"http://data.parliament.uk/correction/commons/2017-19/133950"</str>
+      <str name="fq" />
+      <str name="start">0</str>
+      <str name="rows">10</str>
+      <str name="fl">correctedItem_uri,correctedItem_t,answeringDept_ses,correctingMember_ses,content_t,date_dt,leadMember_ses,uri</str>
+      <str name="qt" />
+      <str name="wt" />
+      <str name="explainOther" />
+      <str name="hl.fl" />
+    </lst>
+  </lst>
+  <result name="response" numFound="1" start="0">
+    <doc>
+      <arr name="answeringDept_ses">
+        <int>429166</int>
+      </arr>
+      <arr name="content_t">
+        <str>&lt;p&gt;&lt;del class="ministerial"&gt;In 2014 Government agreed up to £7.5 million funding to support Sir Ben Ainslie’s America’s Cup team and their proposal to be based on the Camber in Portsmouth. Details of this funding agreement have previously been released and are publicly available here:&lt;/del&gt;&lt;/p&gt;&lt;p&gt;&lt;del class="ministerial"&gt;&lt;a href="https://www.gov.uk/government/news/government-approves-75-million-for-sir-ben-ainslie-project-to-boost-portsmouth" target="_blank"&gt;https://www.gov.uk/government/news/government-approves-75-million-for-sir-ben-ainslie-project-to-boost-portsmouth&lt;/a&gt;&lt;/del&gt;&lt;/p&gt;&lt;p&gt;&lt;del class="ministerial"&gt;No further funding to the team is currently planned.&lt;/del&gt;&lt;/p&gt;&lt;p&gt; &lt;/p&gt;&lt;p&gt; &lt;/p&gt;&lt;p&gt;&lt;ins class="ministerial"&gt;In 2014, under the Coalition Government, the Department for Business, Innovation and Skills, the Department for Communities and Local Government, and the Department for Culture, Media and Sport agreed a funding package of up to £7.5 million to support Sir Ben Ainslie’s America’s Cup team and their proposal to base their permanent headquarters on the Camber in Portsmouth. This was announced by the then Secretary of State for Business, Innovation and Skills, the Rt hon Member for Twickenham (Sir Vince Cable).&lt;/ins&gt;&lt;/p&gt;&lt;p&gt;&lt;ins class="ministerial"&gt; &lt;/ins&gt;&lt;/p&gt;&lt;p&gt;&lt;ins class="ministerial"&gt;This funding ensured the racing team’s commitment to basing their operations in Portsmouth for a minimum of 12 years to support three America’s Cup cycles, which in turn enabled economic benefits for the city’s marine and maritime sector. It also helped support community engagement and sailing participation projects in collaboration with Sport England.&lt;/ins&gt;&lt;/p&gt;&lt;p&gt;&lt;ins class="ministerial"&gt; &lt;/ins&gt;&lt;/p&gt;&lt;p&gt;&lt;ins class="ministerial"&gt;The benefits arising from this investment extended beyond the sailing team. They included direct economic benefits from the generation of jobs and apprenticeships, together with the up-skilling of workers in the Solent area, the setting up of a Technical Innovation Group to help feed the innovations in applied technology developed by BAR into the marine industry, engagement with schools and higher education institutions, engagement with the local supply chain, and the setting up of a visitors’ centre.&lt;/ins&gt;&lt;/p&gt;&lt;p&gt;&lt;ins class="ministerial"&gt; &lt;/ins&gt;&lt;/p&gt;&lt;p&gt;&lt;ins class="ministerial"&gt;Published details of this funding agreement are available here: &lt;a href="https://www.gov.uk/government/news/government-approves-75-million-for-sir-ben-ainslie-project-to-boost-portsmouth" target="_blank"&gt;https://www.gov.uk/government/news/government-approves-75-million-for-sir-ben-ainslie-project-to-boost-portsmouth&lt;/a&gt; &lt;/ins&gt;&lt;/p&gt;&lt;p&gt;&lt;ins class="ministerial"&gt; &lt;/ins&gt;&lt;/p&gt;&lt;p&gt;&lt;ins class="ministerial"&gt;No further funding to the team is currently planned.&lt;/ins&gt;&lt;/p&gt;</str>
+      </arr>
+      <arr name="correctedItem_uri">
+        <str>http://data.parliament.uk/writtenparliamentaryquestion/commons/2017-19/133950</str>
+      </arr>
+      <arr name="correctingMember_ses">
+        <int>300928</int>
+      </arr>
+      <date name="date_dt">2018-04-12T00:00:00Z</date>
+      <arr name="leadMember_ses">
+        <int>300928</int>
+      </arr>
+      <str name="uri">http://data.parliament.uk/correction/commons/2017-19/133950</str>
+    </doc>
+  </result>
+  <lst name="highlighting">
+    <lst name="http://data.parliament.uk/correction/commons/2017-19/133950" />
+  </lst>
+</response>

@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Parliament.Rdf;
+using Parliament.Rdf.Serialization;
 using Parliament.Model;
 using System;
 using System.Collections.Generic;
@@ -12,9 +12,9 @@ namespace Functions.TransformationTerritory
     public class Transformation : BaseTransformation<Settings>
     {
 
-        public override IResource[] TransformSource(string response)
+        public override BaseResource[] TransformSource(string response)
         {
-            IGovRegisterTerritory territory = new GovRegisterTerritory();
+            GovRegisterTerritory territory = new GovRegisterTerritory();
             JObject jsonResponse = (JObject)JsonConvert.DeserializeObject(response);
 
             JValue jValue = (JValue)jsonResponse.First.First.SelectToken("key");
@@ -28,12 +28,12 @@ namespace Functions.TransformationTerritory
             jValue = (JValue)jsonResponse.First.First.SelectToken("item[0].end-date");
             territory.GovRegisterTerritoryEndDate = DeserializerHelper.GiveMeSingleDateValue(jValue.GetDate());
 
-            return new IResource[] { territory };
+            return new BaseResource[] { territory };
         }
 
-        public override Dictionary<string, INode> GetKeysFromSource(IResource[] deserializedSource)
+        public override Dictionary<string, INode> GetKeysFromSource(BaseResource[] deserializedSource)
         {
-            string territoryGovRegisterId = deserializedSource.OfType<IGovRegisterTerritory>()
+            string territoryGovRegisterId = deserializedSource.OfType<GovRegisterTerritory>()
                 .SingleOrDefault()
                 .TerritoryGovRegisterId;
             return new Dictionary<string, INode>()
@@ -42,12 +42,12 @@ namespace Functions.TransformationTerritory
             };
         }
 
-        public override IResource[] SynchronizeIds(IResource[] source, Uri subjectUri, IResource[] target)
+        public override BaseResource[] SynchronizeIds(BaseResource[] source, Uri subjectUri, BaseResource[] target)
         {
-            IGovRegisterTerritory territory = source.OfType<IGovRegisterTerritory>().SingleOrDefault();
+            GovRegisterTerritory territory = source.OfType<GovRegisterTerritory>().SingleOrDefault();
             territory.Id = subjectUri;
 
-            return new IResource[] { territory };
+            return new BaseResource[] { territory };
         }
     }
 }

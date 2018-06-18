@@ -1,0 +1,35 @@
+﻿{
+    "@odata.context": "https://sharepointonline-logic-cp-westeurope.logic-ase-westeurope.p.azurewebsites.net/$metadata#datasets('https%253A%252F%252Fhopuk.sharepoint.com%252Fsites%252Fdatateam%252Fdatasources')/tables('adad783c-971c-4bb3-a07b-28a5068cc1e0')/items/$entity",
+    "@odata.etag": "\"3\"",
+    "ItemInternalId": "1",
+    "ID": 1,
+    "Title": "Made Negative",
+    "TripleStoreId": "5S6p4YsP",
+    "Modified": "2018-05-01T11:45:05Z",
+    "Created": "2018-03-13T16:13:33Z",
+    "Author": {
+        "@odata.type": "#Microsoft.Azure.Connectors.SharePoint.SPListExpandedUser",
+        "Claims": "i:0#.f|membership|langs@parliament.uk",
+        "DisplayName": "LANG, Samu",
+        "Email": "langs@parliament.uk",
+        "Picture": "https://hopuk.sharepoint.com/sites/datateam/datasources/_layouts/15/UserPhoto.aspx?Size=L&AccountName=langs@parliament.uk",
+        "Department": "Digital Service",
+        "JobTitle": "Technical Lead, Development Manager"
+    },
+    "Author#Claims": "i:0#.f|membership|langs@parliament.uk",
+    "Editor": {
+        "@odata.type": "#Microsoft.Azure.Connectors.SharePoint.SPListExpandedUser",
+        "Claims": "i:0#.f|membership|somervillea@parliament.uk",
+        "DisplayName": "SOMERVILLE, Anya",
+        "Email": "somervillea@parliament.uk",
+        "Picture": "https://hopuk.sharepoint.com/sites/datateam/datasources/_layouts/15/UserPhoto.aspx?Size=L&AccountName=somervillea@parliament.uk",
+        "Department": "Research And Information",
+        "JobTitle": "Head of Indexing & Data Management Section"
+    },
+    "Editor#Claims": "i:0#.f|membership|somervillea@parliament.uk",
+    "{Identifier}": "Lists%252fProcedure%252f1_.000",
+    "{Link}": "https://hopuk.sharepoint.com/sites/datateam/datasources/_layouts/15/listform.aspx?PageType=4&ListId=adad783c-971c-4bb3-a07b-28a5068cc1e0&ID=1&ContentTypeID=0x0100DF232C785ADE3744B9B0F4E34B1EF3C8",
+    "{Name}": "Made Negative",
+    "{FilenameWithExtension}": "Made Negative",
+    "{Path}": "Lists/Procedure/"
+}

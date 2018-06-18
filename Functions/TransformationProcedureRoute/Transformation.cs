@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Parliament.Model;
-using Parliament.Rdf;
+using Parliament.Rdf.Serialization;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,9 +10,9 @@ namespace Functions.TransformationProcedureRoute
 {
     public class Transformation : BaseTransformation<Settings>
     {
-        public override IResource[] TransformSource(string response)
+        public override BaseResource[] TransformSource(string response)
         {
-            IProcedureRoute procedureRoute = new ProcedureRoute();
+            ProcedureRoute procedureRoute = new ProcedureRoute();
             JObject jsonResponse = (JObject)JsonConvert.DeserializeObject(response);
 
             string id = ((JValue)jsonResponse.SelectToken("TripleStoreId")).GetText();
@@ -43,7 +43,7 @@ namespace Functions.TransformationProcedureRoute
 
             Uri procedureUri = giveMeUri(jsonResponse, "Procedure_x003a_TripleStoreId");
             if (procedureUri != null)
-                procedureRoute.ProcedureRouteHasProcedure = new List<IProcedure>()
+                procedureRoute.ProcedureRouteHasProcedure = new List<Procedure>()
                 {
                     new Procedure()
                     {
@@ -60,7 +60,7 @@ namespace Functions.TransformationProcedureRoute
                 switch (procedureRouteKind)
                 {
                     case ProcedureRouteType.Allows:
-                        fromProcedureStep.ProcedureStepAllowsAllowedProcedureRoute = new List<IAllowedProcedureRoute>()
+                        fromProcedureStep.ProcedureStepAllowsAllowedProcedureRoute = new List<AllowedProcedureRoute>()
                         {
                             new AllowedProcedureRoute()
                             {
@@ -69,7 +69,7 @@ namespace Functions.TransformationProcedureRoute
                         };
                         break;
                     case ProcedureRouteType.Causes:
-                        fromProcedureStep.ProcedureStepCausesCausedProcedureRoute = new List<ICausedProcedureRoute>()
+                        fromProcedureStep.ProcedureStepCausesCausedProcedureRoute = new List<CausedProcedureRoute>()
                         {
                             new CausedProcedureRoute()
                             {
@@ -78,7 +78,7 @@ namespace Functions.TransformationProcedureRoute
                         };
                         break;
                     case ProcedureRouteType.Precludes:
-                        fromProcedureStep.ProcedureStepPrecludesPrecludedProcedureRoute = new List<IPrecludedProcedureRoute>()
+                        fromProcedureStep.ProcedureStepPrecludesPrecludedProcedureRoute = new List<PrecludedProcedureRoute>()
                         {
                             new PrecludedProcedureRoute()
                             {
@@ -87,7 +87,7 @@ namespace Functions.TransformationProcedureRoute
                         };
                         break;
                     case ProcedureRouteType.Requires:
-                        fromProcedureStep.ProcedureStepRequiresRequiredProcedureRoute = new List<IRequiredProcedureRoute>()
+                        fromProcedureStep.ProcedureStepRequiresRequiredProcedureRoute = new List<RequiredProcedureRoute>()
                         {
                             new RequiredProcedureRoute()
                             {
@@ -96,7 +96,7 @@ namespace Functions.TransformationProcedureRoute
                         };
                         break;
                 }
-                procedureRoute.ProcedureRouteIsFromProcedureStep = new List<IProcedureStep>()
+                procedureRoute.ProcedureRouteIsFromProcedureStep = new List<ProcedureStep>()
                 {
                     fromProcedureStep
                 };
@@ -105,7 +105,7 @@ namespace Functions.TransformationProcedureRoute
                 return null;
             Uri toStepUri = giveMeUri(jsonResponse, "ToStep_x003a_TripleStoreId");
             if (toStepUri != null)
-                procedureRoute.ProcedureRouteIsToProcedureStep = new List<IProcedureStep>()
+                procedureRoute.ProcedureRouteIsToProcedureStep = new List<ProcedureStep>()
                 {
                     new ProcedureStep()
                     {
@@ -115,21 +115,19 @@ namespace Functions.TransformationProcedureRoute
             else
                 return null;
 
-            return new IResource[] { procedureRoute };
+            return new BaseResource[] { procedureRoute };
         }
 
-        public override Uri GetSubjectFromSource(IResource[] deserializedSource)
+        public override Uri GetSubjectFromSource(BaseResource[] deserializedSource)
         {
-            return deserializedSource.OfType<IProcedureRoute>()
+            return deserializedSource.OfType<ProcedureRoute>()
                 .SingleOrDefault()
                 .Id;
         }
 
-        public override IResource[] SynchronizeIds(IResource[] source, Uri subjectUri, IResource[] target)
+        public override BaseResource[] SynchronizeIds(BaseResource[] source, Uri subjectUri, BaseResource[] target)
         {
-            IProcedureRoute procedureRoute = source.OfType<IProcedureRoute>().SingleOrDefault();
-
-            return new IResource[] { procedureRoute };
+            return source;
         }
 
         private Uri giveMeUri(JObject jsonResponse, string tokenName)

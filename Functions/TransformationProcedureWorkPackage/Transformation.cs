@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Parliament.Model;
-using Parliament.Rdf;
+using Parliament.Rdf.Serialization;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,9 +11,9 @@ namespace Functions.TransformationProcedureWorkPackage
 {
     public class Transformation : BaseTransformation<Settings>
     {
-        public override IResource[] TransformSource(string response)
+        public override BaseResource[] TransformSource(string response)
         {
-            IWorkPackage workPackage = new WorkPackage();
+            WorkPackage workPackage = new WorkPackage();
             JObject jsonResponse = (JObject)JsonConvert.DeserializeObject(response);
 
             Uri idUri = giveMeUri(jsonResponse, "OData__x0076_dy9");
@@ -45,29 +45,27 @@ namespace Functions.TransformationProcedureWorkPackage
                     switch (workPackagableThingKind)
                     {
                         case ProcedureWorkPackageableThingType.ProposedStatutoryInstrument:
-                            workPackage.WorkPackageHasProposedStatutoryInstrument = new IProposedStatutoryInstrument[] { new ProposedStatutoryInstrument() { Id = workPackageableUri } };
+                            workPackage.WorkPackageHasProposedStatutoryInstrument = new ProposedStatutoryInstrument[] { new ProposedStatutoryInstrument() { Id = workPackageableUri } };
                             break;
                         case ProcedureWorkPackageableThingType.StatutoryInstrument:
-                            workPackage.WorkPackageHasStatutoryInstrument = new IStatutoryInstrument[] { new StatutoryInstrument() { Id = workPackageableUri } };
+                            workPackage.WorkPackageHasStatutoryInstrument = new StatutoryInstrument[] { new StatutoryInstrument() { Id = workPackageableUri } };
                             break;
                     }
             }
 
-            return new IResource[] { workPackage };
+            return new BaseResource[] { workPackage };
         }
 
-        public override Uri GetSubjectFromSource(IResource[] deserializedSource)
+        public override Uri GetSubjectFromSource(BaseResource[] deserializedSource)
         {
-            return deserializedSource.OfType<IWorkPackage>()
+            return deserializedSource.OfType<WorkPackage>()
                 .SingleOrDefault()
                 .Id;
         }
 
-        public override IResource[] SynchronizeIds(IResource[] source, Uri subjectUri, IResource[] target)
+        public override BaseResource[] SynchronizeIds(BaseResource[] source, Uri subjectUri, BaseResource[] target)
         {
-            IWorkPackage workPackage = source.OfType<IWorkPackage>().SingleOrDefault();
-
-            return new IResource[] { workPackage };
+            return source;
         }
 
         private Uri giveMeUri(JObject jsonResponse, string tokenName)

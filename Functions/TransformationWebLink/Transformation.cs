@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Parliament.Rdf;
+using Parliament.Rdf.Serialization;
 using Parliament.Model;
 using System;
 using System.Collections.Generic;
@@ -10,9 +10,9 @@ namespace Functions.TransformationWebLink
 {
     public class Transformation : BaseTransformation<Settings>
     {
-        public override IResource[] TransformSource(string response)
+        public override BaseResource[] TransformSource(string response)
         {
-            IPersonWebLink personWebLink = new PersonWebLink();
+            PersonWebLink personWebLink = new PersonWebLink();
             JObject jsonResponse = (JObject)JsonConvert.DeserializeObject(response);
 
             string url = ((JValue)jsonResponse.SelectToken("URL")).GetText();
@@ -35,7 +35,7 @@ namespace Functions.TransformationWebLink
             if ((linkType != 6) && (linkType != 7) && (linkType != 8))
             {
                 logger.Verbose("WebLink information marked as excluded");
-                return new IResource[] { personWebLink };
+                return new BaseResource[] { personWebLink };
             }
 
             string mnisId = ((JValue)jsonResponse.SelectToken("Person_x003a_MnisId.Value")).GetText();
@@ -47,7 +47,7 @@ namespace Functions.TransformationWebLink
             mnisId = Convert.ToInt32(Convert.ToDouble(mnisId)).ToString();
             Uri personUri = IdRetrieval.GetSubject("memberMnisId", mnisId, false, logger);
             if (personUri != null)
-                personWebLink.PersonWebLinkHasPerson = new List<IPerson>
+                personWebLink.PersonWebLinkHasPerson = new List<Person>
                 {
                     new Person()
                     {
@@ -58,21 +58,21 @@ namespace Functions.TransformationWebLink
                 logger.Warning("No person found");
 
 
-            return new IResource[] { personWebLink };
+            return new BaseResource[] { personWebLink };
         }
 
-        public override Uri GetSubjectFromSource(IResource[] deserializedSource)
+        public override Uri GetSubjectFromSource(BaseResource[] deserializedSource)
         {
-            return deserializedSource.OfType<IPersonWebLink>()
+            return deserializedSource.OfType<PersonWebLink>()
                 .SingleOrDefault()
                 .Id;            
         }
 
-        public override IResource[] SynchronizeIds(IResource[] source, Uri subjectUri, IResource[] target)
+        public override BaseResource[] SynchronizeIds(BaseResource[] source, Uri subjectUri, BaseResource[] target)
         {
-            IPersonWebLink personWebLink = source.OfType<IPersonWebLink>().SingleOrDefault();
+            PersonWebLink personWebLink = source.OfType<PersonWebLink>().SingleOrDefault();
 
-            return new IResource[] { personWebLink };
+            return new BaseResource[] { personWebLink };
         }
     }
 }

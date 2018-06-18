@@ -1,6 +1,5 @@
-﻿using Functions.IdGenerator;
-using Parliament.Rdf;
-using Parliament.Model;
+﻿using Parliament.Model;
+using Parliament.Rdf.Serialization;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,9 +14,9 @@ namespace Functions.TransformationCommitteeMnis
         private XNamespace d = "http://schemas.microsoft.com/ado/2007/08/dataservices";
         private XNamespace m = "http://schemas.microsoft.com/ado/2007/08/dataservices/metadata";
 
-        public override IResource[] TransformSource(string response)
+        public override BaseResource[] TransformSource(string response)
         {
-            IMnisFormalBody formalBody = new MnisFormalBody();
+            MnisFormalBody formalBody = new MnisFormalBody();
             XDocument doc = XDocument.Parse(response);
             XElement formalBodyElement = doc.Element(atom + "entry")
                 .Element(atom + "content")
@@ -32,7 +31,7 @@ namespace Functions.TransformationCommitteeMnis
             {
                 Uri parentUri = IdRetrieval.GetSubject("formalBodyMnisId", parentId, false, logger);
                 if (parentId != null)
-                    formalBody.FormalBodyHasParentFormalBody = new List<IFormalBody>
+                    formalBody.FormalBodyHasParentFormalBody = new List<FormalBody>
                     {
                         new FormalBody()
                         {
@@ -40,40 +39,32 @@ namespace Functions.TransformationCommitteeMnis
                         }
                     };
             }
-            IPastFormalBody pastFormalBody = new PastFormalBody();
+            PastFormalBody pastFormalBody = new PastFormalBody();
             pastFormalBody.FormalBodyEndDate = formalBodyElement.Element(d + "EndDate").GetDate();
 
-            return new IResource[] { formalBody, pastFormalBody };
+            return new BaseResource[] { formalBody, pastFormalBody };
         }
 
-        private List<IHouse> generateHouseMembership(XElement formalBodyElement)
+        private List<House> generateHouseMembership(XElement formalBodyElement)
         {
-            List<IHouse> houses = new List<IHouse>();
+            List<House> houses = new List<House>();
             if (formalBodyElement.Element(d + "IsCommons").GetBoolean() == true)
-            {
-                Uri houseOfCommonsUri = IdRetrieval.GetSubject("houseName", "House of Commons", false, logger);
-                if (houseOfCommonsUri != null)
-                    houses.Add(new House()
-                    {
-                        Id = houseOfCommonsUri
-                    });
-            }
+                houses.Add(new House()
+                {
+                    Id = new Uri(HouseOfCommonsId)
+                });
             if (formalBodyElement.Element(d + "IsLords").GetBoolean() == true)
-            {
-                Uri houseOfCommonsUri = IdRetrieval.GetSubject("houseName", "House of Lords", false, logger);
-                if (houseOfCommonsUri != null)
-                    houses.Add(new House()
-                    {
-                        Id = houseOfCommonsUri
-                    });
-            }
+                houses.Add(new House()
+                {
+                    Id = new Uri(HouseOfLordsId)
+                });
 
             return houses;
         }
 
-        public override Dictionary<string, INode> GetKeysFromSource(IResource[] deserializedSource)
+        public override Dictionary<string, INode> GetKeysFromSource(BaseResource[] deserializedSource)
         {
-            string formalBodyMnisId = deserializedSource.OfType<IMnisFormalBody>()
+            string formalBodyMnisId = deserializedSource.OfType<MnisFormalBody>()
                 .SingleOrDefault()
                 .FormalBodyMnisId;
             return new Dictionary<string, INode>()
@@ -82,11 +73,11 @@ namespace Functions.TransformationCommitteeMnis
             };
         }
 
-        public override IResource[] SynchronizeIds(IResource[] source, Uri subjectUri, IResource[] target)
+        public override BaseResource[] SynchronizeIds(BaseResource[] source, Uri subjectUri, BaseResource[] target)
         {
-            foreach (IFormalBody formalBody in source.OfType<IFormalBody>())
+            foreach (BaseResource formalBody in source)
                 formalBody.Id = subjectUri;
-            IMnisFormalBody mnisFormalBody = source.OfType<IMnisFormalBody>().SingleOrDefault();
+            MnisFormalBody mnisFormalBody = source.OfType<MnisFormalBody>().SingleOrDefault();
             FormalBodyChair targetFormalBodyChair = target.OfType<FormalBodyChair>().SingleOrDefault();
             if ((targetFormalBodyChair != null) && (targetFormalBodyChair.Id != null))
                 mnisFormalBody.FormalBodyHasFormalBodyChair = new FormalBodyChair()
@@ -98,7 +89,7 @@ namespace Functions.TransformationCommitteeMnis
                 {
                     Id = GenerateNewId()
                 };
-            return source.OfType<IFormalBody>().ToArray();
+            return source;
         }
 
     }

@@ -1,4 +1,4 @@
-﻿using Parliament.Rdf;
+﻿using Parliament.Rdf.Serialization;
 using Parliament.Model;
 using System;
 using System.Collections.Generic;
@@ -14,9 +14,9 @@ namespace Functions.TransformationCommitteeLayMemberMnis
         private XNamespace d = "http://schemas.microsoft.com/ado/2007/08/dataservices";
         private XNamespace m = "http://schemas.microsoft.com/ado/2007/08/dataservices/metadata";
 
-        public override IResource[] TransformSource(string response)
+        public override BaseResource[] TransformSource(string response)
         {
-            IMnisFormalBodyLayPerson mnisFormalBodyLayPerson = new MnisFormalBodyLayPerson();
+            MnisFormalBodyLayPerson mnisFormalBodyLayPerson = new MnisFormalBodyLayPerson();
             XDocument doc = XDocument.Parse(response);
             XElement formalBodyLayPersonElement = doc.Element(atom + "entry")
                 .Element(atom + "content")
@@ -32,7 +32,7 @@ namespace Functions.TransformationCommitteeLayMemberMnis
             {
                 Uri genderUri = IdRetrieval.GetSubject("genderMnisId", currentGenderText, false, logger);
                 if (genderUri != null)
-                    mnisFormalBodyLayPerson.PersonHasGenderIdentity = new IGenderIdentity[]
+                    mnisFormalBodyLayPerson.PersonHasGenderIdentity = new GenderIdentity[]
                     {
                         new GenderIdentity()
                         {
@@ -44,33 +44,40 @@ namespace Functions.TransformationCommitteeLayMemberMnis
                         }
                     };
             }
-
+            PastFormalBodyMembership pastFormalBodyMembership = null;
             string committeeId = formalBodyLayPersonElement.Element(d + "Committee_Id").GetText();
             if (string.IsNullOrWhiteSpace(committeeId) == false)
             {
                 Uri formalBodyUri = IdRetrieval.GetSubject("formalBodyMnisId", committeeId, false, logger);
                 if (formalBodyUri != null)
-                    mnisFormalBodyLayPerson.PersonHasFormalBodyMembership = new IFormalBodyMembership[]
+                {
+                    Uri formalBodymembershipId = GenerateNewId();
+                    mnisFormalBodyLayPerson.PersonHasFormalBodyMembership = new FormalBodyMembership[]
                     {
-                        new PastFormalBodyMembership()
+                        new FormalBodyMembership()
                         {
-                            Id= GenerateNewId(),
+                            Id= formalBodymembershipId ,
                             FormalBodyMembershipHasFormalBody=new FormalBody()
                             {
                                 Id= formalBodyUri
                             },
-                            FormalBodyMembershipStartDate=formalBodyLayPersonElement.Element(d + "StartDate").GetDate(),
-                            FormalBodyMembershipEndDate=formalBodyLayPersonElement.Element(d + "EndDate").GetDate()
+                            FormalBodyMembershipStartDate=formalBodyLayPersonElement.Element(d + "StartDate").GetDate()
                         }
                     };
+                    pastFormalBodyMembership = new PastFormalBodyMembership()
+                    {
+                        Id = formalBodymembershipId,
+                        FormalBodyMembershipEndDate = formalBodyLayPersonElement.Element(d + "EndDate").GetDate()
+                    };
+                }
             }
 
-            return new IResource[] { mnisFormalBodyLayPerson };
+            return new BaseResource[] { mnisFormalBodyLayPerson, pastFormalBodyMembership };
         }
 
-        public override Dictionary<string, INode> GetKeysFromSource(IResource[] deserializedSource)
+        public override Dictionary<string, INode> GetKeysFromSource(BaseResource[] deserializedSource)
         {
-            string formalBodyLayPersonMnisId = deserializedSource.OfType<IMnisFormalBodyLayPerson>()
+            string formalBodyLayPersonMnisId = deserializedSource.OfType<MnisFormalBodyLayPerson>()
                 .SingleOrDefault()
                 .FormalBodyLayPersonMnisId;
             return new Dictionary<string, INode>()
@@ -79,9 +86,9 @@ namespace Functions.TransformationCommitteeLayMemberMnis
             };
         }
 
-        public override Dictionary<string, INode> GetKeysForTarget(IResource[] deserializedSource)
+        public override Dictionary<string, INode> GetKeysForTarget(BaseResource[] deserializedSource)
         {
-            Uri genderUri = deserializedSource.OfType<IMnisFormalBodyLayPerson>()
+            Uri genderUri = deserializedSource.OfType<MnisFormalBodyLayPerson>()
                 .SingleOrDefault()
                 .PersonHasGenderIdentity
                 .SingleOrDefault()
@@ -93,23 +100,28 @@ namespace Functions.TransformationCommitteeLayMemberMnis
             };
         }
 
-        public override IResource[] SynchronizeIds(IResource[] source, Uri subjectUri, IResource[] target)
+        public override BaseResource[] SynchronizeIds(BaseResource[] source, Uri subjectUri, BaseResource[] target)
         {
-            IMnisFormalBodyLayPerson mnisFormalBodyLayPerson = source.OfType<IMnisFormalBodyLayPerson>().SingleOrDefault();
+            MnisFormalBodyLayPerson mnisFormalBodyLayPerson = source.OfType<MnisFormalBodyLayPerson>().SingleOrDefault();
             mnisFormalBodyLayPerson.Id = subjectUri;
             if (mnisFormalBodyLayPerson.PersonHasGenderIdentity != null)
             {
-                IGenderIdentity genderIdentity = target.OfType<IGenderIdentity>().SingleOrDefault();
+                GenderIdentity genderIdentity = target.OfType<GenderIdentity>().SingleOrDefault();
                 if (genderIdentity != null)
                     mnisFormalBodyLayPerson.PersonHasGenderIdentity.SingleOrDefault().Id = genderIdentity.Id;
             }
             if (mnisFormalBodyLayPerson.PersonHasFormalBodyMembership != null)
             {
-                IFormalBodyMembership formalBodyMembership = target.OfType<IFormalBodyMembership>().SingleOrDefault();
+                FormalBodyMembership formalBodyMembership = target.OfType<FormalBodyMembership>().SingleOrDefault();
                 if (formalBodyMembership != null)
+                {
                     mnisFormalBodyLayPerson.PersonHasFormalBodyMembership.SingleOrDefault().Id = formalBodyMembership.Id;
+                    PastFormalBodyMembership pastFormalBodyMembership = source.OfType<PastFormalBodyMembership>().SingleOrDefault();
+                    if (pastFormalBodyMembership != null)
+                        pastFormalBodyMembership.Id = formalBodyMembership.Id;
+                }
             }
-            return source.OfType<IMnisFormalBodyLayPerson>().ToArray();
+            return source;
         }
 
     }

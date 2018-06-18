@@ -3,20 +3,21 @@
     <TargetFramework>net461</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
+    <None Remove="Source.ttl" />
+  </ItemGroup>
+  <ItemGroup>
     <EmbeddedResource Include="TransformationConstituencyOS\EastingNorthingConversion\ShiftReference.csv" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="dotNetRDF" Version="2.0.1" />
+    <PackageReference Include="dotNetRDF" Version="2.1.0" />
     <PackageReference Include="Microsoft.ApplicationInsights" Version="2.5.1" />
     <PackageReference Include="Microsoft.Azure.WebJobs" Version="2.1.0-beta4" />
     <PackageReference Include="Microsoft.Azure.WebJobs.Extensions" Version="2.1.0-beta4" />
     <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.Http" Version="1.0.0-beta4" />
     <PackageReference Include="Microsoft.Azure.WebJobs.ServiceBus" Version="2.1.0-beta1" />
     <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="1.0.6" />
-    <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
-    <PackageReference Include="Parliament.Model" Version="1.0.0-r1468" />
-    <PackageReference Include="Parliament.Rdf" Version="1.0.2-r1323" />
-    <PackageReference Include="Parliament.Rdf.Serialization" Version="1.0.0-r1177" />
+    <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
+    <PackageReference Include="Parliament.Model" Version="1.1.0" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Microsoft.CSharp" />

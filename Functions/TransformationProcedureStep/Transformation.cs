@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Parliament.Model;
-using Parliament.Rdf;
+using Parliament.Rdf.Serialization;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,9 +12,9 @@ namespace Functions.TransformationProcedureStep
     {
         private Uri houseUri;
 
-        public override IResource[] TransformSource(string response)
+        public override BaseResource[] TransformSource(string response)
         {
-            IProcedureStep procedureStep = new ProcedureStep();
+            ProcedureStep procedureStep = new ProcedureStep();
             JObject jsonResponse = (JObject)JsonConvert.DeserializeObject(response);
 
             string id = ((JValue)jsonResponse.SelectToken("TripleStoreId")).GetText();
@@ -35,7 +35,7 @@ namespace Functions.TransformationProcedureStep
             }
             procedureStep.ProcedureStepName = ((JValue)jsonResponse.SelectToken("Title")).GetText();
             procedureStep.ProcedureStepDescription = ((JValue)jsonResponse.SelectToken("Description")).GetText();
-            List<IHouse> houses= new List<IHouse>();
+            List<House> houses= new List<House>();
             foreach (JObject house in (JArray)jsonResponse.SelectToken("House_x003a_TripleStoreId"))
             {
                 string houseId = house["Value"].ToString();
@@ -48,21 +48,19 @@ namespace Functions.TransformationProcedureStep
                     });
             }
             procedureStep.ProcedureStepHasHouse = houses;
-            return new IResource[] { procedureStep };
+            return new BaseResource[] { procedureStep };
         }
 
-        public override Uri GetSubjectFromSource(IResource[] deserializedSource)
+        public override Uri GetSubjectFromSource(BaseResource[] deserializedSource)
         {
-            return deserializedSource.OfType<IProcedureStep>()
+            return deserializedSource.OfType<ProcedureStep>()
                 .SingleOrDefault()
                 .Id;
         }
 
-        public override IResource[] SynchronizeIds(IResource[] source, Uri subjectUri, IResource[] target)
+        public override BaseResource[] SynchronizeIds(BaseResource[] source, Uri subjectUri, BaseResource[] target)
         {
-            IProcedureStep procedureStep = source.OfType<IProcedureStep>().SingleOrDefault();
-
-            return new IResource[] { procedureStep };
+            return source;
         }
     }
 }

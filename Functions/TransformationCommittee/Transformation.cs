@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Parliament.Rdf;
+using Parliament.Rdf.Serialization;
 using Parliament.Model;
 using System;
 using System.Collections.Generic;
@@ -10,9 +10,9 @@ namespace Functions.TransformationCommittee
 {
     public class Transformation : BaseTransformation<Settings>
     {
-        public override IResource[] TransformSource(string response)
+        public override BaseResource[] TransformSource(string response)
         {
-            IFormalBody formalBody = new FormalBody();
+            FormalBody formalBody = new FormalBody();
             JObject jsonResponse = (JObject)JsonConvert.DeserializeObject(response);
 
             string id = ((JValue)jsonResponse.SelectToken("ResourceUri")).GetText();
@@ -32,7 +32,7 @@ namespace Functions.TransformationCommittee
                 }
             }
 
-            List<IFormalBodyType> formalBodyTypes = new List<IFormalBodyType>();
+            List<FormalBodyType> formalBodyTypes = new List<FormalBodyType>();
             Uri committeeTypeUri;
             foreach (JObject commiteeType in (JArray)jsonResponse.SelectToken("CommitteeType_x003a_TripleStoreI"))
             {
@@ -67,7 +67,7 @@ namespace Functions.TransformationCommittee
                 }
             }
             formalBody.FormalBodyRemit = ((JValue)jsonResponse.SelectToken("Description")).GetText();
-            formalBody.FormalBodyHasContactPoint = new IContactPoint[]
+            formalBody.FormalBodyHasContactPoint = new ContactPoint[]
                 {
                     new ContactPoint()
                     {
@@ -77,29 +77,29 @@ namespace Functions.TransformationCommittee
                     }
                 };
 
-            return new IResource[] { formalBody };
+            return new BaseResource[] { formalBody };
         }
 
-        public override Uri GetSubjectFromSource(IResource[] deserializedSource)
+        public override Uri GetSubjectFromSource(BaseResource[] deserializedSource)
         {
-            return deserializedSource.OfType<IFormalBody>()
+            return deserializedSource.OfType<FormalBody>()
                 .SingleOrDefault()
                 .Id;
         }
 
-        public override IResource[] SynchronizeIds(IResource[] source, Uri subjectUri, IResource[] target)
+        public override BaseResource[] SynchronizeIds(BaseResource[] source, Uri subjectUri, BaseResource[] target)
         {
-            IFormalBody formalBody = source.OfType<IFormalBody>().SingleOrDefault();
+            FormalBody formalBody = source.OfType<FormalBody>().SingleOrDefault();
             formalBody.Id = subjectUri;
 
             if (formalBody.FormalBodyHasContactPoint != null)
             {
-                IContactPoint contactPoint = target.OfType<IContactPoint>().SingleOrDefault();
+                ContactPoint contactPoint = target.OfType<ContactPoint>().SingleOrDefault();
                 if (contactPoint != null)
                     formalBody.FormalBodyHasContactPoint.SingleOrDefault().Id = contactPoint.Id;
             }
 
-            return source.OfType<IFormalBody>().ToArray();
+            return source;
         }
 
     }

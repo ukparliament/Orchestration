@@ -16,7 +16,6 @@ namespace Functions.GraphDBRestore
     {
         private static Logger logger;
 
-        private static readonly string releaseId = Environment.GetEnvironmentVariable("ReleaseId", EnvironmentVariableTarget.Process);
         private static readonly string storageAccountConnectionString = Environment.GetEnvironmentVariable("CUSTOMCONNSTR_BackupStorage", EnvironmentVariableTarget.Process);
         private static readonly string dataAPI = Environment.GetEnvironmentVariable("CUSTOMCONNSTR_Data", EnvironmentVariableTarget.Process);
         private static readonly string subscriptionKey = Environment.GetEnvironmentVariable("SubscriptionKey", EnvironmentVariableTarget.Process);

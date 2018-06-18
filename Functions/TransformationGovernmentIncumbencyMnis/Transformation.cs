@@ -1,4 +1,4 @@
-﻿using Parliament.Rdf;
+﻿using Parliament.Rdf.Serialization;
 using Parliament.Model;
 using System;
 using System.Collections.Generic;
@@ -15,14 +15,14 @@ namespace Functions.TransformationGovernmentIncumbencyMnis
         private XNamespace d = "http://schemas.microsoft.com/ado/2007/08/dataservices";
         private XNamespace m = "http://schemas.microsoft.com/ado/2007/08/dataservices/metadata";
 
-        public override IResource[] TransformSource(string response)
+        public override BaseResource[] TransformSource(string response)
         {
             XDocument doc = XDocument.Parse(response);
             XElement governmentIncumbencyElement = doc.Element(atom + "entry")
                 .Element(atom + "content")
                 .Element(m + "properties");
 
-            IMnisGovernmentIncumbency governmentIncumbency = new MnisGovernmentIncumbency();
+            MnisGovernmentIncumbency governmentIncumbency = new MnisGovernmentIncumbency();
             governmentIncumbency.GovernmentIncumbencyMnisId = governmentIncumbencyElement.Element(d + "MemberGovernmentPost_Id").GetText();
             governmentIncumbency.IncumbencyStartDate = governmentIncumbencyElement.Element(d + "StartDate").GetDate();
             string governmentPostMnisId = governmentIncumbencyElement.Element(d + "GovernmentPost_Id").GetText();
@@ -47,16 +47,16 @@ namespace Functions.TransformationGovernmentIncumbencyMnis
             {
                 Id = memberUri
             };
-            IPastIncumbency incumbency = new PastIncumbency();
+            PastIncumbency incumbency = new PastIncumbency();
             incumbency.Id = governmentIncumbency.Id;
             incumbency.IncumbencyEndDate = governmentIncumbencyElement.Element(d + "EndDate").GetDate();
 
-            return new IResource[] { governmentIncumbency, incumbency };
+            return new BaseResource[] { governmentIncumbency, incumbency };
         }
 
-        public override Dictionary<string, INode> GetKeysFromSource(IResource[] deserializedSource)
+        public override Dictionary<string, INode> GetKeysFromSource(BaseResource[] deserializedSource)
         {
-            string governmentIncumbencyMnisId = deserializedSource.OfType<IMnisGovernmentIncumbency>()
+            string governmentIncumbencyMnisId = deserializedSource.OfType<MnisGovernmentIncumbency>()
                 .SingleOrDefault()
                 .GovernmentIncumbencyMnisId;
             return new Dictionary<string, INode>()
@@ -65,11 +65,11 @@ namespace Functions.TransformationGovernmentIncumbencyMnis
             };
         }
 
-        public override IResource[] SynchronizeIds(IResource[] source, Uri subjectUri, IResource[] target)
+        public override BaseResource[] SynchronizeIds(BaseResource[] source, Uri subjectUri, BaseResource[] target)
         {
-            foreach (IIncumbency incumbency in source.OfType<IIncumbency>())
+            foreach (BaseResource incumbency in source)
                 incumbency.Id = subjectUri;
-            return source.OfType<IIncumbency>().ToArray();
+            return source;
         }
 
     }

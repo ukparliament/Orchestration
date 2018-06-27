@@ -127,6 +127,8 @@ namespace Functions.TransformationEPetition
                     if (foundLocatedSignatureCount.SignatureCount.SingleOrDefault() == signature.SignatureCount.SingleOrDefault())
                         foundLocatedSignatureCount.SignatureCountRetrievedAt = signature.SignatureCountRetrievedAt;
                 }
+                else
+                    foundLocatedSignatureCount.Id = GenerateNewId();
             }
 
             return ePetitionApprovals.AsEnumerable<BaseResource>().Concat(ePetitionRejections).Concat(ePetition.AsEnumerable()).ToArray();
@@ -233,7 +235,6 @@ namespace Functions.TransformationEPetition
             foreach (Signatures_By_Country country in signaturesByCountry)
             {
                 LocatedSignatureCount locatedSignatureCount = new LocatedSignatureCount();
-                locatedSignatureCount.Id = GenerateNewId();
                 locatedSignatureCount.SignatureCount = DeserializerHelper.GiveMeSingleIntegerValue(country.signature_count);
                 locatedSignatureCount.SignatureCountRetrievedAt = DeserializerHelper.GiveMeSingleDateValue(petitionRetrievalTimestamp);
                 Place place = null;
@@ -266,7 +267,6 @@ namespace Functions.TransformationEPetition
             foreach (Signatures_By_Constituency constituency in signaturesByConstituency)
             {
                 LocatedSignatureCount locatedSignatureCount = new LocatedSignatureCount();
-                locatedSignatureCount.Id = GenerateNewId();
                 locatedSignatureCount.SignatureCount = DeserializerHelper.GiveMeSingleIntegerValue(constituency.signature_count);
                 locatedSignatureCount.SignatureCountRetrievedAt = DeserializerHelper.GiveMeSingleDateValue(petitionRetrievalTimestamp);
                 if (constituencies.ContainsKey(constituency.ons_code))

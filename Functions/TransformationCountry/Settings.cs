@@ -51,7 +51,7 @@
             }
         }
 
-        public string FullDataUrlParameterizedString(string dataUrl)
+        public string ParameterizedString(string dataUrl)
         {
             return $"https://country.register.gov.uk/record/{dataUrl}";
         }

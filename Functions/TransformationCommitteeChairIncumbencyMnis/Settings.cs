@@ -49,7 +49,7 @@
             }
         }
 
-        public string FullDataUrlParameterizedString(string dataUrl)
+        public string ParameterizedString(string dataUrl)
         {
             return $"{dataUrl}?$select=MemberCommitteeChair_Id,StartDate,EndDate,MemberCommittee/Member_Id,MemberCommittee/Committee_Id&$expand=MemberCommittee";
         }

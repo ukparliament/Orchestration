@@ -49,7 +49,7 @@
             }
         }
 
-        public string FullDataUrlParameterizedString(string dataUrl)
+        public string ParameterizedString(string dataUrl)
         {
             return $"{dataUrl}?$select=MemberParty_Id,Party_Id,StartDate,EndDate,Member_Id";
         }

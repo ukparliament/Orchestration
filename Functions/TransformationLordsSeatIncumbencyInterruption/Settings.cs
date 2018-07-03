@@ -40,7 +40,7 @@ namespace Functions.TransformationLordsSeatIncumbencyInterruption
             }
         }
 
-        public string FullDataUrlParameterizedString(string dataUrl)
+        public string ParameterizedString(string dataUrl)
         {
             return System.Environment.GetEnvironmentVariable("CUSTOMCONNSTR_SharepointItem", EnvironmentVariableTarget.Process).Replace("{listId}", "1447ca1f-249d-4491-b9a0-9225b5cd505a").Replace("{id}", dataUrl);
         }

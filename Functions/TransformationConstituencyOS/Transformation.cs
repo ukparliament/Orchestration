@@ -1,26 +1,18 @@
 ﻿using Functions.TransformationConstituencyOS.EastingNorthingConversion;
-using Parliament.Rdf.Serialization;
 using Parliament.Model;
+using Parliament.Rdf.Serialization;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Xml.Linq;
-using System.Xml.Serialization;
 using VDS.RDF;
 
 namespace Functions.TransformationConstituencyOS
 {
-    public class Transformation : BaseTransformation<Settings>
+    public class Transformation : BaseTransformationXmlMappingModel<Settings, RDF>
     {
-        public override BaseResource[] TransformSource(string response)
+        public override BaseResource[] TransformSource(RDF sourceConstituency)
         {
-            RDF sourceConstituency = new RDF();
-            using (StringReader reader = new StringReader(response))
-            {
-                XmlSerializer serializer = new XmlSerializer(typeof(RDF));
-                sourceConstituency = (RDF)serializer.Deserialize(reader);
-            }
             OnsConstituencyGroup constituency = new OnsConstituencyGroup();
             if ((sourceConstituency != null) && (sourceConstituency.Description != null))
             {

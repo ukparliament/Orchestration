@@ -65,7 +65,7 @@ namespace Functions.TransformationConstituencyOS
             }
         }
 
-        public string FullDataUrlParameterizedString(string dataUrl)
+        public string ParameterizedString(string dataUrl)
         {
             string osSparqlCommand = @"
                 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>

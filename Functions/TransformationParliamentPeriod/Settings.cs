@@ -48,7 +48,7 @@ namespace Functions.TransformationParliamentPeriod
             }
         }
 
-        public string FullDataUrlParameterizedString(string dataUrl)
+        public string ParameterizedString(string dataUrl)
         {
             return System.Environment.GetEnvironmentVariable("CUSTOMCONNSTR_SharepointItem", EnvironmentVariableTarget.Process).Replace("{listId}", "FFCFA882-EE6D-4467-B146-68CD62924256").Replace("{id}", dataUrl);
         }

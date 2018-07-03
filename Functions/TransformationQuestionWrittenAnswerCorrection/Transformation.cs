@@ -9,7 +9,7 @@ using VDS.RDF.Query;
 
 namespace Functions.TransformationQuestionWrittenAnswerCorrection
 {
-    public class Transformation : BaseTransformation<Settings>
+    public class Transformation : BaseTransformationXml<Settings,XDocument>
     {
         private string questionUriText;
         public XElement FindXElementByAttributeName(List<XElement> elements, string nameValue, string valueElementName)
@@ -62,9 +62,8 @@ namespace Functions.TransformationQuestionWrittenAnswerCorrection
             return result;
         }
 
-        public override BaseResource[] TransformSource(string response)
+        public override BaseResource[] TransformSource(XDocument doc)
         {
-            XDocument doc = XDocument.Parse(response);
             var questionElements = doc?.Element("response")?.Element("result")?.Element("doc")?.Elements("arr")?.ToList();
 
             if (questionElements == null)

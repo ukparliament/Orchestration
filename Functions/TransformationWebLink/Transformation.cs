@@ -1,20 +1,17 @@
-﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using Parliament.Rdf.Serialization;
+﻿using Newtonsoft.Json.Linq;
 using Parliament.Model;
+using Parliament.Rdf.Serialization;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace Functions.TransformationWebLink
 {
-    public class Transformation : BaseTransformation<Settings>
+    public class Transformation : BaseTransformationJson<Settings, JObject>
     {
-        public override BaseResource[] TransformSource(string response)
+        public override BaseResource[] TransformSource(JObject jsonResponse)
         {
             PersonWebLink personWebLink = new PersonWebLink();
-            JObject jsonResponse = (JObject)JsonConvert.DeserializeObject(response);
-
             string url = ((JValue)jsonResponse.SelectToken("URL")).GetText();
             if (string.IsNullOrWhiteSpace(url))
             {
@@ -65,7 +62,7 @@ namespace Functions.TransformationWebLink
         {
             return deserializedSource.OfType<PersonWebLink>()
                 .SingleOrDefault()
-                .Id;            
+                .Id;
         }
 
         public override BaseResource[] SynchronizeIds(BaseResource[] source, Uri subjectUri, BaseResource[] target)

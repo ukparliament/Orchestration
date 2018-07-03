@@ -8,13 +8,9 @@ using VDS.RDF;
 
 namespace Functions
 {
-    public class BaseTransformationContactPoint<T> : BaseTransformation<T>
+    public class BaseTransformationContactPoint<T,K> : BaseTransformationXml<T,XDocument>
         where T : ITransformationSettings, new()
     {
-        protected XNamespace atom = "http://www.w3.org/2005/Atom";
-        protected XNamespace d = "http://schemas.microsoft.com/ado/2007/08/dataservices";
-        protected XNamespace m = "http://schemas.microsoft.com/ado/2007/08/dataservices/metadata";
-
         public override BaseResource[] SynchronizeIds(BaseResource[] source, Uri subjectUri, BaseResource[] target)
         {
             MnisContactPoint contactPoint = source.OfType<MnisContactPoint>().SingleOrDefault();

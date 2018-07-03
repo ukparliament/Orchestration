@@ -48,7 +48,7 @@
             }
         }
 
-        public string FullDataUrlParameterizedString(string dataUrl)
+        public string ParameterizedString(string dataUrl)
         {
             return $"https://territory.register.gov.uk/record/{dataUrl}";
         }

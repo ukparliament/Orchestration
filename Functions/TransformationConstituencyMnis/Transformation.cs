@@ -8,16 +8,11 @@ using VDS.RDF;
 
 namespace Functions.TransformationConstituencyMnis
 {
-    public class Transformation : BaseTransformation<Settings>
+    public class Transformation : BaseTransformationXml<Settings, XDocument>
     {
-        protected XNamespace atom = "http://www.w3.org/2005/Atom";
-        protected XNamespace d = "http://schemas.microsoft.com/ado/2007/08/dataservices";
-        protected XNamespace m = "http://schemas.microsoft.com/ado/2007/08/dataservices/metadata";
-
-        public override BaseResource[] TransformSource(string response)
+        public override BaseResource[] TransformSource(XDocument doc)
         {
             MnisConstituencyGroup mnisConstituency = new MnisConstituencyGroup();
-            XDocument doc = XDocument.Parse(response);
             XElement constituencyElement = doc.Element(atom + "entry")
                 .Element(atom + "content")
                 .Element(m + "properties");

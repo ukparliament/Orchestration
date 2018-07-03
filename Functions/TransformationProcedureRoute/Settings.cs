@@ -60,9 +60,15 @@ namespace Functions.TransformationProcedureRoute
             }
         }
 
-        public string FullDataUrlParameterizedString(string dataUrl)
+        public string ParameterizedString(string dataUrl)
         {
-            return System.Environment.GetEnvironmentVariable("CUSTOMCONNSTR_SharepointItem", EnvironmentVariableTarget.Process).Replace("{listId}", "0c651f3a-630a-4ca6-b8c6-3a85f381b41d").Replace("{id}", dataUrl);
+            return $@"select r.TripleStoreId, p.TripleStoreId as [Procedure], t.ProcedureRouteTypeName,
+                    fs.TripleStoreId as FromStep, ts.TripleStoreId as ToStep, r.IsDeleted from ProcedureRoute r
+                join [Procedure] p on p.Id=r.ProcedureId
+                join ProcedureRouteType t on t.Id=r.ProcedureRouteTypeId
+                join ProcedureStep fs on fs.Id=r.FromProcedureStepId
+                join ProcedureStep ts on ts.Id=r.ToProcedureStepId
+                where r.Id={dataUrl};";
         }
     }
 }

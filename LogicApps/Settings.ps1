@@ -47,6 +47,7 @@ Enum SourceType
 	External = 3
 	GovernmentRegister = 4
 	Custom = 5
+	Sql = 6
 }
 
 $logicAppVariable=@(
@@ -556,13 +557,13 @@ $logicAppVariable=@(
     }
 	New-Object -TypeName PSObject -Property @{
         "name"="procedure";
-		"sourceKind"=[SourceType]::Sharepoint;
-        "listUri"="adad783c-971c-4bb3-a07b-28a5068cc1e0";
+		"sourceKind"=[SourceType]::Sql;
+        "listUri"="[dbo].[Procedure]";
         "listAcceptHeader"="";
         "foreachObject"="@json('')";
         "idObject"="@json('')";
         "frequency"="hour";
-        "interval"=24;
+        "interval"=1;
         "triggerTime"="20:30";
         "queueReadBatchSize"=50;
 		"queueReadInterval"=1;
@@ -570,13 +571,13 @@ $logicAppVariable=@(
     }
 	New-Object -TypeName PSObject -Property @{
         "name"="procedurestep";
-		"sourceKind"=[SourceType]::Sharepoint;
-        "listUri"="c53aee5a-5dcc-4321-a60a-1432dc7b7bae";
+		"sourceKind"=[SourceType]::Sql;
+        "listUri"="[dbo].[ProcedureStep]";
         "listAcceptHeader"="";
         "foreachObject"="@json('')";
         "idObject"="@json('')";
         "frequency"="hour";
-        "interval"=24;
+        "interval"=1;
         "triggerTime"="20:31";
         "queueReadBatchSize"=50;
 		"queueReadInterval"=1;
@@ -584,13 +585,13 @@ $logicAppVariable=@(
     }
 	New-Object -TypeName PSObject -Property @{
         "name"="procedureroute";
-		"sourceKind"=[SourceType]::Sharepoint;
-        "listUri"="0c651f3a-630a-4ca6-b8c6-3a85f381b41d";
+		"sourceKind"=[SourceType]::Sql;
+        "listUri"="[dbo].[ProcedureRoute]";
         "listAcceptHeader"="";
         "foreachObject"="@json('')";
         "idObject"="@json('')";
         "frequency"="hour";
-        "interval"=24;
+        "interval"=1;
         "triggerTime"="20:34";
         "queueReadBatchSize"=50;
 		"queueReadInterval"=1;
@@ -598,13 +599,13 @@ $logicAppVariable=@(
     }
 	New-Object -TypeName PSObject -Property @{
         "name"="procedureworkpackage";
-		"sourceKind"=[SourceType]::Sharepoint;
-        "listUri"="25101afd-6e12-4e13-b981-e3b2a12f112e";
+		"sourceKind"=[SourceType]::Sql;
+        "listUri"="[dbo].[ProcedureWorkPackageableThing]";
         "listAcceptHeader"="";
         "foreachObject"="@json('')";
         "idObject"="@json('')";
         "frequency"="hour";
-        "interval"=24;
+        "interval"=1;
         "triggerTime"="20:36";
         "queueReadBatchSize"=50;
 		"queueReadInterval"=1;
@@ -612,13 +613,13 @@ $logicAppVariable=@(
     }
 	New-Object -TypeName PSObject -Property @{
         "name"="procedureworkpackageablething";
-		"sourceKind"=[SourceType]::Sharepoint;
-        "listUri"="25101afd-6e12-4e13-b981-e3b2a12f112e";
+		"sourceKind"=[SourceType]::Sql;
+        "listUri"="[dbo].[ProcedureWorkPackageableThing]";
         "listAcceptHeader"="";
         "foreachObject"="@json('')";
         "idObject"="@json('')";
         "frequency"="hour";
-        "interval"=24;
+        "interval"=1;
         "triggerTime"="20:38";
         "queueReadBatchSize"=50;
 		"queueReadInterval"=1;
@@ -626,13 +627,13 @@ $logicAppVariable=@(
     }
 	New-Object -TypeName PSObject -Property @{
         "name"="procedureworkpackageablepreceding";
-		"sourceKind"=[SourceType]::Sharepoint;
-        "listUri"="24a1a168-c956-4da5-a7e7-aaf8ed54b38c";
+		"sourceKind"=[SourceType]::Sql;
+        "listUri"="[dbo].[ProcedureWorkPackageableThingPreceding]";
         "listAcceptHeader"="";
         "foreachObject"="@json('')";
         "idObject"="@json('')";
         "frequency"="hour";
-        "interval"=24;
+        "interval"=1;
         "triggerTime"="20:46";
         "queueReadBatchSize"=50;
 		"queueReadInterval"=1;
@@ -640,13 +641,13 @@ $logicAppVariable=@(
     }
 	New-Object -TypeName PSObject -Property @{
         "name"="procedurebusinessitem";
-		"sourceKind"=[SourceType]::Sharepoint;
-        "listUri"="d4c67a7c-6254-4b18-a936-4155536811e5";
+		"sourceKind"=[SourceType]::Sql;
+        "listUri"="[dbo].[ProcedureBusinessItem]";
         "listAcceptHeader"="";
         "foreachObject"="@json('')";
         "idObject"="@json('')";
         "frequency"="hour";
-        "interval"=24;
+        "interval"=1;
         "triggerTime"="20:47";
         "queueReadBatchSize"=50;
 		"queueReadInterval"=1;

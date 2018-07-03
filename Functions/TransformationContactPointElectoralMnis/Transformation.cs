@@ -6,12 +6,11 @@ using VDS.RDF.Query;
 
 namespace Functions.TransformationContactPointElectoralMnis
 {
-    public class Transformation : BaseTransformationContactPoint<Settings>
+    public class Transformation : BaseTransformationContactPoint<Settings,XDocument>
     {
-        public override BaseResource[] TransformSource(string response)
+        public override BaseResource[] TransformSource(XDocument doc)
         {
             MnisContactPoint contactPoint = new MnisContactPoint();
-            XDocument doc = XDocument.Parse(response);
             XElement contactPointElement = doc.Element(atom + "entry")
                 .Element(atom + "content")
                 .Element(m + "properties");

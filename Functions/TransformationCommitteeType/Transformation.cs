@@ -1,20 +1,16 @@
-﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using Parliament.Rdf.Serialization;
+﻿using Newtonsoft.Json.Linq;
 using Parliament.Model;
+using Parliament.Rdf.Serialization;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace Functions.TransformationCommitteeType
 {
-    public class Transformation : BaseTransformation<Settings>
+    public class Transformation : BaseTransformationJson<Settings, JObject>
     {
-        public override BaseResource[] TransformSource(string response)
+        public override BaseResource[] TransformSource(JObject jsonResponse)
         {
             FormalBodyType formalBodyType = new FormalBodyType();
-            JObject jsonResponse = (JObject)JsonConvert.DeserializeObject(response);
-
             string id = ((JValue)jsonResponse.SelectToken("TripleStoreId")).GetText();
             if (string.IsNullOrWhiteSpace(id))
             {
@@ -31,7 +27,7 @@ namespace Functions.TransformationCommitteeType
                     return null;
                 }
             }
-            formalBodyType.FormalBodyTypeName= ((JValue)jsonResponse.SelectToken("Title")).GetText();
+            formalBodyType.FormalBodyTypeName = ((JValue)jsonResponse.SelectToken("Title")).GetText();
 
             return new BaseResource[] { formalBodyType };
         }
@@ -40,7 +36,7 @@ namespace Functions.TransformationCommitteeType
         {
             return deserializedSource.OfType<FormalBodyType>()
                 .SingleOrDefault()
-                .Id;            
+                .Id;
         }
 
         public override BaseResource[] SynchronizeIds(BaseResource[] source, Uri subjectUri, BaseResource[] target)

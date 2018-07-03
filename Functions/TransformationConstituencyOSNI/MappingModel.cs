@@ -1,7 +1,7 @@
 ﻿namespace Functions.TransformationConstituencyOSNI
 {
 
-    public class Rootobject
+    public class Rootobject : BaseMappingModel
     {
         public string displayFieldName { get; set; }
         public Fieldaliases fieldAliases { get; set; }

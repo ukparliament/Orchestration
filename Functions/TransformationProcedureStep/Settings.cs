@@ -41,9 +41,14 @@ namespace Functions.TransformationProcedureStep
             }
         }
 
-        public string FullDataUrlParameterizedString(string dataUrl)
+        public string ParameterizedString(string dataUrl)
         {
-            return System.Environment.GetEnvironmentVariable("CUSTOMCONNSTR_SharepointItem", EnvironmentVariableTarget.Process).Replace("{listId}", "c53aee5a-5dcc-4321-a60a-1432dc7b7bae").Replace("{id}", dataUrl);
+            return $@"select s.TripleStoreId, s.ProcedureStepName, 
+                    s.ProcedureStepDescription, s.IsDeleted from ProcedureStep s
+                where s.Id={dataUrl};
+                select h.TripleStoreId as House from ProcedureStepHouse s
+                join House h on h.Id=s.HouseId
+                where s.ProcedureStepId={dataUrl}";
         }
     }
 }

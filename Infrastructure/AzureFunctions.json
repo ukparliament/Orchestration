@@ -165,6 +165,10 @@
             "SharepointItem": {
               "value": "",
               "type": "Custom"
+            },
+            "InterimSqlServer": {
+              "value": "",
+              "type": "Custom"
             }
           }
         }

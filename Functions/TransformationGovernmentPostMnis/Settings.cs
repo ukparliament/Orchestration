@@ -45,7 +45,7 @@
             }
         }
 
-        public string FullDataUrlParameterizedString(string dataUrl)
+        public string ParameterizedString(string dataUrl)
         {
             return $"{dataUrl}?$select=GovernmentPost_Id,Name,GovernmentPostDepartments/Department_Id&$expand=GovernmentPostDepartments";
         }

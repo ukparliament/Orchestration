@@ -63,7 +63,7 @@
             }
         }
 
-        public string FullDataUrlParameterizedString(string dataUri)
+        public string ParameterizedString(string dataUri)
         {
             return $"http://13.93.40.140:8983/solr/select?indent=on&version=2.2&q=uri%3A%22{dataUri}%22&fq=&start=0&rows=10&fl=correctedItem_uri%2CcorrectedItem_t%2CansweringDept_ses%2CcorrectingMember_ses%2Ccontent_t%2Cdate_dt%2CleadMember_ses%2Curi&qt=&wt=&explainOther=&hl.fl=";
         }

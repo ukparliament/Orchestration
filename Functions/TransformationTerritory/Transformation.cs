@@ -1,7 +1,6 @@
-﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using Parliament.Rdf.Serialization;
+﻿using Newtonsoft.Json.Linq;
 using Parliament.Model;
+using Parliament.Rdf.Serialization;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,14 +8,12 @@ using VDS.RDF;
 
 namespace Functions.TransformationTerritory
 {
-    public class Transformation : BaseTransformation<Settings>
+    public class Transformation : BaseTransformationJson<Settings, JObject>
     {
 
-        public override BaseResource[] TransformSource(string response)
+        public override BaseResource[] TransformSource(JObject jsonResponse)
         {
             GovRegisterTerritory territory = new GovRegisterTerritory();
-            JObject jsonResponse = (JObject)JsonConvert.DeserializeObject(response);
-
             JValue jValue = (JValue)jsonResponse.First.First.SelectToken("key");
             territory.TerritoryGovRegisterId = jValue.GetText();
             jValue = (JValue)jsonResponse.First.First.SelectToken("item[0].name");

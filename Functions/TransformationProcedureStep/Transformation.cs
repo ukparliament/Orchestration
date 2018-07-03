@@ -1,52 +1,42 @@
-﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using Parliament.Model;
+﻿using Parliament.Model;
 using Parliament.Rdf.Serialization;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 
 namespace Functions.TransformationProcedureStep
 {
-    public class Transformation : BaseTransformation<Settings>
+    public class Transformation : BaseTransformationSqlServer<Settings, DataSet>
     {
-        private Uri houseUri;
-
-        public override BaseResource[] TransformSource(string response)
+        public override BaseResource[] TransformSource(DataSet dataset)
         {
             ProcedureStep procedureStep = new ProcedureStep();
-            JObject jsonResponse = (JObject)JsonConvert.DeserializeObject(response);
+            DataRow stepRow = dataset.Tables[0].Rows[0];
 
-            string id = ((JValue)jsonResponse.SelectToken("TripleStoreId")).GetText();
-            if (string.IsNullOrWhiteSpace(id))
-            {
-                logger.Warning("No Id info found");
+            Uri idUri = GiveMeUri(GetText(stepRow["TripleStoreId"]));
+            if (idUri == null)
                 return null;
-            }
             else
-            {
-                if (Uri.TryCreate($"{idNamespace}{id}", UriKind.Absolute, out Uri idUri))
-                    procedureStep.Id = idUri;
-                else
+                procedureStep.Id = idUri;
+            if (Convert.ToBoolean(stepRow["IsDeleted"]))
+                return new BaseResource[] { procedureStep };
+
+            procedureStep.ProcedureStepName = GetText(stepRow["ProcedureStepName"]);
+            procedureStep.ProcedureStepDescription = GetText(stepRow["ProcedureStepDescription"]);
+            List<House> houses = new List<House>();
+            if ((dataset.Tables.Count == 2) && (dataset.Tables[1].Rows != null))
+                foreach (DataRow row in dataset.Tables[1].Rows)
                 {
-                    logger.Warning($"Invalid url '{id}' found");
-                    return null;
+                    Uri houseUri = GiveMeUri(GetText(row["House"]));
+                    if (houseUri == null)
+                        continue;
+                    else
+                        houses.Add(new House()
+                        {
+                            Id = houseUri
+                        });
                 }
-            }
-            procedureStep.ProcedureStepName = ((JValue)jsonResponse.SelectToken("Title")).GetText();
-            procedureStep.ProcedureStepDescription = ((JValue)jsonResponse.SelectToken("Description")).GetText();
-            List<House> houses= new List<House>();
-            foreach (JObject house in (JArray)jsonResponse.SelectToken("House_x003a_TripleStoreId"))
-            {
-                string houseId = house["Value"].ToString();
-                if (string.IsNullOrWhiteSpace(houseId))
-                    continue;
-                if (Uri.TryCreate($"{idNamespace}{houseId}", UriKind.Absolute, out houseUri))
-                    houses.Add(new House()
-                    {
-                        Id = houseUri
-                    });
-            }
             procedureStep.ProcedureStepHasHouse = houses;
             return new BaseResource[] { procedureStep };
         }
@@ -62,5 +52,6 @@ namespace Functions.TransformationProcedureStep
         {
             return source;
         }
+
     }
 }

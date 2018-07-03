@@ -1,37 +1,28 @@
-﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using Parliament.Model;
+﻿using Parliament.Model;
 using Parliament.Rdf.Serialization;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 
 namespace Functions.TransformationProcedureRoute
 {
-    public class Transformation : BaseTransformation<Settings>
+    public class Transformation : BaseTransformationSqlServer<Settings, DataSet>
     {
-        public override BaseResource[] TransformSource(string response)
+        public override BaseResource[] TransformSource(DataSet dataset)
         {
             ProcedureRoute procedureRoute = new ProcedureRoute();
-            JObject jsonResponse = (JObject)JsonConvert.DeserializeObject(response);
+            DataRow row = dataset.Tables[0].Rows[0];
 
-            string id = ((JValue)jsonResponse.SelectToken("TripleStoreId")).GetText();
-            if (string.IsNullOrWhiteSpace(id))
-            {
-                logger.Warning("No Id info found");
+            Uri idUri = GiveMeUri(GetText(row["TripleStoreId"]));
+            if (idUri == null)
                 return null;
-            }
             else
-            {
-                if (Uri.TryCreate($"{idNamespace}{id}", UriKind.Absolute, out Uri idUri))
-                    procedureRoute.Id = idUri;
-                else
-                {
-                    logger.Warning($"Invalid url '{id}' found");
-                    return null;
-                }
-            }
-            string routeType = ((JValue)((JObject)jsonResponse.SelectToken("RouteType"))?.SelectToken("Value"))?.Value?.ToString();
+                procedureRoute.Id = idUri;
+            if (Convert.ToBoolean(row["IsDeleted"]))
+                return new BaseResource[] { procedureRoute };
+
+            string routeType = GetText(row["ProcedureRouteTypeName"]);
             if (string.IsNullOrWhiteSpace(routeType))
                 return null;
 
@@ -41,18 +32,18 @@ namespace Functions.TransformationProcedureRoute
                 return null;
             }
 
-            Uri procedureUri = giveMeUri(jsonResponse, "Procedure_x003a_TripleStoreId");
+            Uri procedureUri = GiveMeUri(GetText(row["Procedure"]));
             if (procedureUri != null)
                 procedureRoute.ProcedureRouteHasProcedure = new List<Procedure>()
                 {
                     new Procedure()
                     {
-                        Id=procedureUri                        
+                        Id=procedureUri
                     }
                 };
             else
                 return null;
-            Uri fromStepUri = giveMeUri(jsonResponse, "FromStep_x003a_TripleStoreId");
+            Uri fromStepUri = GiveMeUri(GetText(row["FromStep"]));
             if (fromStepUri != null)
             {
                 ProcedureStep fromProcedureStep = new ProcedureStep();
@@ -103,7 +94,7 @@ namespace Functions.TransformationProcedureRoute
             }
             else
                 return null;
-            Uri toStepUri = giveMeUri(jsonResponse, "ToStep_x003a_TripleStoreId");
+            Uri toStepUri = GiveMeUri(GetText(row["ToStep"]));
             if (toStepUri != null)
                 procedureRoute.ProcedureRouteIsToProcedureStep = new List<ProcedureStep>()
                 {
@@ -129,25 +120,6 @@ namespace Functions.TransformationProcedureRoute
         {
             return source;
         }
-
-        private Uri giveMeUri(JObject jsonResponse, string tokenName)
-        {
-            string id = ((JValue)jsonResponse.SelectToken($"{tokenName}.Value")).GetText();
-            if (string.IsNullOrWhiteSpace(id))
-            {
-                logger.Warning($"No {tokenName} Id info found");
-                return null;
-            }
-            else
-            {
-                if (Uri.TryCreate($"{idNamespace}{id}", UriKind.Absolute, out Uri uri))
-                    return uri;
-                else
-                {
-                    logger.Warning($"Invalid url '{id}' found");
-                    return null;
-                }
-            }
-        }
+        
     }
 }

@@ -37,9 +37,12 @@ namespace Functions.TransformationProcedureWorkPackageablePreceding
             }
         }
 
-        public string FullDataUrlParameterizedString(string dataUrl)
+        public string ParameterizedString(string dataUrl)
         {
-            return System.Environment.GetEnvironmentVariable("CUSTOMCONNSTR_SharepointItem", EnvironmentVariableTarget.Process).Replace("{listId}", "24a1a168-c956-4da5-a7e7-aaf8ed54b38c").Replace("{id}", dataUrl);
+            return $@"select pwpt.TripleStoreId as PrecedingWorkPackageable, fwpt.TripleStoreId as FollowingWorkPackageable, wptp.IsDeleted from ProcedureWorkPackageableThingPreceding wptp
+                join ProcedureWorkPackageableThing pwpt on pwpt.Id=wptp.PrecedingProcedureWorkPackageableThingId
+                join ProcedureWorkPackageableThing fwpt on fwpt.Id=wptp.FollowingProcedureWorkPackageableThingId
+                where wptp.Id={dataUrl}";
         }
     }
 }

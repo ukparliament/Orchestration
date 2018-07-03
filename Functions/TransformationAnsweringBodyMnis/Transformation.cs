@@ -9,18 +9,15 @@ using VDS.RDF.Query;
 
 namespace Functions.TransformationAnsweringBodyMnis
 {
-    public class Transformation : BaseTransformation<Settings>
+    public class Transformation : BaseTransformationXml<Settings, XDocument>
     {
-        public override BaseResource[] TransformSource(string response)
+        public override BaseResource[] TransformSource(XDocument doc)
         {
             MnisAnsweringBody answeringBody = new MnisAnsweringBody();
-            XDocument doc = XDocument.Parse(response);
-            XNamespace d = "http://schemas.microsoft.com/ado/2007/08/dataservices";
-            XNamespace m = "http://schemas.microsoft.com/ado/2007/08/dataservices/metadata";
             XElement element = doc.Descendants(m + "properties").SingleOrDefault();
 
             answeringBody.AnsweringBodyMnisId = element.Element(d + "AnsweringBody_Id").GetText();
-            
+
             string GroupHasNameSparqlCommand = @"                
                 construct {
                     ?answeringBody parl:groupName ?name.
@@ -35,7 +32,7 @@ namespace Functions.TransformationAnsweringBodyMnis
             sparql.SetLiteral("id", answeringBody.AnsweringBodyMnisId);
             sparql.Namespaces.AddNamespace("parl", new Uri(schemaNamespace));
 
-            var groupNameGraph = GraphRetrieval.GetGraph(sparql.ToString(),logger);
+            var groupNameGraph = GraphRetrieval.GetGraph(sparql.ToString(), logger);
             bool groupHasNoName = groupNameGraph.IsEmpty;
 
             if (groupHasNoName == true)

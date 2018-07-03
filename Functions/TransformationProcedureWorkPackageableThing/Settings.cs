@@ -51,9 +51,12 @@ namespace Functions.TransformationProcedureWorkPackageableThing
             }
         }
 
-        public string FullDataUrlParameterizedString(string dataUrl)
+        public string ParameterizedString(string dataUrl)
         {
-            return System.Environment.GetEnvironmentVariable("CUSTOMCONNSTR_SharepointItem", EnvironmentVariableTarget.Process).Replace("{listId}", "25101afd-6e12-4e13-b981-e3b2a12f112e").Replace("{id}", dataUrl);
+            return $@"select wpt.TripleStoreId, wpt.ProcedureWorkPackageableThingName, wpt.StatutoryInstrumentNumber,
+                    wpt.StatutoryInstrumentNumberPrefix, wpt.StatutoryInstrumentNumberYear, wpt.ComingIntoForceDate,
+                    wpt.ComingIntoForceNote, wpt.TimeLimitForObjectionEndDate, wpt.WebLink, wpt.IsDeleted from ProcedureWorkPackageableThing wpt
+                where wpt.Id={dataUrl}";
         }
     }
 }

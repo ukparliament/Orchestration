@@ -1,7 +1,6 @@
-﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using Parliament.Rdf.Serialization;
+﻿using Newtonsoft.Json.Linq;
 using Parliament.Model;
+using Parliament.Rdf.Serialization;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,13 +8,11 @@ using VDS.RDF;
 
 namespace Functions.TransformationContactPointHouse
 {
-    public class Transformation : BaseTransformation<Settings>
+    public class Transformation : BaseTransformationJson<Settings, JObject>
     {
-        public override BaseResource[] TransformSource(string response)
+        public override BaseResource[] TransformSource(JObject jsonResponse)
         {
             ContactPoint contactPoint = new ContactPoint();
-            JObject jsonResponse = (JObject)JsonConvert.DeserializeObject(response);
-            
             string id = ((JValue)jsonResponse.SelectToken("TripleStoreID")).GetText();
             Uri uri = null;
             if (string.IsNullOrWhiteSpace(id))
@@ -49,7 +46,7 @@ namespace Functions.TransformationContactPointHouse
                 AddressLine5 = ((JValue)jsonResponse.SelectToken("line5")).GetText(),
                 PostCode = ((JValue)jsonResponse.SelectToken("postCode")).GetText(),
             };
-            
+
             return new BaseResource[] { contactPoint };
         }
 

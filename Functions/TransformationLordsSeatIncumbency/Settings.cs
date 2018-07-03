@@ -46,7 +46,7 @@ namespace Functions.TransformationLordsSeatIncumbency
             }
         }
 
-        public string FullDataUrlParameterizedString(string dataUrl)
+        public string ParameterizedString(string dataUrl)
         {
             return System.Environment.GetEnvironmentVariable("CUSTOMCONNSTR_SharepointItem", EnvironmentVariableTarget.Process).Replace("{listId}", "a9c47d77-9ccb-44cc-bc90-c3d07ea8aa0e").Replace("{id}", dataUrl);
         }

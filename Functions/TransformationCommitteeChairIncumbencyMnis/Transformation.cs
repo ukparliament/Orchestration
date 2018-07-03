@@ -9,16 +9,11 @@ using VDS.RDF.Query;
 
 namespace Functions.TransformationCommitteeChairIncumbencyMnis
 {
-    public class Transformation : BaseTransformation<Settings>
+    public class Transformation : BaseTransformationXml<Settings, XDocument>
     {
-        XNamespace atom = "http://www.w3.org/2005/Atom";
-        XNamespace d = "http://schemas.microsoft.com/ado/2007/08/dataservices";
-        XNamespace m = "http://schemas.microsoft.com/ado/2007/08/dataservices/metadata";
-
-        public override BaseResource[] TransformSource(string response)
+        public override BaseResource[] TransformSource(XDocument doc)
         {
             MnisFormalBodyChairIncumbency mnisIncumbency = new MnisFormalBodyChairIncumbency();
-            XDocument doc = XDocument.Parse(response);
             XElement element = doc.Descendants(d + "MemberCommitteeChair_Id").SingleOrDefault();
             if ((element == null) || (element.Parent == null))
                 return null;

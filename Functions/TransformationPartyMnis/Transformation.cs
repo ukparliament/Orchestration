@@ -8,14 +8,11 @@ using VDS.RDF;
 
 namespace Functions.TransformationPartyMnis
 {
-    public class Transformation : BaseTransformation<Settings>
+    public class Transformation : BaseTransformationXml<Settings,XDocument>
     {
-        public override BaseResource[] TransformSource(string response)
+        public override BaseResource[] TransformSource(XDocument doc)
         {
             MnisParty party = new MnisParty();
-            XDocument doc = XDocument.Parse(response);
-            XNamespace d = "http://schemas.microsoft.com/ado/2007/08/dataservices";
-            XNamespace m = "http://schemas.microsoft.com/ado/2007/08/dataservices/metadata";
             XElement element = doc.Descendants(m + "properties").SingleOrDefault();
 
             party.PartyMnisId = element.Element(d + "Party_Id").GetText();

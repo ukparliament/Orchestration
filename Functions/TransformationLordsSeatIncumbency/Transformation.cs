@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Parliament.Rdf.Serialization;
 using Parliament.Model;
+using Parliament.Rdf.Serialization;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,13 +9,12 @@ using VDS.RDF.Query;
 
 namespace Functions.TransformationLordsSeatIncumbency
 {
-    public class Transformation : BaseTransformation<Settings>
+    public class Transformation : BaseTransformationJson<Settings, JObject>
     {
-        
-        public override BaseResource[] TransformSource(string response)
+
+        public override BaseResource[] TransformSource(JObject jsonResponse)
         {
             MnisSeatIncumbency mnisSeatIncumbency = new MnisSeatIncumbency();
-            JObject jsonResponse = (JObject)JsonConvert.DeserializeObject(response);
 
             string id = ((JValue)jsonResponse.SelectToken("ID0")).GetText();
             Uri uri = null;
@@ -52,14 +51,14 @@ namespace Functions.TransformationLordsSeatIncumbency
                     Id = personUri
                 };
 
-            float? mnisId=((JValue)jsonResponse.SelectToken("MNIS_x0020_ID")).GetFloat();
+            float? mnisId = ((JValue)jsonResponse.SelectToken("MNIS_x0020_ID")).GetFloat();
             if (mnisId.HasValue)
                 mnisSeatIncumbency.LordsSeatIncumbencyMnisId = Convert.ToInt32(mnisId.Value).ToString();
-            mnisSeatIncumbency.ParliamentaryIncumbencyStartDate= ((JValue)jsonResponse.SelectToken("Start_x0020_Date")).GetDate();
+            mnisSeatIncumbency.ParliamentaryIncumbencyStartDate = ((JValue)jsonResponse.SelectToken("Start_x0020_Date")).GetDate();
 
             PastParliamentaryIncumbency pastIncumbency = new PastParliamentaryIncumbency();
             pastIncumbency.Id = mnisSeatIncumbency.Id;
-            pastIncumbency.ParliamentaryIncumbencyEndDate= ((JValue)jsonResponse.SelectToken("End_x0020_Date")).GetDate();
+            pastIncumbency.ParliamentaryIncumbencyEndDate = ((JValue)jsonResponse.SelectToken("End_x0020_Date")).GetDate();
 
             mnisSeatIncumbency.SeatIncumbencyHasParliamentPeriod = giveMeParliamentPeriods(mnisSeatIncumbency.ParliamentaryIncumbencyStartDate.Value, pastIncumbency.ParliamentaryIncumbencyEndDate);
             if (mnisSeatIncumbency.SeatIncumbencyHasParliamentPeriod == null)
@@ -72,7 +71,7 @@ namespace Functions.TransformationLordsSeatIncumbency
         {
             return deserializedSource.OfType<MnisSeatIncumbency>()
                 .SingleOrDefault()
-                .Id;            
+                .Id;
         }
 
         public override BaseResource[] SynchronizeIds(BaseResource[] source, Uri subjectUri, BaseResource[] target)

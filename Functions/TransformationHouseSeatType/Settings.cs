@@ -40,7 +40,7 @@ namespace Functions.TransformationHouseSeatType
             }
         }
 
-        public string FullDataUrlParameterizedString(string dataUrl)
+        public string ParameterizedString(string dataUrl)
         {
             return System.Environment.GetEnvironmentVariable("CUSTOMCONNSTR_SharepointItem", EnvironmentVariableTarget.Process).Replace("{listId}", "85fe54cd-d26a-43af-88a5-9063f747c4a9").Replace("{id}", dataUrl);
         }

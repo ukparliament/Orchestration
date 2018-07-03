@@ -1,20 +1,19 @@
-﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using Parliament.Model;
+﻿using Parliament.Model;
 using Parliament.Rdf.Serialization;
 using System;
+using System.Data;
 using System.Linq;
 
 namespace Functions.TransformationProcedure
 {
-    public class Transformation : BaseTransformation<Settings>
+    public class Transformation : BaseTransformationSqlServer<Settings, DataSet>
     {
-        public override BaseResource[] TransformSource(string response)
+        public override BaseResource[] TransformSource(DataSet dataset)
         {
             Procedure procedure = new Procedure();
-            JObject jsonResponse = (JObject)JsonConvert.DeserializeObject(response);
+            DataRow row = dataset.Tables[0].Rows[0];
 
-            string id = ((JValue)jsonResponse.SelectToken("TripleStoreId")).GetText();
+            string id = GetText(row["TripleStoreId"]);
             if (string.IsNullOrWhiteSpace(id))
             {
                 logger.Warning("No Id info found");
@@ -30,7 +29,9 @@ namespace Functions.TransformationProcedure
                     return null;
                 }
             }
-            procedure.ProcedureName = ((JValue)jsonResponse.SelectToken("Title")).GetText();
+            if (Convert.ToBoolean(row["IsDeleted"]))
+                return new BaseResource[] { procedure };
+            procedure.ProcedureName = GetText(row["ProcedureName"]);
 
             return new BaseResource[] { procedure };
         }

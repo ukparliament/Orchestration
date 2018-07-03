@@ -13,7 +13,8 @@ using VDS.RDF.Parsing;
 
 namespace Functions
 {
-    public class BaseTransformation<T> where T : ITransformationSettings, new()
+    public class BaseTransformation<T,K> 
+        where T : ITransformationSettings, new()        
     {
         protected Logger logger=new Logger(new Microsoft.Azure.WebJobs.ExecutionContext());
 
@@ -45,7 +46,12 @@ namespace Functions
             return req.CreateResponse();
         }
 
-        public virtual BaseResource[] TransformSource(string response)
+        public virtual K GetSource(string dataUrl, T settings)
+        {
+            throw new NotImplementedException();
+        }
+
+        public virtual BaseResource[] TransformSource(K response)
         {
             throw new NotImplementedException();
         }
@@ -75,7 +81,7 @@ namespace Functions
             throw new NotImplementedException();
         }
 
-        public virtual IGraph AlterNewGraph(IGraph newGraph, Uri id, string response)
+        public virtual IGraph AlterNewGraph(IGraph newGraph, Uri id, K response)
         {
             return newGraph;
         }
@@ -168,8 +174,8 @@ namespace Functions
 
         private async Task<HttpResponseMessage> startProcess(string dataUrl, string callbackUrl, T settings)
         {
-            string response = await DataRetrieval.DataFromUrl(settings.FullDataUrlParameterizedString(dataUrl), settings.AcceptHeader, logger);
-            if (string.IsNullOrWhiteSpace(response))
+            K response = GetSource(dataUrl, settings);
+            if (response==null)
                 return await communicateBack(callbackUrl, "Problem while getting source data");
 
             BaseResource[] deserializedSource;

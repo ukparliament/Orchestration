@@ -77,7 +77,7 @@ namespace Functions.TransformationContactPointElectoralMnis
             }
         }
 
-        public string FullDataUrlParameterizedString(string dataUrl)
+        public string ParameterizedString(string dataUrl)
         {
             return $"{dataUrl}?$select=MemberAddress_Id,Member_Id,Address1,Address2,Address3,Address4,Address5,Postcode,Email,Phone,Fax";
         }

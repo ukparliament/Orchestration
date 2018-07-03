@@ -36,7 +36,7 @@ namespace Functions.TransformationWebLink
             }
         }
 
-        public string FullDataUrlParameterizedString(string dataUrl)
+        public string ParameterizedString(string dataUrl)
         {
             return System.Environment.GetEnvironmentVariable("CUSTOMCONNSTR_SharepointItem", EnvironmentVariableTarget.Process).Replace("{listId}", "7cb6d78b-5f45-49d2-bb77-009f71a83390").Replace("{id}", dataUrl);
         }

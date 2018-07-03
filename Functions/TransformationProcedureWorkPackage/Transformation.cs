@@ -1,27 +1,28 @@
-﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using Parliament.Model;
+﻿using Parliament.Model;
 using Parliament.Rdf.Serialization;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Runtime.Serialization;
 
 namespace Functions.TransformationProcedureWorkPackage
 {
-    public class Transformation : BaseTransformation<Settings>
+    public class Transformation : BaseTransformationSqlServer<Settings,DataSet>
     {
-        public override BaseResource[] TransformSource(string response)
+        public override BaseResource[] TransformSource(DataSet dataset)
         {
             WorkPackage workPackage = new WorkPackage();
-            JObject jsonResponse = (JObject)JsonConvert.DeserializeObject(response);
+            DataRow row = dataset.Tables[0].Rows[0];
 
-            Uri idUri = giveMeUri(jsonResponse, "OData__x0076_dy9");
+            Uri idUri = GiveMeUri(GetText(row["TripleStoreId"]));
             if (idUri == null)
                 return null;
             else
                 workPackage.Id = idUri;
-            Uri procedureUri = giveMeUri(jsonResponse, "SubjectTo_x003a_TripleStoreId.Value");
+            if (Convert.ToBoolean(row["IsDeleted"]))
+                return new BaseResource[] { workPackage };
+            Uri procedureUri = GiveMeUri(GetText(row["Procedure"]));
             if (procedureUri == null)
                 return null;
             else
@@ -29,7 +30,7 @@ namespace Functions.TransformationProcedureWorkPackage
                 {
                     Id = procedureUri
                 };
-            string workPackagableThingType = ((JValue)((JObject)jsonResponse.SelectToken("WorkPackagableThingType"))?.SelectToken("Value"))?.Value?.ToString();
+            string workPackagableThingType = GetText(row["ProcedureWorkPackageableThingTypeName"]);
             Dictionary<string, string> types = typeof(ProcedureWorkPackageableThingType)
                 .GetFields()
                 .Where(f => f.IsLiteral)
@@ -40,7 +41,7 @@ namespace Functions.TransformationProcedureWorkPackage
                 (types.ContainsKey(workPackagableThingType)) &&
                 (Enum.TryParse<ProcedureWorkPackageableThingType>(types[workPackagableThingType], out ProcedureWorkPackageableThingType workPackagableThingKind)))
             {
-                Uri workPackageableUri = giveMeUri(jsonResponse, "WorkPacakageableThingTripleStore");
+                Uri workPackageableUri = GiveMeUri(GetText(row["WorkPackageableThing"]));
                 if (workPackageableUri != null)
                     switch (workPackagableThingKind)
                     {
@@ -68,24 +69,6 @@ namespace Functions.TransformationProcedureWorkPackage
             return source;
         }
 
-        private Uri giveMeUri(JObject jsonResponse, string tokenName)
-        {
-            string id = ((JValue)jsonResponse.SelectToken(tokenName)).GetText();
-            if (string.IsNullOrWhiteSpace(id))
-            {
-                logger.Warning($"No {tokenName} Id info found");
-                return null;
-            }
-            else
-            {
-                if (Uri.TryCreate($"{idNamespace}{id}", UriKind.Absolute, out Uri uri))
-                    return uri;
-                else
-                {
-                    logger.Warning($"Invalid url '{id}' found");
-                    return null;
-                }
-            }
-        }
+        
     }
 }

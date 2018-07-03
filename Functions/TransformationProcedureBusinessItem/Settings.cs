@@ -51,9 +51,18 @@ namespace Functions.TransformationProcedureBusinessItem
             }
         }
 
-        public string FullDataUrlParameterizedString(string dataUrl)
+        public string ParameterizedString(string dataUrl)
         {
-            return System.Environment.GetEnvironmentVariable("CUSTOMCONNSTR_SharepointItem", EnvironmentVariableTarget.Process).Replace("{listId}", "d4c67a7c-6254-4b18-a936-4155536811e5").Replace("{id}", dataUrl);
+            return $@"select bi.TripleStoreId, bi.WebLink, ab.TripleStoreId as AnsweringBody,
+                bi.BusinessItemDate, bi.IsDeleted from ProcedureBusinessItem bi 
+            left join AnsweringBody ab on ab.Id=bi.AnsweringBodyId
+            where bi.Id={dataUrl};
+            select wpt.ProcedureWorkPackageTripleStoreId as WorkPackage, wpt.TripleStoreId as WorkPackageableThing from ProcedureBusinessItemProcedureWorkPackage bi 
+            join ProcedureWorkPackageableThing wpt on wpt.Id=bi.ProcedureWorkPackageId
+            where bi.ProcedureBusinessItemId={dataUrl};
+            select s.TripleStoreId as Step from ProcedureBusinessItemProcedureStep bi 
+            join ProcedureStep s on s.Id=bi.ProcedureStepId
+            where bi.ProcedureBusinessItemId={dataUrl}";
         }
     }
 }

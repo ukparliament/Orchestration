@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+﻿using Newtonsoft.Json.Linq;
 using Parliament.Model;
 using Parliament.Rdf.Serialization;
 using System;
@@ -7,14 +6,12 @@ using System.Linq;
 
 namespace Functions.TransformationParliamentPeriod
 {
-    public class Transformation : BaseTransformation<Settings>
+    public class Transformation : BaseTransformationJson<Settings, JObject>
     {
-        
-        public override BaseResource[] TransformSource(string response)
+
+        public override BaseResource[] TransformSource(JObject jsonResponse)
         {
             PastParliamentPeriod pastParliamentPeriod = new PastParliamentPeriod();
-            JObject jsonResponse = (JObject)JsonConvert.DeserializeObject(response);
-
             Uri id = giveMeUri(jsonResponse, "TripleStoreId");
             if (id != null)
                 pastParliamentPeriod.Id = id;
@@ -33,7 +30,7 @@ namespace Functions.TransformationParliamentPeriod
                 return null;
             }
             string endDate = ((JValue)jsonResponse.SelectToken("parliamentPeriodEndDate")).GetText();
-            if ((string.IsNullOrWhiteSpace(endDate)==false) && (DateTimeOffset.TryParse(endDate, null as IFormatProvider, System.Globalization.DateTimeStyles.AssumeUniversal, out DateTimeOffset endD)))
+            if ((string.IsNullOrWhiteSpace(endDate) == false) && (DateTimeOffset.TryParse(endDate, null as IFormatProvider, System.Globalization.DateTimeStyles.AssumeUniversal, out DateTimeOffset endD)))
                 pastParliamentPeriod.ParliamentPeriodEndDate = endD;
 
             Uri previousId = giveMeUri(jsonResponse, "ImmediatelyPreviousParliamentPer");
@@ -62,21 +59,21 @@ namespace Functions.TransformationParliamentPeriod
         {
             return deserializedSource.OfType<PastParliamentPeriod>()
                 .SingleOrDefault()
-                .Id;            
+                .Id;
         }
 
         public override BaseResource[] SynchronizeIds(BaseResource[] source, Uri subjectUri, BaseResource[] target)
         {
             foreach (BaseResource period in source)
                 period.Id = subjectUri;
-            
+
             return source;
         }
 
         private Uri giveMeUri(JObject jsonResponse, string tokenName)
         {
             string id = ((JValue)jsonResponse.SelectToken(tokenName)).GetText();
-            if (string.IsNullOrWhiteSpace(id)) 
+            if (string.IsNullOrWhiteSpace(id))
             {
                 logger.Warning($"No {tokenName} Id info found");
                 return null;
@@ -93,6 +90,6 @@ namespace Functions.TransformationParliamentPeriod
             }
         }
 
-        
+
     }
 }

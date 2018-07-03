@@ -1,5 +1,5 @@
-﻿using Parliament.Rdf.Serialization;
-using Parliament.Model;
+﻿using Parliament.Model;
+using Parliament.Rdf.Serialization;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +9,7 @@ using VDS.RDF.Query;
 
 namespace Functions.TransformationQuestionWrittenAnswer
 {
-    public class Transformation : BaseTransformation<Settings>
+    public class Transformation : BaseTransformationXml<Settings, XDocument>
     {
         public XElement FindXElementByAttributeName(List<XElement> elements, string nameValue, string valueElementName)
         {
@@ -60,9 +60,8 @@ namespace Functions.TransformationQuestionWrittenAnswer
             logger.Verbose($"Found existing ({result})");
             return result;
         }
-        public override BaseResource[] TransformSource(string response)
+        public override BaseResource[] TransformSource(XDocument doc)
         {
-            XDocument doc = XDocument.Parse(response);
             var arrElements = doc?.Element("response")?.Element("result")?.Element("doc")?.Elements("arr")?.ToList();
             var strElements = doc?.Element("response")?.Element("result")?.Element("doc")?.Elements("str")?.ToList();
             if ((arrElements == null) || (strElements == null))

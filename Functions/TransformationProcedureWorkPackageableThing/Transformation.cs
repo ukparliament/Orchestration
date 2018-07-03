@@ -1,45 +1,40 @@
-﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using Parliament.Model;
+﻿using Parliament.Model;
 using Parliament.Rdf.Serialization;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 
 namespace Functions.TransformationProcedureWorkPackageableThing
 {
-    public class Transformation : BaseTransformation<Settings>
+    public class Transformation : BaseTransformationSqlServer<Settings, DataSet>
     {
-        public override BaseResource[] TransformSource(string response)
+        public override BaseResource[] TransformSource(DataSet dataset)
         {
             WorkPackageableThing workPackageableThing = new WorkPackageableThing();
-            StatutoryInstrument statutoryInstrument = new StatutoryInstrument();            
-            JObject jsonResponse = (JObject)JsonConvert.DeserializeObject(response);
+            StatutoryInstrument statutoryInstrument = new StatutoryInstrument();
+            DataRow row = dataset.Tables[0].Rows[0];
 
-            string id = ((JValue)jsonResponse.SelectToken("WorkPacakageableThingTripleStore")).GetText();
-            if (string.IsNullOrWhiteSpace(id))
-            {
-                logger.Warning("No Id info found");
+            Uri idUri = GiveMeUri(GetText(row["TripleStoreId"]));
+            if (idUri == null)
                 return null;
-            }
             else
             {
-                if (Uri.TryCreate($"{idNamespace}{id}", UriKind.Absolute, out Uri idUri))
-                {
-                    workPackageableThing.Id = idUri;
-                    statutoryInstrument.Id = idUri;
-                }
-                else
-                {
-                    logger.Warning($"Invalid url '{id}' found");
-                    return null;
-                }
+                workPackageableThing.Id = idUri;
+                statutoryInstrument.Id = idUri;
             }
-            workPackageableThing.WorkPackageableThingName = ((JValue)jsonResponse.SelectToken("Title")).GetText();
-            workPackageableThing.WorkPackageableThingComingIntoForceNote = ((JValue)jsonResponse.SelectToken("ComingIntoForceNote")).GetText();
-            workPackageableThing.WorkPackageableThingComingIntoForceDate = ((JValue)jsonResponse.SelectToken("ComingIntoForceDate")).GetDate();
-            workPackageableThing.WorkPackageableThingTimeLimitForObjectionEndDate = ((JValue)jsonResponse.SelectToken("ObjectionDeadline")).GetDate();
-            string url = ((JValue)jsonResponse.SelectToken("WorkPackageableThingUrl")).GetText();
+            if (Convert.ToBoolean(row["IsDeleted"]))
+                return new BaseResource[] { new WorkPackageableThing() { Id = idUri } };
+
+            workPackageableThing.WorkPackageableThingName = GetText(row["ProcedureWorkPackageableThingName"]);
+            workPackageableThing.WorkPackageableThingComingIntoForceNote = GetText(row["ComingIntoForceNote"]);
+            if ((DateTimeOffset.TryParse(row["ComingIntoForceDate"]?.ToString(), out DateTimeOffset comingIntoForceDate))
+                && (comingIntoForceDate != null))
+                workPackageableThing.WorkPackageableThingComingIntoForceDate = comingIntoForceDate;
+            if ((DateTimeOffset.TryParse(row["TimeLimitForObjectionEndDate"]?.ToString(), out DateTimeOffset timeLimitForObjectionEndDate))
+                && (timeLimitForObjectionEndDate != null))
+                workPackageableThing.WorkPackageableThingTimeLimitForObjectionEndDate = timeLimitForObjectionEndDate;
+            string url = GetText(row["WebLink"]);
             if ((string.IsNullOrWhiteSpace(url) == false) &&
                 (Uri.TryCreate(url, UriKind.Absolute, out Uri uri)))
                 workPackageableThing.WorkPackageableThingHasWorkPackageableThingWebLink = new List<WorkPackageableThingWebLink>()
@@ -49,10 +44,11 @@ namespace Functions.TransformationProcedureWorkPackageableThing
                         Id=uri
                     }
                 };
-            
-            statutoryInstrument.StatutoryInstrumentNumber = ((JValue)jsonResponse.SelectToken("SINumber")).GetText();
-            statutoryInstrument.StatutoryInstrumentNumberPrefix = ((JValue)jsonResponse.SelectToken("SIPrefix")).GetText();
-            statutoryInstrument.StatutoryInstrumentNumberYear = ((JValue)jsonResponse.SelectToken("SIYear")).GetInteger();
+
+            statutoryInstrument.StatutoryInstrumentNumber = GetText(row["StatutoryInstrumentNumber"]);
+            statutoryInstrument.StatutoryInstrumentNumberPrefix = GetText(row["StatutoryInstrumentNumberPrefix"]);
+            if (int.TryParse(row["StatutoryInstrumentNumberYear"]?.ToString(), out int statutoryInstrumentNumberYear))
+                statutoryInstrument.StatutoryInstrumentNumberYear = statutoryInstrumentNumberYear;
 
             return new BaseResource[] { workPackageableThing, statutoryInstrument };
         }

@@ -3,7 +3,7 @@
 namespace Functions.TransformationEPetition
 {
 
-    public class Rootobject
+    public class Rootobject : BaseMappingModel
     {
         public Links links { get; set; }
         public Data data { get; set; }
@@ -44,7 +44,7 @@ namespace Functions.TransformationEPetition
         public Debate debate { get; set; }
         public Rejection rejection { get; set; }
         public Signatures_By_Country[] signatures_by_country { get; set; }
-        public Signatures_By_Constituency[] signatures_by_constituency { get; set; }        
+        public Signatures_By_Constituency[] signatures_by_constituency { get; set; }
     }
 
     public class Government_Response

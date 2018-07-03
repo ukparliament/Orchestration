@@ -8,16 +8,11 @@ using VDS.RDF;
 
 namespace Functions.TransformationMemberMnis
 {
-    public class Transformation : BaseTransformation<Settings>
+    public class Transformation : BaseTransformationXml<Settings,XDocument>
     {
-        private XNamespace atom = "http://www.w3.org/2005/Atom";
-        private XNamespace d = "http://schemas.microsoft.com/ado/2007/08/dataservices";
-        private XNamespace m = "http://schemas.microsoft.com/ado/2007/08/dataservices/metadata";
-
-        public override BaseResource[] TransformSource(string response)
+        public override BaseResource[] TransformSource(XDocument doc)
         {
             Member member = new Member();
-            XDocument doc = XDocument.Parse(response);
             XElement personElement = doc.Element(atom + "entry")
                 .Element(atom + "content")
                 .Element(m + "properties");
@@ -86,9 +81,8 @@ namespace Functions.TransformationMemberMnis
             return source;
         }
 
-        public override IGraph AlterNewGraph(IGraph newGraph, Uri subjectUri, string response)
+        public override IGraph AlterNewGraph(IGraph newGraph, Uri subjectUri, XDocument doc)
         {
-            XDocument doc = XDocument.Parse(response);
             XElement personElement = doc.Element(atom + "entry")
                 .Element(atom + "content")
                 .Element(m + "properties");

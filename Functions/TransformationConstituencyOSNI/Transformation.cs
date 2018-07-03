@@ -1,6 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using Parliament.Model;
 using Parliament.Rdf.Serialization;
-using Parliament.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,11 +7,10 @@ using VDS.RDF;
 
 namespace Functions.TransformationConstituencyOSNI
 {
-    public class Transformation : BaseTransformation<Settings>
+    public class Transformation : BaseTransformationJsonMappingModel<Settings, Rootobject>
     {
-        public override BaseResource[] TransformSource(string response)
+        public override BaseResource[] TransformSource(Rootobject sourceConstituency)
         {
-            Rootobject sourceConstituency = JsonConvert.DeserializeObject<Rootobject>(response);
             OnsConstituencyGroup constituency = new OnsConstituencyGroup();
             if ((sourceConstituency != null) && (sourceConstituency.features != null) && (sourceConstituency.features.Any()) && (sourceConstituency.features.SingleOrDefault().attributes != null))
             {

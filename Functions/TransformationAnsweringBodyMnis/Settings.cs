@@ -43,7 +43,7 @@
             }
         }
 
-        public string FullDataUrlParameterizedString(string dataUrl)
+        public string ParameterizedString(string dataUrl)
         {
             return $"{dataUrl}?$select=AnsweringBody_Id,Department_Id,Name";
         }

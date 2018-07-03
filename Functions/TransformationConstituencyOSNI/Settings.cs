@@ -48,7 +48,7 @@
             }
         }
 
-        public string FullDataUrlParameterizedString(string dataUrl)
+        public string ParameterizedString(string dataUrl)
         {
             return $"https://gisservices.spatialni.gov.uk/arcgisc/rest/services/OpenData/OSNIOpenData_50KBoundaries/MapServer/3/query?f=json&outSR=4326&outFields=PC_ID,PC_NAME&where=OBJECTID%3D{dataUrl}";
         }

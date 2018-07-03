@@ -1,6 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using Parliament.Model;
 using Parliament.Rdf.Serialization;
-using Parliament.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,12 +7,11 @@ using VDS.RDF;
 
 namespace Functions.TransformationEPetition
 {
-    public class Transformation : BaseTransformation<Settings>
+    public class Transformation : BaseTransformationJsonMappingModel<Settings, Rootobject>
     {
 
-        public override BaseResource[] TransformSource(string response)
+        public override BaseResource[] TransformSource(Rootobject sourceEPetition)
         {
-            Rootobject sourceEPetition = JsonConvert.DeserializeObject<Rootobject>(response, new JsonSerializerSettings() { DateTimeZoneHandling = DateTimeZoneHandling.Utc });
             DateTime petitionRetrievalTimestamp = DateTime.UtcNow;
             UkgapEPetition ukgapEPetition = new UkgapEPetition();
             BaseResource[] moderations = null;
@@ -126,10 +124,10 @@ namespace Functions.TransformationEPetition
                     foundLocatedSignatureCount.Id = signature.Id;
                     if (foundLocatedSignatureCount.SignatureCount.SingleOrDefault() == signature.SignatureCount.SingleOrDefault())
                         foundLocatedSignatureCount.SignatureCountRetrievedAt = signature.SignatureCountRetrievedAt;
-                }
-                else
-                    foundLocatedSignatureCount.Id = GenerateNewId();
+                }                
             }
+            foreach (LocatedSignatureCount signature in ePetition.EPetitionHasLocatedSignatureCount.Where(s => s.Id == null))
+                signature.Id = GenerateNewId();
 
             return ePetitionApprovals.AsEnumerable<BaseResource>().Concat(ePetitionRejections).Concat(ePetition.AsEnumerable()).ToArray();
         }

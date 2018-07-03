@@ -6,6 +6,6 @@
         string SubjectRetrievalSparqlCommand { get; }
         string ExistingGraphSparqlCommand { get; }
 
-        string FullDataUrlParameterizedString(string dataUrl);
+        string ParameterizedString(string dataUrl);
     }
 }

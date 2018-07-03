@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+﻿using Newtonsoft.Json.Linq;
 using Parliament.Model;
 using Parliament.Rdf.Serialization;
 using System;
@@ -7,13 +6,11 @@ using System.Linq;
 
 namespace Functions.TransformationDepartmentGovernmentOrganisation
 {
-    public class Transformation : BaseTransformation<Settings>
+    public class Transformation : BaseTransformationJson<Settings, JObject>
     {
-        public override BaseResource[] TransformSource(string response)
+        public override BaseResource[] TransformSource(JObject jsonResponse)
         {
             GovRegisterGovernmentOrganisation department = new GovRegisterGovernmentOrganisation();
-            JObject jsonResponse = (JObject)JsonConvert.DeserializeObject(response);
-
             string id = ((JValue)jsonResponse.SelectToken("GovRegisterID")).GetText();
             department.GovernmentOrganisationGovRegisterId = id;
             int? mnisId = ((JValue)jsonResponse.SelectToken("mnisID")).GetNumber();

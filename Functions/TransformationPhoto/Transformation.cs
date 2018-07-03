@@ -1,20 +1,17 @@
-﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using Parliament.Rdf.Serialization;
+﻿using Newtonsoft.Json.Linq;
 using Parliament.Model;
+using Parliament.Rdf.Serialization;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace Functions.TransformationPhoto
 {
-    public class Transformation : BaseTransformation<Settings>
+    public class Transformation : BaseTransformationJson<Settings, JObject>
     {
-        public override BaseResource[] TransformSource(string response)
+        public override BaseResource[] TransformSource(JObject jsonResponse)
         {
             MemberImage memberImage = new MemberImage();
-            JObject jsonResponse = (JObject)JsonConvert.DeserializeObject(response);
-
             string imageResourceUri = ((JValue)jsonResponse.SelectToken("ImageResourceUri")).GetText();
             if (string.IsNullOrWhiteSpace(imageResourceUri))
             {
@@ -75,13 +72,13 @@ namespace Functions.TransformationPhoto
         {
             return deserializedSource.OfType<MemberImage>()
                 .SingleOrDefault()
-                .Id;            
+                .Id;
         }
 
         public override BaseResource[] SynchronizeIds(BaseResource[] source, Uri subjectUri, BaseResource[] target)
         {
             return source;
         }
-        
+
     }
 }

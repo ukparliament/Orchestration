@@ -36,9 +36,10 @@ namespace Functions.TransformationProcedure
             }
         }
 
-        public string FullDataUrlParameterizedString(string dataUrl)
+        public string ParameterizedString(string dataUrl)
         {
-            return System.Environment.GetEnvironmentVariable("CUSTOMCONNSTR_SharepointItem", EnvironmentVariableTarget.Process).Replace("{listId}", "adad783c-971c-4bb3-a07b-28a5068cc1e0").Replace("{id}", dataUrl);
+            return $@"select p.TripleStoreId, p.ProcedureName, p.IsDeleted from [Procedure] p 
+            where p.Id={dataUrl}";
         }
     }
 }

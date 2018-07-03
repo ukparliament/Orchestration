@@ -38,7 +38,7 @@ namespace Functions.TransformationPhoto
             }
         }
 
-        public string FullDataUrlParameterizedString(string dataUrl)
+        public string ParameterizedString(string dataUrl)
         {
             return System.Environment.GetEnvironmentVariable("CUSTOMCONNSTR_SharepointItem", EnvironmentVariableTarget.Process).Replace("{listId}", "2460c6bf-f26e-4049-94d0-c6096e036f3a").Replace("{id}", dataUrl);
         }

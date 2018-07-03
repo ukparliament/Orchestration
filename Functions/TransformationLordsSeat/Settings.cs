@@ -40,7 +40,7 @@ namespace Functions.TransformationLordsSeat
             }
         }
 
-        public string FullDataUrlParameterizedString(string dataUrl)
+        public string ParameterizedString(string dataUrl)
         {
             return System.Environment.GetEnvironmentVariable("CUSTOMCONNSTR_SharepointItem", EnvironmentVariableTarget.Process).Replace("{listId}", "4a000e4a-aa78-4338-806d-92c0dd42e1a6").Replace("{id}", dataUrl);
         }

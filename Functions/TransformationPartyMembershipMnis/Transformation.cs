@@ -8,16 +8,11 @@ using VDS.RDF;
 
 namespace Functions.TransformationPartyMembershipMnis
 {
-    public class Transformation : BaseTransformation<Settings>
+    public class Transformation : BaseTransformationXml<Settings,XDocument>
     {
-        private XNamespace atom = "http://www.w3.org/2005/Atom";
-        private XNamespace d = "http://schemas.microsoft.com/ado/2007/08/dataservices";
-        private XNamespace m = "http://schemas.microsoft.com/ado/2007/08/dataservices/metadata";
-
-        public override BaseResource[] TransformSource(string response)
+        public override BaseResource[] TransformSource(XDocument doc)
         {
             PastPartyMembership partyMembership = new PastPartyMembership();
-            XDocument doc = XDocument.Parse(response);
             XElement partyElement = doc.Element(atom + "entry")
                 .Element(atom + "content")
                 .Element(m + "properties");

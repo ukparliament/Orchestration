@@ -1,22 +1,26 @@
-﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using Parliament.Model;
+﻿using Parliament.Model;
 using Parliament.Rdf.Serialization;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 
 namespace Functions.TransformationProcedureBusinessItem
 {
-    public class Transformation : BaseTransformation<Settings>
+    public class Transformation : BaseTransformationSqlServer<Settings, DataSet>
     {
-        public override BaseResource[] TransformSource(string response)
+        public override BaseResource[] TransformSource(DataSet dataset)
         {
             BusinessItem businessItem = new BusinessItem();
             Laying laying = new Laying();
-            JObject jsonResponse = (JObject)JsonConvert.DeserializeObject(response);
+            if ((dataset.Tables.Count != 3) ||
+                (dataset.Tables[0].Rows.Count != 1) ||
+                (dataset.Tables[1].Rows.Count < 1) ||
+                (dataset.Tables[2].Rows.Count < 1))
+                return null;
+            DataRow biRow = dataset.Tables[0].Rows[0];
 
-            Uri idUri = giveMeUri(jsonResponse, "TripleStoreId");
+            Uri idUri = GiveMeUri(GetText(biRow["TripleStoreId"]));
             if (idUri == null)
                 return null;
             else
@@ -24,17 +28,19 @@ namespace Functions.TransformationProcedureBusinessItem
                 businessItem.Id = idUri;
                 laying.Id = idUri;
             }
+            if (Convert.ToBoolean(biRow["IsDeleted"]))
+                return new BaseResource[] { new BusinessItem() { Id = idUri } };
 
-            DateTimeOffset? dateTime = ((JValue)jsonResponse.SelectToken("Businessitem_x0020_date")).GetDate();
-            if (dateTime.HasValue)
-                businessItem.BusinessItemDate = new DateTimeOffset[] { dateTime.Value };
-            businessItem.BusinessItemHasWorkPackage = giveMeUris(jsonResponse, "BelongsTo_x003a_TripleStoreId")
+            if ((DateTimeOffset.TryParse(biRow["BusinessItemDate"]?.ToString(), out DateTimeOffset dateTime))
+                && (dateTime != null))
+                businessItem.BusinessItemDate = new DateTimeOffset[] { dateTime };
+            businessItem.BusinessItemHasWorkPackage = giveMeUris(dataset.Tables[1], "WorkPackage")
                 .Select(u => new WorkPackage() { Id = u })
                 .ToArray();
-            businessItem.BusinessItemHasProcedureStep = giveMeUris(jsonResponse, "ActualisesProcedureStep_x003a_Tr")
+            businessItem.BusinessItemHasProcedureStep = giveMeUris(dataset.Tables[2], "Step")
                 .Select(u => new ProcedureStep() { Id = u })
                 .ToArray();
-            string url = ((JValue)jsonResponse.SelectToken("Weblink")).GetText();
+            string url = GetText(biRow["WebLink"]);
             if ((string.IsNullOrWhiteSpace(url) == false) &&
                 (Uri.TryCreate(url, UriKind.Absolute, out Uri uri)))
                 businessItem.BusinessItemHasBusinessItemWebLink = new List<BusinessItemWebLink>()
@@ -43,15 +49,15 @@ namespace Functions.TransformationProcedureBusinessItem
                     {
                         Id=uri
                     }
-                };            
-            Uri answeringBodyUri = giveMeUri(jsonResponse, "LayingBody_x003a_TripleStoreId.Value");
+                };
+            Uri answeringBodyUri = GiveMeUri(GetText(biRow["AnsweringBody"]));
             if (answeringBodyUri != null)
             {
                 laying.LayingHasLayingBody = new LayingBody()
                 {
                     Id = answeringBodyUri
                 };
-                laying.LayingHasLayableThing = giveMeUris(jsonResponse, "BelongsTo_x003a_WorkPacakageable")
+                laying.LayingHasLayableThing = giveMeUris(dataset.Tables[1], "WorkPackageableThing")
                     .Select(u => new LayableThing() { Id = u })
                     .SingleOrDefault();
             }
@@ -70,31 +76,11 @@ namespace Functions.TransformationProcedureBusinessItem
             return source;
         }
 
-        private Uri giveMeUri(JObject jsonResponse, string tokenName)
+        private IEnumerable<Uri> giveMeUris(DataTable dataTable, string columnName)
         {
-            string id = ((JValue)jsonResponse.SelectToken(tokenName)).GetText();
-            if (string.IsNullOrWhiteSpace(id))
+            foreach (DataRow row in dataTable.Rows)
             {
-                logger.Warning($"No {tokenName} Id info found");
-                return null;
-            }
-            else
-            {
-                if (Uri.TryCreate($"{idNamespace}{id}", UriKind.Absolute, out Uri uri))
-                    return uri;
-                else
-                {
-                    logger.Warning($"Invalid url '{id}' found");
-                    return null;
-                }
-            }
-        }
-
-        private IEnumerable<Uri> giveMeUris(JObject jsonResponse, string tokenName)
-        {
-            foreach (JObject item in (JArray)jsonResponse.SelectToken(tokenName))
-            {
-                string itemId = item["Value"].ToString();
+                string itemId = row[columnName]?.ToString();
                 if (string.IsNullOrWhiteSpace(itemId))
                     continue;
                 if (Uri.TryCreate($"{idNamespace}{itemId}", UriKind.Absolute, out Uri itemUri))

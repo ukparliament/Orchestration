@@ -50,7 +50,7 @@ namespace Functions.TransformationCommittee
             }
         }
 
-        public string FullDataUrlParameterizedString(string dataUrl)
+        public string ParameterizedString(string dataUrl)
         {
             return System.Environment.GetEnvironmentVariable("CUSTOMCONNSTR_SharepointItem", EnvironmentVariableTarget.Process).Replace("{listId}", "035fa54f-492a-4008-93da-5ee912a2d0cf").Replace("{id}", dataUrl);
         }

@@ -96,7 +96,7 @@
                   }
                 },
                 "method": "get",
-                "path": "/datasets/default/tables/@{encodeURIComponent(encodeURIComponent(''',variables('logicAppsSettings')[copyIndex()].listUri,'''))}/items",
+                "path": "[concat('/datasets/default/tables/@{encodeURIComponent(encodeURIComponent(''',variables('logicAppsSettings')[copyIndex()].listUri,'''))}/items']",
                 "queries": {
                   "$filter": "ModifiedAt gt '@{addHours(utcNow(),-2)}'",
                   "$top": 10000

@@ -98,7 +98,7 @@
                 "method": "get",
                 "path": "[concat('/datasets/default/tables/@{encodeURIComponent(encodeURIComponent(''',variables('logicAppsSettings')[copyIndex()].listUri,'''))}/items')]",
                 "queries": {
-                  "$filter": "ModifiedAt gt '@{addHours(utcNow(),-2)}'",
+                  "$filter": "ModifiedAt gt @{addHours(utcNow(),-2)}",
                   "$top": 10000
                 }
               },

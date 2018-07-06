@@ -42,9 +42,9 @@ namespace Functions
                 sb.AppendLine("INSERT DATA {");
                 foreach (Triple added in additions)
                     sb.AppendLine(sparqlFormatter.Format(added));
-                sb.AppendLine("};");
+                sb.AppendLine("}");
             }
-            sb.AppendLine(addProvenance(additions, removals));
+            //add ; to line 45 sb.AppendLine(addProvenance(additions, removals));
             string sparqlUpdate = sb.ToString();
             SparqlUpdateParser parser = new SparqlUpdateParser();
             parser.ParseFromString(sparqlUpdate);

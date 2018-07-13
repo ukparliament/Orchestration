@@ -70,8 +70,19 @@ namespace Functions.GraphDBRestore
 
         private static async Task replaceDataWithBackup(string backupUrl)
         {
-            string graphDBRestoreUrl = $"{dataAPI}/repositories/Master/statements?context=null";
+            string graphDBRestoreUrl = $"{dataAPI}/repositories/Master/statements";
 
+            using (HttpClient deleteClient = new HttpClient())
+            {
+                deleteClient.DefaultRequestHeaders.TransferEncodingChunked = true;
+                deleteClient.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", subscriptionKey);
+                deleteClient.DefaultRequestHeaders.Add("Api-Version", apiVersion);
+                using (HttpResponseMessage response = await deleteClient.DeleteAsync(graphDBRestoreUrl))
+                {
+                    if (response.IsSuccessStatusCode == false)
+                        logger.Warning($"Status code from delete {response.StatusCode}");
+                }
+            }
             using (HttpClient backupClient = new HttpClient())
             {
                 using (Stream backupStream = await backupClient.GetStreamAsync(backupUrl))
@@ -83,10 +94,10 @@ namespace Functions.GraphDBRestore
                         restoreClient.DefaultRequestHeaders.Add("Api-Version", apiVersion);
                         StreamContent restoreContent = new StreamContent(backupStream);
                         restoreContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/x-trig");
-                        using (HttpResponseMessage response = await restoreClient.PutAsync(graphDBRestoreUrl, restoreContent))
+                        using (HttpResponseMessage response = await restoreClient.PostAsync(graphDBRestoreUrl, restoreContent))
                         {
                             if (response.IsSuccessStatusCode == false)
-                                logger.Warning($"Status code {response.StatusCode}");
+                                logger.Warning($"Status code from post {response.StatusCode}");
                         }
                     }
                 }

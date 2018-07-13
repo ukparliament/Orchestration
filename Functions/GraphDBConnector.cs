@@ -44,7 +44,9 @@ namespace Functions
                     sb.AppendLine(sparqlFormatter.Format(added));
                 sb.AppendLine("}");
             }
-            //add ; to line 45 sb.AppendLine(addProvenance(additions, removals));
+            if (((removals != null) && (removals.Any())) ||
+                ((additions != null) && (additions.Any())))
+                sb.AppendLine(addProvenance(additions, removals));
             string sparqlUpdate = sb.ToString();
             SparqlUpdateParser parser = new SparqlUpdateParser();
             parser.ParseFromString(sparqlUpdate);
@@ -67,7 +69,7 @@ namespace Functions
             StringBuilder sb = new StringBuilder();
             SparqlFormatter sparqlFormatter = new SparqlFormatter();
             DateTimeOffset dt = DateTimeOffset.UtcNow;
-            sb.AppendLine("INSERT DATA {");
+            sb.AppendLine(";INSERT DATA {");
             foreach (Triple removed in removals)
             {
                 sb.Append($@"[] <http://example.com/subject> {sparqlFormatter.Format(removed.Subject)};

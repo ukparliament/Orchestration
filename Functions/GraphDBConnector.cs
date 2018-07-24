@@ -44,9 +44,9 @@ namespace Functions
                     sb.AppendLine(sparqlFormatter.Format(added));
                 sb.AppendLine("}");
             }
-            if (((removals != null) && (removals.Any())) ||
+            /*if (((removals != null) && (removals.Any())) ||
                 ((additions != null) && (additions.Any())))
-                sb.AppendLine(addProvenance(additions, removals));
+                sb.AppendLine(addProvenance(additions, removals));*/
             string sparqlUpdate = sb.ToString();
             SparqlUpdateParser parser = new SparqlUpdateParser();
             parser.ParseFromString(sparqlUpdate);

@@ -55,11 +55,11 @@ namespace Functions.TransformationProcedureBusinessItem
         {
             return $@"select bi.TripleStoreId, bi.WebLink, ab.TripleStoreId as AnsweringBody,
                 bi.BusinessItemDate, bi.IsDeleted from ProcedureBusinessItem bi 
-            left join AnsweringBody ab on ab.Id=bi.AnsweringBodyId
+            left join LayingBody ab on ab.Id=bi.LayingBodyId
             where bi.Id={dataUrl};
-            select wpt.ProcedureWorkPackageTripleStoreId as WorkPackage, wpt.TripleStoreId as WorkPackageableThing from ProcedureBusinessItemProcedureWorkPackage bi 
+            select wpt.ProcedureWorkPackageTripleStoreId as WorkPackage, wpt.TripleStoreId as WorkPackageableThing from ProcedureBusinessItem bi 
             join ProcedureWorkPackageableThing wpt on wpt.Id=bi.ProcedureWorkPackageId
-            where bi.ProcedureBusinessItemId={dataUrl};
+            where bi.Id={dataUrl};
             select s.TripleStoreId as Step from ProcedureBusinessItemProcedureStep bi 
             join ProcedureStep s on s.Id=bi.ProcedureStepId
             where bi.ProcedureBusinessItemId={dataUrl}";

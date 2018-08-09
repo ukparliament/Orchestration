@@ -44,7 +44,11 @@ namespace Functions.TransformationProcedureStep
         public string ParameterizedString(string dataUrl)
         {
             return $@"select s.TripleStoreId, s.ProcedureStepName, 
-                    s.ProcedureStepDescription, s.IsDeleted from ProcedureStep s
+                    s.ProcedureStepDescription, cast(0 as bit) as IsDeleted from ProcedureStep s
+                where s.Id={dataUrl}
+                union
+                select s.TripleStoreId, null as ProcedureStepName, 
+                    null as ProcedureStepDescription, cast(1 as bit) as IsDeleted from DeletedProcedureStep s
                 where s.Id={dataUrl};
                 select h.TripleStoreId as House from ProcedureStepHouse s
                 join House h on h.Id=s.HouseId

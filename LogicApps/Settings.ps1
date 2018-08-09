@@ -558,10 +558,10 @@ $logicAppVariable=@(
 	New-Object -TypeName PSObject -Property @{
         "name"="procedure";
 		"sourceKind"=[SourceType]::Sql;
-        "listUri"="[dbo].[Procedure]";
+        "listUri"="select Id from [Procedure] where ModifiedAt>'@{addHours(utcNow(),-2)}' union select Id from DeletedProcedure where DeletedAt>'@{addHours(utcNow(),-2)}'";
         "listAcceptHeader"="";
-        "foreachObject"="@json('')";
-        "idObject"="@json('')";
+        "foreachObject"="@body('Get_items')?['resultsets']?['Table1']";
+        "idObject"="@{items('For_each')?['Id']}";
         "frequency"="hour";
         "interval"=1;
         "triggerTime"="00:30";
@@ -572,10 +572,10 @@ $logicAppVariable=@(
 	New-Object -TypeName PSObject -Property @{
         "name"="procedurestep";
 		"sourceKind"=[SourceType]::Sql;
-        "listUri"="[dbo].[ProcedureStep]";
+        "listUri"="select Id from ProcedureStep where ModifiedAt>'@{addHours(utcNow(),-2)}' union select Id from DeletedProcedureStep where DeletedAt>'@{addHours(utcNow(),-2)}'";
         "listAcceptHeader"="";
-        "foreachObject"="@json('')";
-        "idObject"="@json('')";
+        "foreachObject"="@body('Get_items')?['resultsets']?['Table1']";
+        "idObject"="@{items('For_each')?['Id']}";
         "frequency"="hour";
         "interval"=1;
         "triggerTime"="00:31";
@@ -586,10 +586,10 @@ $logicAppVariable=@(
 	New-Object -TypeName PSObject -Property @{
         "name"="procedureroute";
 		"sourceKind"=[SourceType]::Sql;
-        "listUri"="[dbo].[ProcedureRoute]";
+		"listUri"="select Id from ProcedureRoute where ModifiedAt>'@{addHours(utcNow(),-2)}' union select Id from DeletedProcedureRoute where DeletedAt>'@{addHours(utcNow(),-2)}'";
         "listAcceptHeader"="";
-        "foreachObject"="@json('')";
-        "idObject"="@json('')";
+        "foreachObject"="@body('Get_items')?['resultsets']?['Table1']";
+        "idObject"="@{items('For_each')?['Id']}";
         "frequency"="hour";
         "interval"=1;
         "triggerTime"="00:34";
@@ -600,10 +600,10 @@ $logicAppVariable=@(
 	New-Object -TypeName PSObject -Property @{
         "name"="procedureworkpackage";
 		"sourceKind"=[SourceType]::Sql;
-        "listUri"="[dbo].[ProcedureWorkPackageableThing]";
+        "listUri"="select Id from ProcedureWorkPackagedThing where ModifiedAt>'@{addHours(utcNow(),-2)}' union select Id from DeletedProcedureWorkPackagedThing where DeletedAt>'@{addHours(utcNow(),-2)}'";
         "listAcceptHeader"="";
-        "foreachObject"="@json('')";
-        "idObject"="@json('')";
+        "foreachObject"="@body('Get_items')?['resultsets']?['Table1']";
+        "idObject"="@{items('For_each')?['Id']}";
         "frequency"="hour";
         "interval"=1;
         "triggerTime"="00:36";
@@ -612,12 +612,12 @@ $logicAppVariable=@(
 		"queueReadFrequency"="Minute";
     }
 	New-Object -TypeName PSObject -Property @{
-        "name"="procedureworkpackageablething";
+        "name"="procedureworkpackagedthing";
 		"sourceKind"=[SourceType]::Sql;
-        "listUri"="[dbo].[ProcedureWorkPackageableThing]";
+        "listUri"="select Id from ProcedureWorkPackagedThing where ModifiedAt>'@{addHours(utcNow(),-2)}' union select Id from DeletedProcedureWorkPackagedThing where DeletedAt>'@{addHours(utcNow(),-2)}'";
         "listAcceptHeader"="";
-        "foreachObject"="@json('')";
-        "idObject"="@json('')";
+        "foreachObject"="@body('Get_items')?['resultsets']?['Table1']";
+        "idObject"="@{items('For_each')?['Id']}";
         "frequency"="hour";
         "interval"=1;
         "triggerTime"="00:38";
@@ -626,12 +626,12 @@ $logicAppVariable=@(
 		"queueReadFrequency"="Minute";
     }
 	New-Object -TypeName PSObject -Property @{
-        "name"="procedureworkpackageablepreceding";
+        "name"="procedureworkpackagedpreceding";
 		"sourceKind"=[SourceType]::Sql;
-        "listUri"="[dbo].[ProcedureWorkPackageableThingPreceding]";
+        "listUri"="select Id from ProcedureWorkPackagedThingPreceding where ModifiedAt>'@{addHours(utcNow(),-2)}' union select Id from DeletedProcedureWorkPackagedThingPreceding where DeletedAt>'@{addHours(utcNow(),-2)}'";
         "listAcceptHeader"="";
-        "foreachObject"="@json('')";
-        "idObject"="@json('')";
+        "foreachObject"="@body('Get_items')?['resultsets']?['Table1']";
+        "idObject"="@{items('For_each')?['Id']}";
         "frequency"="hour";
         "interval"=1;
         "triggerTime"="00:46";
@@ -642,10 +642,10 @@ $logicAppVariable=@(
 	New-Object -TypeName PSObject -Property @{
         "name"="procedurebusinessitem";
 		"sourceKind"=[SourceType]::Sql;
-        "listUri"="[dbo].[ProcedureBusinessItem]";
+        "listUri"="select Id from ProcedureBusinessItem where ModifiedAt>'@{addHours(utcNow(),-2)}' union select Id from DeletedProcedureBusinessItem where DeletedAt>'@{addHours(utcNow(),-2)}'";
         "listAcceptHeader"="";
-        "foreachObject"="@json('')";
-        "idObject"="@json('')";
+        "foreachObject"="@body('Get_items')?['resultsets']?['Table1']";
+        "idObject"="@{items('For_each')?['Id']}";
         "frequency"="hour";
         "interval"=1;
         "triggerTime"="00:47";
@@ -663,6 +663,11 @@ foreach ($kind in [enum]::GetValues([SourceType])) {
         }
         "$([SourceType]::External)" {            
             $settings=($logicAppVariable | Where-Object sourceKind -EQ $kind | Select-Object name, listUri, listAcceptHeader, foreachObject, idObject)
+			Set-Base64TaskVariable -VariableName "LogicAppsSettings_$kind" -VariableValue $settings
+            break
+        }
+		"$([SourceType]::Sql)" {            
+            $settings=($logicAppVariable | Where-Object sourceKind -EQ $kind | Select-Object name, listUri, foreachObject, idObject)
 			Set-Base64TaskVariable -VariableName "LogicAppsSettings_$kind" -VariableValue $settings
             break
         }

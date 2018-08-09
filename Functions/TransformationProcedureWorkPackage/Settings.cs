@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Functions.TransformationProcedureWorkPackage
+﻿namespace Functions.TransformationProcedureWorkPackage
 {
     public class Settings : ITransformationSettings
     {
@@ -28,33 +26,31 @@ namespace Functions.TransformationProcedureWorkPackage
         construct {
             ?workPackage a parl:WorkPackage;
                 parl:workPackageHasProcedure ?workPackageHasProcedure;
-                ?workPackageHasWorkPackageableThing ?workPackageableThing.
+                parl:workPackageHasWorkPackagedThing ?workPackageHasWorkPackagedThing.
             ?workPackageHasProcedure a parl:Procedure.
-            ?workPackageableThing a parl:WorkPackageableThing.
+            ?workPackageHasWorkPackagedThing a parl:WorkPackagedThing.
         }
         where {
             bind(@subject as ?workPackage)
             ?workPackage parl:workPackageHasProcedure ?workPackageHasProcedure.
-            optional {
-                ?workPackage parl:workPackageHasStatutoryInstrument ?workPackageableThing.
-                bind(parl:workPackageHasStatutoryInstrument as ?workPackageHasWorkPackageableThing)                    
-            }
-            optional {
-                ?workPackage parl:workPackageHasProposedStatutoryInstrument ?workPackageableThing.
-                bind(parl:workPackageHasProposedStatutoryInstrument as ?workPackageHasWorkPackageableThing)
-            }            
+            optional {?workPackage parl:workPackageHasWorkPackagedThing ?workPackageHasWorkPackagedThing}
         }";
             }
         }
 
         public string ParameterizedString(string dataUrl)
         {
-            return $@"select wp.ProcedureWorkPackageTripleStoreId as TripleStoreId, p.TripleStoreId as [Procedure], 
-                    wp.TripleStoreId as WorkPackageableThing, 
-                    t.ProcedureWorkPackageableThingTypeName, wp.IsDeleted from ProcedureWorkPackageableThing wp
+            return $@"select wp.ProcedureWorkPackageTripleStoreId as TripleStoreId,
+	                wp.TripleStoreId as WorkPackagedThing, p.TripleStoreId as [Procedure],
+	                cast(0 as bit) as IsDeleted
+                from ProcedureWorkPackagedThing wp
                 join [Procedure] p on p.Id=wp.ProcedureId
-                join ProcedureWorkPackageableThingType t on t.Id=wp.ProcedureWorkPackageableThingTypeId
-                where wp.Id={dataUrl}";
+                where wp.Id={dataUrl}
+                union
+				select wp.ProcedureWorkPackageTripleStoreId as TripleStoreId,
+	                null as WorkPackagedThing, null as [Procedure],
+	                cast(1 as bit) as IsDeleted
+                from DeletedProcedureWorkPackagedThing wp";
         }
     }
 }

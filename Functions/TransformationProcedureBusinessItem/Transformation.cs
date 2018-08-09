@@ -13,10 +13,9 @@ namespace Functions.TransformationProcedureBusinessItem
         {
             BusinessItem businessItem = new BusinessItem();
             Laying laying = new Laying();
-            if ((dataset.Tables.Count != 3) ||
+            if ((dataset.Tables.Count != 2) ||
                 (dataset.Tables[0].Rows.Count != 1) ||
-                (dataset.Tables[1].Rows.Count < 1) ||
-                (dataset.Tables[2].Rows.Count < 1))
+                (dataset.Tables[1].Rows.Count < 1))
                 return null;
             DataRow biRow = dataset.Tables[0].Rows[0];
 
@@ -29,17 +28,17 @@ namespace Functions.TransformationProcedureBusinessItem
                 laying.Id = idUri;
             }
             if (Convert.ToBoolean(biRow["IsDeleted"]))
-                return new BaseResource[] { new BusinessItem() { Id = idUri } };
+                return new BaseResource[] { businessItem };
 
             if ((DateTimeOffset.TryParse(biRow["BusinessItemDate"]?.ToString(), out DateTimeOffset dateTime))
                 && (dateTime != null))
                 businessItem.BusinessItemDate = new DateTimeOffset[] { dateTime };
-            businessItem.BusinessItemHasWorkPackage = giveMeUris(dataset.Tables[1], "WorkPackage")
-                .Select(u => new WorkPackage() { Id = u })
-                .ToArray();
-            businessItem.BusinessItemHasProcedureStep = giveMeUris(dataset.Tables[2], "Step")
-                .Select(u => new ProcedureStep() { Id = u })
-                .ToArray();
+            Uri workPackageUri = GiveMeUri(GetText(biRow["WorkPackage"]));
+            if (workPackageUri != null)
+                businessItem.BusinessItemHasWorkPackage = new WorkPackage()
+                {
+                    Id = workPackageUri
+                };
             string url = GetText(biRow["WebLink"]);
             if ((string.IsNullOrWhiteSpace(url) == false) &&
                 (Uri.TryCreate(url, UriKind.Absolute, out Uri uri)))
@@ -50,17 +49,28 @@ namespace Functions.TransformationProcedureBusinessItem
                         Id=uri
                     }
                 };
-            Uri answeringBodyUri = GiveMeUri(GetText(biRow["AnsweringBody"]));
-            if (answeringBodyUri != null)
+            Uri layingBodyUri = GiveMeUri(GetText(biRow["LayingBody"]));
+            if (layingBodyUri != null)
             {
                 laying.LayingHasLayingBody = new LayingBody()
                 {
-                    Id = answeringBodyUri
+                    Id = layingBodyUri
                 };
-                laying.LayingHasLayableThing = giveMeUris(dataset.Tables[1], "WorkPackageableThing")
-                    .Select(u => new LayableThing() { Id = u })
-                    .SingleOrDefault();
+                Uri workPackagedUri = GiveMeUri(GetText(biRow["WorkPackaged"]));
+                if (workPackagedUri != null)
+                    laying.LayingHasLaidThing = new List<LaidThing>
+                    {
+                        new LaidThing()
+                        {
+                            Id = workPackagedUri
+                        }
+                    };
             }
+
+            businessItem.BusinessItemHasProcedureStep = giveMeUris(dataset.Tables[1], "TripleStoreId")
+                .Select(u => new ProcedureStep() { Id = u })
+                .ToArray();
+
             return new BaseResource[] { businessItem, laying };
         }
 

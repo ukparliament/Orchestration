@@ -32,12 +32,12 @@ namespace Functions.TransformationProcedureBusinessItem
                 parl:businessItemDate ?businessItemDate;
                 parl:businessItemHasBusinessItemWebLink ?businessItemHasBusinessItemWebLink;
                 parl:layingHasLayingBody ?layingHasLayingBody;
-                parl:layingHasLayableThing ?layingHasLayableThing.
+                parl:layingHasLaidThing ?layingHasLaidThing.
             ?businessItemHasWorkPackage a parl:WorkPackage.
             ?businessItemHasProcedureStep a parl:ProcedureStep.
             ?businessItemHasBusinessItemWebLink a parl:BusinessItemWebLink.
             ?layingHasLayingBody a parl:LayingBody.
-            ?layingHasLayableThing a parl:LayableThing.
+            ?layingHasLaidThing a parl:LaidThing.
         }
         where {
             bind(@subject as ?businessItem)
@@ -46,23 +46,31 @@ namespace Functions.TransformationProcedureBusinessItem
             optional {?businessItem parl:businessItemDate ?businessItemDate}
             optional {?businessItem parl:businessItemHasBusinessItemWebLink ?businessItemHasBusinessItemWebLink}
             optional {?businessItem parl:layingHasLayingBody ?layingHasLayingBody}
-            optional {?businessItem parl:layingHasLayableThing ?layingHasLayableThing}
+            optional {?businessItem parl:layingHasLaidThing ?layingHasLaidThing}
         }";
             }
         }
 
         public string ParameterizedString(string dataUrl)
         {
-            return $@"select bi.TripleStoreId, bi.WebLink, ab.TripleStoreId as AnsweringBody,
-                bi.BusinessItemDate, bi.IsDeleted from ProcedureBusinessItem bi 
-            left join LayingBody ab on ab.Id=bi.LayingBodyId
-            where bi.Id={dataUrl};
-            select wpt.ProcedureWorkPackageTripleStoreId as WorkPackage, wpt.TripleStoreId as WorkPackageableThing from ProcedureBusinessItem bi 
-            join ProcedureWorkPackageableThing wpt on wpt.Id=bi.ProcedureWorkPackageId
-            where bi.Id={dataUrl};
-            select s.TripleStoreId as Step from ProcedureBusinessItemProcedureStep bi 
-            join ProcedureStep s on s.Id=bi.ProcedureStepId
-            where bi.ProcedureBusinessItemId={dataUrl}";
+            return $@"select bi.TripleStoreId, bi.WebLink, l.TripleStoreId as LayingBody,
+	                bi.BusinessItemDate, wp.TripleStoreId as WorkPackaged,
+                    wp.ProcedureWorkPackageTripleStoreId as WorkPackage,
+	                cast(0 as bit) as IsDeleted
+                from ProcedureBusinessItem bi
+                join ProcedureWorkPackagedThing wp on wp.Id=bi.ProcedureWorkPackagedId
+                left join LayingBody l on l.Id=bi.LayingBodyId
+                where bi.Id={dataUrl}
+                union
+				select bi.TripleStoreId, null as WebLink, null as LayingBody,
+	                null BusinessItemDate, null as WorkPackaged,
+                    null as WorkPackage,
+	                cast(1 as bit) as IsDeleted
+				from DeletedProcedureBusinessItem bi
+				where bi.Id={dataUrl};
+                select s.TripleStoreId from ProcedureBusinessItemProcedureStep bi
+                join ProcedureStep s on s.Id=bi.ProcedureStepId
+                where bi.ProcedureBusinessItemId={dataUrl}";
         }
     }
 }

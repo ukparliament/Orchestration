@@ -38,8 +38,11 @@ namespace Functions.TransformationProcedure
 
         public string ParameterizedString(string dataUrl)
         {
-            return $@"select p.TripleStoreId, p.ProcedureName, p.IsDeleted from [Procedure] p 
-            where p.Id={dataUrl}";
+            return $@"select p.TripleStoreId, p.ProcedureName, cast(0 as bit) as IsDeleted from [Procedure] p 
+                where p.Id={dataUrl}
+                union
+                select p.TripleStoreId, null as ProcedureName, cast(1 as bit) as IsDeleted from [DeletedProcedure] p 
+                where p.Id={dataUrl}";
         }
     }
 }

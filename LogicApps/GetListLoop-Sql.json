@@ -57,7 +57,7 @@
                     "body": {
                       "Properties": {
                         "batchId": "@triggerOutputs()['headers']['x-ms-client-request-id']",
-                        "url": "@{items('For_each')?['Id']}"
+                        "url": "[variables('logicAppsSettings')[copyIndex()].idObject]"
                       }
                     },
                     "host": {
@@ -80,7 +80,7 @@
                   "type": "ApiConnection"
                 }
               },
-              "foreach": "@body('Get_items')?['value']",
+              "foreach": "[variables('logicAppsSettings')[copyIndex()].foreachObject]",
               "runAfter": {
                 "Get_items": [
                   "Succeeded"
@@ -90,17 +90,16 @@
             },
             "Get_items": {
               "inputs": {
+                "body": {
+                  "query": "variables('logicAppsSettings')[copyIndex()].listUri"
+                },
                 "host": {
                   "connection": {
                     "name": "@parameters('$connections')['sql']['connectionId']"
                   }
                 },
-                "method": "get",
-                "path": "[concat('/datasets/default/tables/@{encodeURIComponent(encodeURIComponent(''',variables('logicAppsSettings')[copyIndex()].listUri,'''))}/items')]",
-                "queries": {
-                  "$filter": "ModifiedAt gt @{addHours(utcNow(),-2)}",
-                  "$top": 10000
-                }
+                "method": "post",
+                "path": "/datasets/default/query/sql"
               },
               "runAfter": {
                 "Response": [

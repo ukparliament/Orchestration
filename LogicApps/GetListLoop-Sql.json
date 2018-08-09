@@ -91,7 +91,7 @@
             "Get_items": {
               "inputs": {
                 "body": {
-                  "query": "variables('logicAppsSettings')[copyIndex()].listUri"
+                  "query": "[variables('logicAppsSettings')[copyIndex()].listUri]"
                 },
                 "host": {
                   "connection": {

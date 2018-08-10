@@ -653,6 +653,20 @@ $logicAppVariable=@(
 		"queueReadInterval"=1;
 		"queueReadFrequency"="Minute";
     }
+	New-Object -TypeName PSObject -Property @{
+        "name"="procedurelaying";
+		"sourceKind"=[SourceType]::Sql;
+        "listUri"="select Id from ProcedureLaying where ModifiedAt>'@{addHours(utcNow(),-2)}' union select Id from DeletedProcedureLaying where DeletedAt>'@{addHours(utcNow(),-2)}'";
+        "listAcceptHeader"="";
+        "foreachObject"="@body('Get_items')?['resultsets']?['Table1']";
+        "idObject"="@{items('For_each')?['Id']}";
+        "frequency"="hour";
+        "interval"=1;
+        "triggerTime"="00:49";
+        "queueReadBatchSize"=50;
+		"queueReadInterval"=1;
+		"queueReadFrequency"="Minute";
+    }
 )
 
 Log "Setting variables to use during deployment"

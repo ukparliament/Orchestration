@@ -12,11 +12,6 @@ namespace Functions.TransformationProcedureBusinessItem
         public override BaseResource[] TransformSource(DataSet dataset)
         {
             BusinessItem businessItem = new BusinessItem();
-            Laying laying = new Laying();
-            if ((dataset.Tables.Count != 2) ||
-                (dataset.Tables[0].Rows.Count != 1) ||
-                (dataset.Tables[1].Rows.Count < 1))
-                return null;
             DataRow biRow = dataset.Tables[0].Rows[0];
 
             Uri idUri = GiveMeUri(GetText(biRow["TripleStoreId"]));
@@ -25,7 +20,6 @@ namespace Functions.TransformationProcedureBusinessItem
             else
             {
                 businessItem.Id = idUri;
-                laying.Id = idUri;
             }
             if (Convert.ToBoolean(biRow["IsDeleted"]))
                 return new BaseResource[] { businessItem };
@@ -49,29 +43,13 @@ namespace Functions.TransformationProcedureBusinessItem
                         Id=uri
                     }
                 };
-            Uri layingBodyUri = GiveMeUri(GetText(biRow["LayingBody"]));
-            if (layingBodyUri != null)
-            {
-                laying.LayingHasLayingBody = new LayingBody()
-                {
-                    Id = layingBodyUri
-                };
-                Uri workPackagedUri = GiveMeUri(GetText(biRow["WorkPackaged"]));
-                if (workPackagedUri != null)
-                    laying.LayingHasLaidThing = new List<LaidThing>
-                    {
-                        new LaidThing()
-                        {
-                            Id = workPackagedUri
-                        }
-                    };
-            }
+            if ((dataset.Tables.Count == 2) &&
+                (dataset.Tables[1].Rows.Count > 0))
+                businessItem.BusinessItemHasProcedureStep = giveMeUris(dataset.Tables[1], "TripleStoreId")
+                    .Select(u => new ProcedureStep() { Id = u })
+                    .ToArray();
 
-            businessItem.BusinessItemHasProcedureStep = giveMeUris(dataset.Tables[1], "TripleStoreId")
-                .Select(u => new ProcedureStep() { Id = u })
-                .ToArray();
-
-            return new BaseResource[] { businessItem, laying };
+            return new BaseResource[] { businessItem };
         }
 
         public override Uri GetSubjectFromSource(BaseResource[] deserializedSource)

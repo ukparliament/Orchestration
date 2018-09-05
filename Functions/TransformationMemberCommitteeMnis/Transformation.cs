@@ -12,24 +12,23 @@ namespace Functions.TransformationMemberCommitteeMnis
     {
         public override BaseResource[] TransformSource(XDocument doc)
         {
-            MnisFormalBodyMembership mnisFormalBodyMembership = new MnisFormalBodyMembership();
+            FormalBodyMembership formalBodyMembership = new FormalBodyMembership();
             XElement formalBodyElement = doc.Element(atom + "entry")
                 .Element(atom + "content")
                 .Element(m + "properties");
 
-            mnisFormalBodyMembership.FormalBodyMembershipMnisId = formalBodyElement.Element(d + "MemberCommittee_Id").GetText();
-            mnisFormalBodyMembership.FormalBodyMembershipStartDate = formalBodyElement.Element(d + "StartDate").GetDate();
-            mnisFormalBodyMembership.FormalBodyMembershipHasFormalBody = generateFormalBodyMembership(formalBodyElement);
-            PastFormalBodyMembership pastFormalBodyMembership = new PastFormalBodyMembership();
-            pastFormalBodyMembership.FormalBodyMembershipEndDate = formalBodyElement.Element(d + "EndDate").GetDate();
-            BaseResource formalBodyMembership = generateMembershipMember(formalBodyElement);
+            formalBodyMembership.FormalBodyMembershipMnisId = formalBodyElement.Element(d + "MemberCommittee_Id").GetText();
+            formalBodyMembership.FormalBodyMembershipStartDate = formalBodyElement.Element(d + "StartDate").GetDate();
+            formalBodyMembership.FormalBodyMembershipHasFormalBody = generateFormalBodyMembership(formalBodyElement);
+            formalBodyMembership.FormalBodyMembershipEndDate = formalBodyElement.Element(d + "EndDate").GetDate();
+            generateMembershipMember(formalBodyMembership, formalBodyElement);
 
-            return new BaseResource[] { mnisFormalBodyMembership, pastFormalBodyMembership, formalBodyMembership };
+            return new BaseResource[] { formalBodyMembership };
         }
 
-        private BaseResource generateMembershipMember(XElement formalBodyElement)
+        private void generateMembershipMember(FormalBodyMembership formalBodyMembership,
+            XElement formalBodyElement)
         {
-            BaseResource formalBodyMembership = null;
             string memberMnisId = formalBodyElement.Element(d + "Member_Id").GetText();
             if (string.IsNullOrWhiteSpace(memberMnisId) == false)
             {
@@ -37,20 +36,14 @@ namespace Functions.TransformationMemberCommitteeMnis
                 if (personUri != null)
                 {
                     if (formalBodyElement.Element(d + "ExOfficio").GetBoolean() == true)
-                        formalBodyMembership = new ExOfficioMembership()
+                        formalBodyMembership.ExOfficioMembershipHasMember = new Member()
                         {
-                            ExOfficioMembershipHasMember = new Member()
-                            {
-                                Id = personUri
-                            }
+                            Id = personUri
                         };
                     else
-                        formalBodyMembership = new FormalBodyMembership()
+                        formalBodyMembership.FormalBodyMembershipHasPerson = new Person()
                         {
-                            FormalBodyMembershipHasPerson = new Person()
-                            {
-                                Id = personUri
-                            }
+                            Id = personUri
                         };
                 }
                 else
@@ -58,7 +51,6 @@ namespace Functions.TransformationMemberCommitteeMnis
             }
             else
                 logger.Warning("No member data");
-            return formalBodyMembership;
         }
 
         private FormalBody generateFormalBodyMembership(XElement formalBodyElement)
@@ -83,7 +75,7 @@ namespace Functions.TransformationMemberCommitteeMnis
 
         public override Dictionary<string, INode> GetKeysFromSource(BaseResource[] deserializedSource)
         {
-            string formalBodyMembershipMnisId = deserializedSource.OfType<MnisFormalBodyMembership>()
+            string formalBodyMembershipMnisId = deserializedSource.OfType<FormalBodyMembership>()
                 .SingleOrDefault()
                 .FormalBodyMembershipMnisId;
             return new Dictionary<string, INode>()

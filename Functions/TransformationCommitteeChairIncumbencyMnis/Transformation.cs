@@ -13,7 +13,7 @@ namespace Functions.TransformationCommitteeChairIncumbencyMnis
     {
         public override BaseResource[] TransformSource(XDocument doc)
         {
-            MnisFormalBodyChairIncumbency mnisIncumbency = new MnisFormalBodyChairIncumbency();
+            Incumbency mnisIncumbency = new Incumbency();
             XElement element = doc.Descendants(d + "MemberCommitteeChair_Id").SingleOrDefault();
             if ((element == null) || (element.Parent == null))
                 return null;
@@ -27,15 +27,14 @@ namespace Functions.TransformationCommitteeChairIncumbencyMnis
             if (elementMemberCommittee != null)
                 generateIncumbencyMemberAndCommittee(mnisIncumbency, elementMemberCommittee);
 
-            PastIncumbency pastIncumbency = new PastIncumbency();
-            pastIncumbency.IncumbencyEndDate = elementIncumbency.Element(d + "EndDate").GetDate();
+            mnisIncumbency.IncumbencyEndDate = elementIncumbency.Element(d + "EndDate").GetDate();
 
-            return new BaseResource[] { mnisIncumbency, pastIncumbency };
+            return new BaseResource[] { mnisIncumbency };
         }
 
         public override Dictionary<string, INode> GetKeysFromSource(BaseResource[] deserializedSource)
         {
-            string formalBodyChairIncumbencyMnisId = deserializedSource.OfType<MnisFormalBodyChairIncumbency>()
+            string formalBodyChairIncumbencyMnisId = deserializedSource.OfType<Incumbency>()
                 .SingleOrDefault()
                 .FormalBodyChairIncumbencyMnisId;
             return new Dictionary<string, INode>()
@@ -52,7 +51,7 @@ namespace Functions.TransformationCommitteeChairIncumbencyMnis
             return source;
         }
 
-        private void generateIncumbencyMemberAndCommittee(MnisFormalBodyChairIncumbency mnisIncumbency, XElement elementMemberCommittee)
+        private void generateIncumbencyMemberAndCommittee(Incumbency mnisIncumbency, XElement elementMemberCommittee)
         {
             string memberId = elementMemberCommittee.Parent.Element(d + "Member_Id").GetText();
             if (string.IsNullOrWhiteSpace(memberId) == false)

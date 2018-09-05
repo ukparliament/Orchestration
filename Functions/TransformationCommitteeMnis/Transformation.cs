@@ -12,7 +12,7 @@ namespace Functions.TransformationCommitteeMnis
     {
         public override BaseResource[] TransformSource(XDocument doc)
         {
-            MnisFormalBody formalBody = new MnisFormalBody();
+            FormalBody formalBody = new FormalBody();
             XElement formalBodyElement = doc.Element(atom + "entry")
                 .Element(atom + "content")
                 .Element(m + "properties");
@@ -34,10 +34,9 @@ namespace Functions.TransformationCommitteeMnis
                         }
                     };
             }
-            PastFormalBody pastFormalBody = new PastFormalBody();
-            pastFormalBody.FormalBodyEndDate = formalBodyElement.Element(d + "EndDate").GetDate();
+            formalBody.FormalBodyEndDate = formalBodyElement.Element(d + "EndDate").GetDate();
 
-            return new BaseResource[] { formalBody, pastFormalBody };
+            return new BaseResource[] { formalBody };
         }
 
         private List<House> generateHouseMembership(XElement formalBodyElement)
@@ -59,7 +58,7 @@ namespace Functions.TransformationCommitteeMnis
 
         public override Dictionary<string, INode> GetKeysFromSource(BaseResource[] deserializedSource)
         {
-            string formalBodyMnisId = deserializedSource.OfType<MnisFormalBody>()
+            string formalBodyMnisId = deserializedSource.OfType<FormalBody>()
                 .SingleOrDefault()
                 .FormalBodyMnisId;
             return new Dictionary<string, INode>()
@@ -72,7 +71,7 @@ namespace Functions.TransformationCommitteeMnis
         {
             foreach (BaseResource formalBody in source)
                 formalBody.Id = subjectUri;
-            MnisFormalBody mnisFormalBody = source.OfType<MnisFormalBody>().SingleOrDefault();
+            FormalBody mnisFormalBody = source.OfType<FormalBody>().SingleOrDefault();
             FormalBodyChair targetFormalBodyChair = target.OfType<FormalBodyChair>().SingleOrDefault();
             if ((targetFormalBodyChair != null) && (targetFormalBodyChair.Id != null))
                 mnisFormalBody.FormalBodyHasFormalBodyChair = new FormalBodyChair()

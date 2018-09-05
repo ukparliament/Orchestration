@@ -18,7 +18,7 @@ namespace Functions.TransformationSeatIncumbencyMnis
                 .Element(atom + "content")
                 .Element(m + "properties");
 
-            PastParliamentaryIncumbency incumbency = new PastParliamentaryIncumbency();
+            ParliamentaryIncumbency incumbency = new ParliamentaryIncumbency();
             incumbency.ParliamentaryIncumbencyStartDate = seatIncumbencyElement.Element(d + "StartDate").GetDate();
             incumbency.ParliamentaryIncumbencyEndDate = seatIncumbencyElement.Element(d + "EndDate").GetDate();
             string memberId = seatIncumbencyElement.Element(d + "Member_Id").GetText();
@@ -32,11 +32,10 @@ namespace Functions.TransformationSeatIncumbencyMnis
             {
                 Id = memberUri
             };
-            MnisSeatIncumbency seatIncumbency = new MnisSeatIncumbency();
-            seatIncumbency.CommonsSeatIncumbencyMnisId = seatIncumbencyElement.Element(d + "MemberConstituency_Id").GetText();
+            incumbency.CommonsSeatIncumbencyMnisId = seatIncumbencyElement.Element(d + "MemberConstituency_Id").GetText();
             ParliamentPeriod parliamentPeriod = generateSeatIncumbencyParliamentPeriod(incumbency.ParliamentaryIncumbencyStartDate.Value, incumbency.ParliamentaryIncumbencyEndDate);
             if (parliamentPeriod != null)
-                seatIncumbency.SeatIncumbencyHasParliamentPeriod = new ParliamentPeriod[] { parliamentPeriod };
+                incumbency.SeatIncumbencyHasParliamentPeriod = new ParliamentPeriod[] { parliamentPeriod };
 
             string constituencyId = seatIncumbencyElement.Element(d + "Constituency_Id").GetText();
             string houseSeatCommand = @"
@@ -52,17 +51,17 @@ namespace Functions.TransformationSeatIncumbencyMnis
             seatSparql.SetLiteral("constituencyGroupMnisId", constituencyId);
             Uri houseSeatUri = IdRetrieval.GetSubject(seatSparql.ToString(), false, logger);
             if (houseSeatUri != null)
-                seatIncumbency.SeatIncumbencyHasHouseSeat = new HouseSeat()
+                incumbency.SeatIncumbencyHasHouseSeat = new HouseSeat()
                 {
                     Id = houseSeatUri
                 };
 
-            return new BaseResource[] { incumbency, seatIncumbency };
+            return new BaseResource[] { incumbency };
         }
 
         public override Dictionary<string, INode> GetKeysFromSource(BaseResource[] deserializedSource)
         {
-            string commonsSeatIncumbencyMnisId = deserializedSource.OfType<MnisSeatIncumbency>()
+            string commonsSeatIncumbencyMnisId = deserializedSource.OfType<ParliamentaryIncumbency>()
                 .SingleOrDefault()
                 .CommonsSeatIncumbencyMnisId;
             return new Dictionary<string, INode>()

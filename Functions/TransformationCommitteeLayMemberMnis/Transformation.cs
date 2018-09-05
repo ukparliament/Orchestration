@@ -12,22 +12,22 @@ namespace Functions.TransformationCommitteeLayMemberMnis
     {
         public override BaseResource[] TransformSource(XDocument doc)
         {
-            MnisFormalBodyLayPerson mnisFormalBodyLayPerson = new MnisFormalBodyLayPerson();
+            Person layPerson = new Person();
             XElement formalBodyLayPersonElement = doc.Element(atom + "entry")
                 .Element(atom + "content")
                 .Element(m + "properties");
 
-            mnisFormalBodyLayPerson.FormalBodyLayPersonMnisId = formalBodyLayPersonElement.Element(d + "CommitteeLayMember_Id").GetText();
-            mnisFormalBodyLayPerson.PersonGivenName = formalBodyLayPersonElement.Element(d + "Forename").GetText();
-            mnisFormalBodyLayPerson.PersonOtherNames = formalBodyLayPersonElement.Element(d + "MiddleNames").GetText();
-            mnisFormalBodyLayPerson.PersonFamilyName = formalBodyLayPersonElement.Element(d + "Surname").GetText();
+            layPerson.FormalBodyLayPersonMnisId = formalBodyLayPersonElement.Element(d + "CommitteeLayMember_Id").GetText();
+            layPerson.PersonGivenName = formalBodyLayPersonElement.Element(d + "Forename").GetText();
+            layPerson.PersonOtherNames = formalBodyLayPersonElement.Element(d + "MiddleNames").GetText();
+            layPerson.PersonFamilyName = formalBodyLayPersonElement.Element(d + "Surname").GetText();
 
             string currentGenderText = formalBodyLayPersonElement.Element(d + "Gender").GetText();
             if (string.IsNullOrWhiteSpace(currentGenderText) == false)
             {
                 Uri genderUri = IdRetrieval.GetSubject("genderMnisId", currentGenderText, false, logger);
                 if (genderUri != null)
-                    mnisFormalBodyLayPerson.PersonHasGenderIdentity = new GenderIdentity[]
+                    layPerson.PersonHasGenderIdentity = new GenderIdentity[]
                     {
                         new GenderIdentity()
                         {
@@ -39,7 +39,6 @@ namespace Functions.TransformationCommitteeLayMemberMnis
                         }
                     };
             }
-            PastFormalBodyMembership pastFormalBodyMembership = null;
             string committeeId = formalBodyLayPersonElement.Element(d + "Committee_Id").GetText();
             if (string.IsNullOrWhiteSpace(committeeId) == false)
             {
@@ -47,7 +46,7 @@ namespace Functions.TransformationCommitteeLayMemberMnis
                 if (formalBodyUri != null)
                 {
                     Uri formalBodymembershipId = GenerateNewId();
-                    mnisFormalBodyLayPerson.PersonHasFormalBodyMembership = new FormalBodyMembership[]
+                    layPerson.PersonHasFormalBodyMembership = new FormalBodyMembership[]
                     {
                         new FormalBodyMembership()
                         {
@@ -56,23 +55,19 @@ namespace Functions.TransformationCommitteeLayMemberMnis
                             {
                                 Id= formalBodyUri
                             },
-                            FormalBodyMembershipStartDate=formalBodyLayPersonElement.Element(d + "StartDate").GetDate()
+                            FormalBodyMembershipStartDate=formalBodyLayPersonElement.Element(d + "StartDate").GetDate(),
+                            FormalBodyMembershipEndDate=formalBodyLayPersonElement.Element(d + "EndDate").GetDate()
                         }
-                    };
-                    pastFormalBodyMembership = new PastFormalBodyMembership()
-                    {
-                        Id = formalBodymembershipId,
-                        FormalBodyMembershipEndDate = formalBodyLayPersonElement.Element(d + "EndDate").GetDate()
                     };
                 }
             }
 
-            return new BaseResource[] { mnisFormalBodyLayPerson, pastFormalBodyMembership };
+            return new BaseResource[] { layPerson };
         }
 
         public override Dictionary<string, INode> GetKeysFromSource(BaseResource[] deserializedSource)
         {
-            string formalBodyLayPersonMnisId = deserializedSource.OfType<MnisFormalBodyLayPerson>()
+            string formalBodyLayPersonMnisId = deserializedSource.OfType<Person>()
                 .SingleOrDefault()
                 .FormalBodyLayPersonMnisId;
             return new Dictionary<string, INode>()
@@ -83,7 +78,7 @@ namespace Functions.TransformationCommitteeLayMemberMnis
 
         public override Dictionary<string, INode> GetKeysForTarget(BaseResource[] deserializedSource)
         {
-            Uri genderUri = deserializedSource.OfType<MnisFormalBodyLayPerson>()
+            Uri genderUri = deserializedSource.OfType<Person>()
                 .SingleOrDefault()
                 .PersonHasGenderIdentity
                 .SingleOrDefault()
@@ -97,7 +92,7 @@ namespace Functions.TransformationCommitteeLayMemberMnis
 
         public override BaseResource[] SynchronizeIds(BaseResource[] source, Uri subjectUri, BaseResource[] target)
         {
-            MnisFormalBodyLayPerson mnisFormalBodyLayPerson = source.OfType<MnisFormalBodyLayPerson>().SingleOrDefault();
+            Person mnisFormalBodyLayPerson = source.OfType<Person>().SingleOrDefault();
             mnisFormalBodyLayPerson.Id = subjectUri;
             if (mnisFormalBodyLayPerson.PersonHasGenderIdentity != null)
             {
@@ -109,12 +104,7 @@ namespace Functions.TransformationCommitteeLayMemberMnis
             {
                 FormalBodyMembership formalBodyMembership = target.OfType<FormalBodyMembership>().SingleOrDefault();
                 if (formalBodyMembership != null)
-                {
                     mnisFormalBodyLayPerson.PersonHasFormalBodyMembership.SingleOrDefault().Id = formalBodyMembership.Id;
-                    PastFormalBodyMembership pastFormalBodyMembership = source.OfType<PastFormalBodyMembership>().SingleOrDefault();
-                    if (pastFormalBodyMembership != null)
-                        pastFormalBodyMembership.Id = formalBodyMembership.Id;
-                }
             }
             return source;
         }

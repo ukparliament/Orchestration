@@ -11,27 +11,21 @@ namespace Functions.TransformationProcedureWorkPackagedThing
     {
         public override BaseResource[] TransformSource(DataSet dataset)
         {
-            StatutoryInstrumentPaper statutoryInstrument = new StatutoryInstrumentPaper();
-            ProposedNegativeStatutoryInstrumentPaper proposedNegativeStatutoryInstrument = new ProposedNegativeStatutoryInstrumentPaper();
-            MadeStatutoryInstrumentPaper madeStatutoryInstrument = new MadeStatutoryInstrumentPaper();
+            WorkPackagedThing workPackagedThing = new WorkPackagedThing();
             DataRow row = dataset.Tables[0].Rows[0];
 
             Uri idUri = GiveMeUri(GetText(row["TripleStoreId"]));
             if (idUri == null)
                 return null;
             else
-            {
-                statutoryInstrument.Id = idUri;
-                madeStatutoryInstrument.Id = idUri;
-                proposedNegativeStatutoryInstrument.Id = idUri;
-            }
+                workPackagedThing.Id = idUri;
             if (Convert.ToBoolean(row["IsDeleted"]))
-                return new BaseResource[] { statutoryInstrument };
+                return new BaseResource[] { workPackagedThing };
 
             string url = GetText(row["WebLink"]);
             if ((string.IsNullOrWhiteSpace(url) == false) &&
                 (Uri.TryCreate(url, UriKind.Absolute, out Uri uri)))
-                statutoryInstrument.WorkPackagedThingHasWorkPackagedThingWebLink = new List<WorkPackagedThingWebLink>()
+                workPackagedThing.WorkPackagedThingHasWorkPackagedThingWebLink = new List<WorkPackagedThingWebLink>()
                 {
                     new WorkPackagedThingWebLink()
                     {
@@ -40,28 +34,28 @@ namespace Functions.TransformationProcedureWorkPackagedThing
                 };
             if (Convert.ToBoolean(row["IsStatutoryInstrument"]))
             {
-                statutoryInstrument.StatutoryInstrumentPaperName = GetText(row["WorkPackagedThingName"]);
-                statutoryInstrument.StatutoryInstrumentPaperComingIntoForceNote = GetText(row["ComingIntoForceNote"]);
+                workPackagedThing.StatutoryInstrumentPaperName = GetText(row["WorkPackagedThingName"]);
+                workPackagedThing.StatutoryInstrumentPaperComingIntoForceNote = GetText(row["ComingIntoForceNote"]);
                 if ((DateTimeOffset.TryParse(row["ComingIntoForceDate"]?.ToString(), out DateTimeOffset comingIntoForceDate))
                     && (comingIntoForceDate != null))
-                   statutoryInstrument.StatutoryInstrumentPaperComingIntoForceDate = comingIntoForceDate;
+                   workPackagedThing.StatutoryInstrumentPaperComingIntoForceDate = comingIntoForceDate;
                 if ((DateTimeOffset.TryParse(row["MadeDate"]?.ToString(), out DateTimeOffset madeDate))
                     && (madeDate != null))
-                    madeStatutoryInstrument.StatutoryInstrumentPaperMadeDate = madeDate;
+                    workPackagedThing.StatutoryInstrumentPaperMadeDate = madeDate;
                 if (int.TryParse(row["StatutoryInstrumentNumber"]?.ToString(), out int statutoryInstrumentNumber))
-                    statutoryInstrument.StatutoryInstrumentPaperNumber = statutoryInstrumentNumber;
-                statutoryInstrument.StatutoryInstrumentPaperPrefix = GetText(row["StatutoryInstrumentNumberPrefix"]);
+                    workPackagedThing.StatutoryInstrumentPaperNumber = statutoryInstrumentNumber;
+                workPackagedThing.StatutoryInstrumentPaperPrefix = GetText(row["StatutoryInstrumentNumberPrefix"]);
                 if (int.TryParse(row["StatutoryInstrumentNumberYear"]?.ToString(), out int statutoryInstrumentNumberYear))
-                    statutoryInstrument.StatutoryInstrumentPaperYear = statutoryInstrumentNumberYear;
+                    workPackagedThing.StatutoryInstrumentPaperYear = statutoryInstrumentNumberYear;
             }
             else
-                proposedNegativeStatutoryInstrument.ProposedNegativeStatutoryInstrumentPaperName= GetText(row["WorkPackagedThingName"]);
-            return new BaseResource[] { statutoryInstrument, madeStatutoryInstrument, proposedNegativeStatutoryInstrument  };
+                workPackagedThing.ProposedNegativeStatutoryInstrumentPaperName= GetText(row["WorkPackagedThingName"]);
+            return new BaseResource[] { workPackagedThing  };
         }
 
         public override Uri GetSubjectFromSource(BaseResource[] deserializedSource)
         {
-            return deserializedSource.OfType<StatutoryInstrumentPaper>()
+            return deserializedSource.OfType<WorkPackagedThing>()
                 .FirstOrDefault()
                 .Id;
         }

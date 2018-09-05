@@ -16,7 +16,7 @@ namespace Functions.TransformationOppositionIncumbencyMnis
                 .Element(atom + "content")
                 .Element(m + "properties");
 
-            MnisOppositionIncumbency oppositionIncumbency = new MnisOppositionIncumbency();
+            Incumbency oppositionIncumbency = new Incumbency();
             oppositionIncumbency.OppositionIncumbencyMnisId = oppositionIncumbencyElement.Element(d + "MemberOppositionPost_Id").GetText();
             oppositionIncumbency.IncumbencyStartDate = oppositionIncumbencyElement.Element(d + "StartDate").GetDate();
             string oppositionPositionMnisId = oppositionIncumbencyElement.Element(d + "OppositionPost_Id").GetText();
@@ -41,16 +41,14 @@ namespace Functions.TransformationOppositionIncumbencyMnis
             {
                 Id = memberUri
             };
-            PastIncumbency incumbency = new PastIncumbency();
-            incumbency.Id = oppositionIncumbency.Id;
-            incumbency.IncumbencyEndDate = oppositionIncumbencyElement.Element(d + "EndDate").GetDate();
+            oppositionIncumbency.IncumbencyEndDate = oppositionIncumbencyElement.Element(d + "EndDate").GetDate();
 
-            return new BaseResource[] { oppositionIncumbency, incumbency };
+            return new BaseResource[] { oppositionIncumbency,  };
         }
 
         public override Dictionary<string, INode> GetKeysFromSource(BaseResource[] deserializedSource)
         {
-            string oppositionIncumbencyMnisId = deserializedSource.OfType<MnisOppositionIncumbency>()
+            string oppositionIncumbencyMnisId = deserializedSource.OfType<Incumbency>()
                 .SingleOrDefault()
                 .OppositionIncumbencyMnisId;
             return new Dictionary<string, INode>()

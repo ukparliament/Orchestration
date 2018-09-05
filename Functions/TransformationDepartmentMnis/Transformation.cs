@@ -12,7 +12,7 @@ namespace Functions.TransformationDepartmentMnis
     {
         public override BaseResource[] TransformSource(XDocument doc)
         {
-            MnisDepartmentGroup department = new MnisDepartmentGroup();
+            Group department = new Group();
             XElement departmentElement = doc.Element(atom + "entry")
                 .Element(atom + "content")
                 .Element(m + "properties");
@@ -20,15 +20,14 @@ namespace Functions.TransformationDepartmentMnis
             department.GroupName = departmentElement.Element(d + "Name").GetText();
             department.GroupStartDate = departmentElement.Element(d + "StartDate").GetDate();
             department.MnisDepartmentId = departmentElement.Element(d + "Department_Id").GetText();
-            PastGroup pastGroup = new PastGroup();
-            pastGroup.GroupEndDate = departmentElement.Element(d + "EndDate").GetDate();
+            department.GroupEndDate = departmentElement.Element(d + "EndDate").GetDate();
 
-            return new BaseResource[] { department, pastGroup };
+            return new BaseResource[] { department };
         }
 
         public override Dictionary<string, INode> GetKeysFromSource(BaseResource[] deserializedSource)
         {
-            string mnisDepartmentId = deserializedSource.OfType<MnisDepartmentGroup>()
+            string mnisDepartmentId = deserializedSource.OfType<Group>()
                 .SingleOrDefault()
                 .MnisDepartmentId;
             return new Dictionary<string, INode>()

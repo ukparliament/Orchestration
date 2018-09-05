@@ -87,8 +87,7 @@ namespace Functions.TransformationQuestionWrittenAnswer
             if (string.IsNullOrWhiteSpace(data.Uin) == false)
                 question.WrittenQuestionIndexingAndSearchUin = new string[] { data.Uin };
 
-            IndexingAndSearchThing iast = new IndexingAndSearchThing();
-            iast.IndexingAndSearchUri = new String[] { strElements.Where(x => x.Attribute("name").Value == "uri").FirstOrDefault().GetText() };
+            question.IndexingAndSearchUri = new String[] { strElements.Where(x => x.Attribute("name").Value == "uri").FirstOrDefault().GetText() };
 
             if (data.AskingMemberSesId != null)
             {
@@ -112,13 +111,13 @@ namespace Functions.TransformationQuestionWrittenAnswer
             if (writtenAnswerExpectation != null)
                 question.QuestionHasWrittenAnswerExpectation = new WrittenAnswerExpectation[] { writtenAnswerExpectation };
 
-            return new BaseResource[] { question, iast };
+            return new BaseResource[] { question };
         }
 
         public override Dictionary<string, INode> GetKeysFromSource(BaseResource[] deserializedSource)
         {
-            string writtenQuestionUri = deserializedSource.Where(x => x.GetType() == typeof(IndexingAndSearchThing))
-                .OfType<IndexingAndSearchThing>()
+            string writtenQuestionUri = deserializedSource.Where(x => x.GetType() == typeof(IndexingAndSearchWrittenQuestion))
+                .OfType<IndexingAndSearchWrittenQuestion>()
                 .SingleOrDefault()
                 .IndexingAndSearchUri.SingleOrDefault();
             DateTimeOffset askedDate = deserializedSource.OfType<IndexingAndSearchWrittenQuestion>()
@@ -139,8 +138,6 @@ namespace Functions.TransformationQuestionWrittenAnswer
         {
             IndexingAndSearchWrittenQuestion question = source.OfType<IndexingAndSearchWrittenQuestion>().SingleOrDefault();
             question.Id = subjectUri;
-            IndexingAndSearchThing iast = source.Where(x => x.GetType() == typeof(IndexingAndSearchThing)).OfType<IndexingAndSearchThing>().SingleOrDefault();
-            iast.Id = subjectUri;
             if ((question.QuestionHasAnsweringBodyAllocation != null) && (question.QuestionHasAnsweringBodyAllocation.Any()))
             {
                 AnsweringBodyAllocation answeringBodyAllocationTarget = target.OfType<AnsweringBodyAllocation>().SingleOrDefault();
@@ -181,7 +178,7 @@ namespace Functions.TransformationQuestionWrittenAnswer
                         .Id = expectationTarget.Id;
             }
 
-            return new BaseResource[] { question, iast };
+            return new BaseResource[] { question };
         }
 
         private AnsweringBodyAllocation giveMeAnsweringBodyAllocation(Response data)

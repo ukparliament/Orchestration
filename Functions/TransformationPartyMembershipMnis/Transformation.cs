@@ -12,7 +12,7 @@ namespace Functions.TransformationPartyMembershipMnis
     {
         public override BaseResource[] TransformSource(XDocument doc)
         {
-            PastPartyMembership partyMembership = new PastPartyMembership();
+            PartyMembership partyMembership = new PartyMembership();
             XElement partyElement = doc.Element(atom + "entry")
                 .Element(atom + "content")
                 .Element(m + "properties");
@@ -41,15 +41,14 @@ namespace Functions.TransformationPartyMembershipMnis
             };
             partyMembership.PartyMembershipStartDate = partyElement.Element(d + "StartDate").GetDate();
             partyMembership.PartyMembershipEndDate = partyElement.Element(d + "EndDate").GetDate();
-            MnisPartyMembership mnisPartyMembership = new MnisPartyMembership();
-            mnisPartyMembership.PartyMembershipMnisId = partyElement.Element(d + "MemberParty_Id").GetText();
+            partyMembership.PartyMembershipMnisId = partyElement.Element(d + "MemberParty_Id").GetText();
 
-            return new BaseResource[] { partyMembership, mnisPartyMembership };
+            return new BaseResource[] { partyMembership };
         }
 
         public override Dictionary<string, INode> GetKeysFromSource(BaseResource[] deserializedSource)
         {
-            string partyMembershipMnisId = deserializedSource.OfType<MnisPartyMembership>()
+            string partyMembershipMnisId = deserializedSource.OfType<PartyMembership>()
                 .SingleOrDefault()
                 .PartyMembershipMnisId;
             return new Dictionary<string, INode>()

@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+﻿using Newtonsoft.Json.Linq;
 using Parliament.Model;
 using Parliament.Rdf.Serialization;
 using System;
@@ -14,7 +13,7 @@ namespace Functions.TransformationLordsSeatIncumbency
 
         public override BaseResource[] TransformSource(JObject jsonResponse)
         {
-            MnisSeatIncumbency mnisSeatIncumbency = new MnisSeatIncumbency();
+            ParliamentaryIncumbency parliamentaryIncumbency = new ParliamentaryIncumbency();
 
             string id = ((JValue)jsonResponse.SelectToken("ID0")).GetText();
             Uri uri = null;
@@ -26,7 +25,7 @@ namespace Functions.TransformationLordsSeatIncumbency
             else
             {
                 if (Uri.TryCreate($"{idNamespace}{id}", UriKind.Absolute, out uri))
-                    mnisSeatIncumbency.Id = uri;
+                    parliamentaryIncumbency.Id = uri;
                 else
                 {
                     logger.Warning($"Invalid url '{id}' found");
@@ -37,7 +36,7 @@ namespace Functions.TransformationLordsSeatIncumbency
             if (houseSeatUri == null)
                 return null;
             else
-                mnisSeatIncumbency.SeatIncumbencyHasHouseSeat = new HouseSeat()
+                parliamentaryIncumbency.SeatIncumbencyHasHouseSeat = new HouseSeat()
                 {
                     Id = houseSeatUri
                 };
@@ -46,30 +45,26 @@ namespace Functions.TransformationLordsSeatIncumbency
             if (personUri == null)
                 return null;
             else
-                mnisSeatIncumbency.ParliamentaryIncumbencyHasMember = new Member()
+                parliamentaryIncumbency.ParliamentaryIncumbencyHasMember = new Member()
                 {
                     Id = personUri
                 };
 
             float? mnisId = ((JValue)jsonResponse.SelectToken("MNIS_x0020_ID")).GetFloat();
             if (mnisId.HasValue)
-                mnisSeatIncumbency.LordsSeatIncumbencyMnisId = Convert.ToInt32(mnisId.Value).ToString();
-            mnisSeatIncumbency.ParliamentaryIncumbencyStartDate = ((JValue)jsonResponse.SelectToken("Start_x0020_Date")).GetDate();
-
-            PastParliamentaryIncumbency pastIncumbency = new PastParliamentaryIncumbency();
-            pastIncumbency.Id = mnisSeatIncumbency.Id;
-            pastIncumbency.ParliamentaryIncumbencyEndDate = ((JValue)jsonResponse.SelectToken("End_x0020_Date")).GetDate();
-
-            mnisSeatIncumbency.SeatIncumbencyHasParliamentPeriod = giveMeParliamentPeriods(mnisSeatIncumbency.ParliamentaryIncumbencyStartDate.Value, pastIncumbency.ParliamentaryIncumbencyEndDate);
-            if (mnisSeatIncumbency.SeatIncumbencyHasParliamentPeriod == null)
+                parliamentaryIncumbency.LordsSeatIncumbencyMnisId = Convert.ToInt32(mnisId.Value).ToString();
+            parliamentaryIncumbency.ParliamentaryIncumbencyStartDate = ((JValue)jsonResponse.SelectToken("Start_x0020_Date")).GetDate();
+            parliamentaryIncumbency.ParliamentaryIncumbencyEndDate = ((JValue)jsonResponse.SelectToken("End_x0020_Date")).GetDate();
+            parliamentaryIncumbency.SeatIncumbencyHasParliamentPeriod = giveMeParliamentPeriods(parliamentaryIncumbency.ParliamentaryIncumbencyStartDate.Value, parliamentaryIncumbency.ParliamentaryIncumbencyEndDate);
+            if (parliamentaryIncumbency.SeatIncumbencyHasParliamentPeriod == null)
                 return null;
 
-            return new BaseResource[] { mnisSeatIncumbency, pastIncumbency };
+            return new BaseResource[] { parliamentaryIncumbency };
         }
 
         public override Uri GetSubjectFromSource(BaseResource[] deserializedSource)
         {
-            return deserializedSource.OfType<MnisSeatIncumbency>()
+            return deserializedSource.OfType<ParliamentaryIncumbency>()
                 .SingleOrDefault()
                 .Id;
         }

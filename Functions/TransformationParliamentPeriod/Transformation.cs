@@ -11,18 +11,18 @@ namespace Functions.TransformationParliamentPeriod
 
         public override BaseResource[] TransformSource(JObject jsonResponse)
         {
-            PastParliamentPeriod pastParliamentPeriod = new PastParliamentPeriod();
+            ParliamentPeriod parliamentPeriod = new ParliamentPeriod();
             Uri id = giveMeUri(jsonResponse, "TripleStoreId");
             if (id != null)
-                pastParliamentPeriod.Id = id;
+                parliamentPeriod.Id = id;
             else
                 return null;
-            pastParliamentPeriod.ParliamentPeriodNumber = ((JValue)jsonResponse.SelectToken("parliamentPeriodNumber")).GetFloat();
+            parliamentPeriod.ParliamentPeriodNumber = ((JValue)jsonResponse.SelectToken("parliamentPeriodNumber")).GetFloat();
 
             string startDate = ((JValue)jsonResponse.SelectToken("parliamentPeriodStartDate")).GetText();
             if (DateTimeOffset.TryParse(startDate, null as IFormatProvider, System.Globalization.DateTimeStyles.AssumeUniversal, out DateTimeOffset startD))
             {
-                pastParliamentPeriod.ParliamentPeriodStartDate = startD;
+                parliamentPeriod.ParliamentPeriodStartDate = startD;
             }
             else
             {
@@ -31,17 +31,17 @@ namespace Functions.TransformationParliamentPeriod
             }
             string endDate = ((JValue)jsonResponse.SelectToken("parliamentPeriodEndDate")).GetText();
             if ((string.IsNullOrWhiteSpace(endDate) == false) && (DateTimeOffset.TryParse(endDate, null as IFormatProvider, System.Globalization.DateTimeStyles.AssumeUniversal, out DateTimeOffset endD)))
-                pastParliamentPeriod.ParliamentPeriodEndDate = endD;
+                parliamentPeriod.ParliamentPeriodEndDate = endD;
 
             Uri previousId = giveMeUri(jsonResponse, "ImmediatelyPreviousParliamentPer");
             if (previousId != null)
-                pastParliamentPeriod.ParliamentPeriodHasImmediatelyPreviousParliamentPeriod = new ParliamentPeriod()
+                parliamentPeriod.ParliamentPeriodHasImmediatelyPreviousParliamentPeriod = new ParliamentPeriod()
                 {
                     Id = previousId
                 };
             Uri followingId = giveMeUri(jsonResponse, "ImmediatelyFollowingParliamentPe");
             if (followingId != null)
-                pastParliamentPeriod.ParliamentPeriodHasImmediatelyFollowingParliamentPeriod = new ParliamentPeriod[]
+                parliamentPeriod.ParliamentPeriodHasImmediatelyFollowingParliamentPeriod = new ParliamentPeriod[]
                 {
                     new ParliamentPeriod()
                     {
@@ -49,15 +49,14 @@ namespace Functions.TransformationParliamentPeriod
                     }
                 };
 
-            WikidataParliamentPeriod wikidataParliamentPeriod = new WikidataParliamentPeriod();
-            wikidataParliamentPeriod.ParliamentPeriodWikidataId = ((JValue)jsonResponse.SelectToken("parliamentPeriodWikidataId")).GetText();
+            parliamentPeriod.ParliamentPeriodWikidataId = ((JValue)jsonResponse.SelectToken("parliamentPeriodWikidataId")).GetText();
 
-            return new BaseResource[] { pastParliamentPeriod, wikidataParliamentPeriod };
+            return new BaseResource[] { parliamentPeriod };
         }
 
         public override Uri GetSubjectFromSource(BaseResource[] deserializedSource)
         {
-            return deserializedSource.OfType<PastParliamentPeriod>()
+            return deserializedSource.OfType<ParliamentPeriod>()
                 .SingleOrDefault()
                 .Id;
         }

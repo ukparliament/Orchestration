@@ -39,13 +39,9 @@ namespace Functions.TransformationLordsSeatIncumbencyInterruption
                 };
 
             incumbencyInterruption.IncumbencyInterruptionStartDate = ((JValue)jsonResponse.SelectToken("startDate")).GetDate();
+            incumbencyInterruption.IncumbencyInterruptionEndDate = ((JValue)jsonResponse.SelectToken("endDate")).GetDate();
 
-
-            PastIncumbencyInterruption pastInterruption = new PastIncumbencyInterruption();
-            pastInterruption.Id = incumbencyInterruption.Id;
-            pastInterruption.IncumbencyInterruptionEndDate = ((JValue)jsonResponse.SelectToken("endDate")).GetDate();
-
-            return new BaseResource[] { incumbencyInterruption, pastInterruption };
+            return new BaseResource[] { incumbencyInterruption };
         }
 
         public override Uri GetSubjectFromSource(BaseResource[] deserializedSource)

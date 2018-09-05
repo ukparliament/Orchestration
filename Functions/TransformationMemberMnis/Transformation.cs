@@ -12,7 +12,7 @@ namespace Functions.TransformationMemberMnis
     {
         public override BaseResource[] TransformSource(XDocument doc)
         {
-            Member member = new Member();
+            Person member = new Person();
             XElement personElement = doc.Element(atom + "entry")
                 .Element(atom + "content")
                 .Element(m + "properties");
@@ -21,14 +21,10 @@ namespace Functions.TransformationMemberMnis
             member.PersonGivenName = personElement.Element(d + "Forename").GetText();
             member.PersonOtherNames = personElement.Element(d + "MiddleNames").GetText();
             member.PersonFamilyName = personElement.Element(d + "Surname").GetText();
-            MnisMember mnisMember = new MnisMember();
-            mnisMember.MemberMnisId = personElement.Element(d + "Member_Id").GetText();
-            DodsPerson dodsPerson = new DodsPerson();
-            dodsPerson.PersonDodsId = personElement.Element(d + "Dods_Id").GetText();
-            PimsPerson pimsPerson = new PimsPerson();
-            pimsPerson.PersonPimsId = personElement.Element(d + "Pims_Id").GetText();
-            DeceasedPerson deceasedPerson = new DeceasedPerson();
-            deceasedPerson.PersonDateOfDeath = personElement.Element(d + "DateOfDeath").GetDate();
+            member.MemberMnisId = personElement.Element(d + "Member_Id").GetText();
+            member.PersonDodsId = personElement.Element(d + "Dods_Id").GetText();
+            member.PersonPimsId = personElement.Element(d + "Pims_Id").GetText();
+            member.PersonDateOfDeath = personElement.Element(d + "DateOfDeath").GetDate();
             
             string currentGenderText = personElement.Element(d + "Gender").GetText();
             if (string.IsNullOrWhiteSpace(currentGenderText) == false)
@@ -37,12 +33,12 @@ namespace Functions.TransformationMemberMnis
                 member.PersonHasGenderIdentity = new GenderIdentity[] { genderIdentity };
             }
 
-            return new BaseResource[] { member, mnisMember, dodsPerson, pimsPerson, deceasedPerson};
+            return new BaseResource[] { member };
         }
 
         public override Dictionary<string, INode> GetKeysFromSource(BaseResource[] deserializedSource)
         {
-            string memberMnisId = deserializedSource.OfType<MnisMember>()
+            string memberMnisId = deserializedSource.OfType<Person>()
                 .SingleOrDefault()
                 .MemberMnisId;
             return new Dictionary<string, INode>()
@@ -53,7 +49,7 @@ namespace Functions.TransformationMemberMnis
 
         public override Dictionary<string, INode> GetKeysForTarget(BaseResource[] deserializedSource)
         {
-            Uri genderUri = deserializedSource.OfType<Member>()
+            Uri genderUri = deserializedSource.OfType<Person>()
                 .SingleOrDefault()
                 .PersonHasGenderIdentity
                 .SingleOrDefault()
@@ -67,7 +63,7 @@ namespace Functions.TransformationMemberMnis
 
         public override BaseResource[] SynchronizeIds(BaseResource[] source, Uri subjectUri, BaseResource[] target)
         {
-            Member member = source.OfType<Member>().SingleOrDefault();
+            Person member = source.OfType<Person>().SingleOrDefault();
             if ((member.PersonHasGenderIdentity != null) && (member.PersonHasGenderIdentity.Any()))
             {
                 GenderIdentity genderIdentity = target.OfType<GenderIdentity>().SingleOrDefault();

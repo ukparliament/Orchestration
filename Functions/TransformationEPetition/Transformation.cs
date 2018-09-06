@@ -37,8 +37,10 @@ namespace Functions.TransformationEPetition
                 moderations = generateModerations(sourceEPetition.data.attributes.open_at, sourceEPetition.data.attributes.rejected_at, sourceEPetition.data.attributes.rejection);
                 ukgapEPetition.EPetitionHasThresholdAttainment = generateThresholdAttainments(sourceEPetition.data.attributes.moderation_threshold_reached_at, sourceEPetition.data.attributes.response_threshold_reached_at, sourceEPetition.data.attributes.debate_threshold_reached_at);
                 List<LocatedSignatureCount> signatures = new List<LocatedSignatureCount>();
-                signatures.AddRange(generateInternationalAreasSignatures(sourceEPetition.data.attributes.signatures_by_country, petitionRetrievalTimestamp));
-                signatures.AddRange(generateConstituencySignatures(sourceEPetition.data.attributes.signatures_by_constituency, petitionRetrievalTimestamp));
+                if (sourceEPetition.data.attributes.signatures_by_country != null)
+                    signatures.AddRange(generateInternationalAreasSignatures(sourceEPetition.data.attributes.signatures_by_country, petitionRetrievalTimestamp));
+                if (sourceEPetition.data.attributes.signatures_by_constituency != null)
+                    signatures.AddRange(generateConstituencySignatures(sourceEPetition.data.attributes.signatures_by_constituency, petitionRetrievalTimestamp));
                 ukgapEPetition.EPetitionHasLocatedSignatureCount = signatures;
             }
 
@@ -124,7 +126,7 @@ namespace Functions.TransformationEPetition
                     foundLocatedSignatureCount.Id = signature.Id;
                     if (foundLocatedSignatureCount.SignatureCount.SingleOrDefault() == signature.SignatureCount.SingleOrDefault())
                         foundLocatedSignatureCount.SignatureCountRetrievedAt = signature.SignatureCountRetrievedAt;
-                }                
+                }
             }
             foreach (LocatedSignatureCount signature in ePetition.EPetitionHasLocatedSignatureCount.Where(s => s.Id == null))
                 signature.Id = GenerateNewId();

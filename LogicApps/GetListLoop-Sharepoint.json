@@ -20,6 +20,12 @@
         "description": "Name of the Azure Functions."
       }
     },
+    "diagnosticsStorageAccountName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the diagnostics storage account."
+      }
+    },
     "releaseId": {
       "type": "int",
       "metadata": {
@@ -177,7 +183,40 @@
           }
         }
       },
-      "resources": [],
+      "resources": [
+        {
+          "type": "providers/diagnosticSettings",
+          "name": "Microsoft.Insights/workflow",
+          "dependsOn": [
+            "[concat('Microsoft.Logic/workflows/',variables('logicAppsSettings')[copyIndex()].name)]"
+          ],
+          "apiVersion": "2017-05-01-preview",
+          "properties": {
+            "name": "Microsoft.Insights/workflow",
+            "storageAccountId": "[resourceId('Microsoft.Storage/storageAccounts', parameters('diagnosticsStorageAccountName'))]",
+            "logs": [
+              {
+                "category": "WorkflowRuntime",
+                "enabled": true,
+                "retentionPolicy": {
+                  "days": 0,
+                  "enabled": false
+                }
+              }
+            ],
+            "metrics": [
+              {
+                "category": "AllMetrics",
+                "enabled": true,
+                "retentionPolicy": {
+                  "enabled": false,
+                  "days": 0
+                }
+              }
+            ]
+          }
+        }
+      ],
       "dependsOn": []
     }
   ]

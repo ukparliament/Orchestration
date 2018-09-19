@@ -2,6 +2,12 @@
   "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
+    "diagnosticsStorageAccountName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the diagnostics storage account."
+      }
+    },
     "releaseId": {
       "type": "int",
       "metadata": {
@@ -65,23 +71,23 @@
           },
           "triggers": {
             "manual": {
-                "inputs": {
-                    "method": "GET",
-                    "relativePath": "/lists/{listId}/ids/{id}",
-                    "schema": {
-                      "properties": {
-                        "id": {
-                          "type": "number"
-                        },
-                        "listId": {
-                          "type": "string"
-                        }
-                      },
-                        "type": "object"
+              "inputs": {
+                "method": "GET",
+                "relativePath": "/lists/{listId}/ids/{id}",
+                "schema": {
+                  "properties": {
+                    "id": {
+                      "type": "number"
+                    },
+                    "listId": {
+                      "type": "string"
                     }
-                },
-                "kind": "Http",
-                "type": "Request"
+                  },
+                  "type": "object"
+                }
+              },
+              "kind": "Http",
+              "type": "Request"
             }
           }
         },
@@ -97,7 +103,40 @@
           }
         }
       },
-      "resources": [],
+      "resources": [
+        {
+          "type": "providers/diagnosticSettings",
+          "name": "Microsoft.Insights/workflow",
+          "dependsOn": [
+            "Microsoft.Logic/workflows/getitem-sharepoint"
+          ],
+          "apiVersion": "2017-05-01-preview",
+          "properties": {
+            "name": "Microsoft.Insights/workflow",
+            "storageAccountId": "[resourceId('Microsoft.Storage/storageAccounts', parameters('diagnosticsStorageAccountName'))]",
+            "logs": [
+              {
+                "category": "WorkflowRuntime",
+                "enabled": true,
+                "retentionPolicy": {
+                  "days": 0,
+                  "enabled": false
+                }
+              }
+            ],
+            "metrics": [
+              {
+                "category": "AllMetrics",
+                "enabled": true,
+                "retentionPolicy": {
+                  "enabled": false,
+                  "days": 0
+                }
+              }
+            ]
+          }
+        }
+      ],
       "dependsOn": []
     }
   ]

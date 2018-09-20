@@ -115,7 +115,7 @@
           "type": "providers/diagnosticSettings",
           "name": "Microsoft.Insights/workflow",
           "dependsOn": [
-            "[concat('Microsoft.Logic/workflows/','getlist-',variables('logicAppsSetting_name'))]"
+            "[concat('Microsoft.Logic/workflows/','getitem-',variables('logicAppsSetting_name'))]"
           ],
           "apiVersion": "2017-05-01-preview",
           "properties": {

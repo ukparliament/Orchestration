@@ -20,6 +20,12 @@
         "description": "Name of the Service Bus."
       }
     },
+    "operationsResourceGroupName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the Resource Group where diagnostics storage is."
+      }
+    },
     "diagnosticsStorageAccountName": {
       "type": "string",
       "metadata": {
@@ -208,13 +214,10 @@
         {
           "type": "providers/diagnosticSettings",
           "name": "Microsoft.Insights/workflow",
-          "dependsOn": [
-            "[concat('Microsoft.Logic/workflows/',variables('logicAppsSettings')[copyIndex()].name)]"
-          ],
           "apiVersion": "2017-05-01-preview",
           "properties": {
             "name": "Microsoft.Insights/workflow",
-            "storageAccountId": "[resourceId('Microsoft.Storage/storageAccounts', parameters('diagnosticsStorageAccountName'))]",
+            "storageAccountId": "[resourceId(subscription().subscriptionId,parameters('operationsResourceGroupName'),'Microsoft.Storage/storageAccounts', parameters('diagnosticsStorageAccountName'))]",
             "logs": [
               {
                 "category": "WorkflowRuntime",
@@ -235,7 +238,10 @@
                 }
               }
             ]
-          }
+          },
+          "dependsOn": [
+            "[concat('Microsoft.Logic/workflows/','getlist-',variables('logicAppsSettings')[copyIndex()].name)]"
+          ]
         }
       ],
       "dependsOn": []

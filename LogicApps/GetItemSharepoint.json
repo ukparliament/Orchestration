@@ -2,6 +2,12 @@
   "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
+    "operationsResourceGroupName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the Resource Group where diagnostics storage is."
+      }
+    },
     "diagnosticsStorageAccountName": {
       "type": "string",
       "metadata": {
@@ -16,13 +22,14 @@
     }
   },
   "variables": {
-    "sharepointConnectionName": "sharepoint"
+    "sharepointConnectionName": "sharepoint",
+    "logicAppsSetting_name": "sharepoint"
   },
   "resources": [
     {
       "comments": "Logic App that obtains item from sharepoint list.",
       "type": "Microsoft.Logic/workflows",
-      "name": "getitem-sharepoint",
+      "name": "[concat('getitem-',variables('logicAppsSetting_name'))]",
       "apiVersion": "2016-06-01",
       "location": "[resourceGroup().location]",
       "tags": {
@@ -108,12 +115,12 @@
           "type": "providers/diagnosticSettings",
           "name": "Microsoft.Insights/workflow",
           "dependsOn": [
-            "Microsoft.Logic/workflows/getitem-sharepoint"
+            "[concat('Microsoft.Logic/workflows/','getlist-',variables('logicAppsSetting_name'))]"
           ],
           "apiVersion": "2017-05-01-preview",
           "properties": {
             "name": "Microsoft.Insights/workflow",
-            "storageAccountId": "[resourceId('Microsoft.Storage/storageAccounts', parameters('diagnosticsStorageAccountName'))]",
+            "storageAccountId": "[resourceId(subscription().subscriptionId,parameters('operationsResourceGroupName'),'Microsoft.Storage/storageAccounts', parameters('diagnosticsStorageAccountName'))]",
             "logs": [
               {
                 "category": "WorkflowRuntime",

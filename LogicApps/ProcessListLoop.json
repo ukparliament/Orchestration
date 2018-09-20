@@ -240,7 +240,7 @@
             ]
           },
           "dependsOn": [
-            "[concat('Microsoft.Logic/workflows/','getlist-',variables('logicAppsSettings')[copyIndex()].name)]"
+            "[concat('Microsoft.Logic/workflows/','processlist-',variables('logicAppsSettings')[copyIndex()].name)]"
           ]
         }
       ],

@@ -1,83 +1,128 @@
 {
-    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
-    "contentVersion": "1.0.0.0",
-    "parameters": {
-        "serviceBusName": {
-            "type": "string",
-            "metadata": {
-                "description": "Name of the Service Bus."
-            }
-        },        
-        "releaseId": {
-            "type": "int",
-            "metadata": {
-                "description": "The identifier of the current release record."
-            }
-        }
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "serviceBusName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the Service Bus."
+      }
     },
-    "variables": {
-        "authorizationKeyName": "RootManageSharedAccessKey"
+    "operationsResourceGroupName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the Resource Group where diagnostics storage is."
+      }
     },
-    "resources": [
+    "diagnosticsStorageAccountName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the diagnostics storage account."
+      }
+    },
+    "releaseId": {
+      "type": "int",
+      "metadata": {
+        "description": "The identifier of the current release record."
+      }
+    }
+  },
+  "variables": {
+    "authorizationKeyName": "RootManageSharedAccessKey"
+  },
+  "resources": [
+    {
+      "comments": "Container (namespace) for Service Bus' queues.",
+      "type": "Microsoft.ServiceBus/namespaces",
+      "sku": {
+        "name": "Standard",
+        "tier": "Standard"
+      },
+      "kind": "Messaging",
+      "name": "[parameters('serviceBusName')]",
+      "apiVersion": "2015-08-01",
+      "location": "[resourceGroup().location]",
+      "tags": {
+        "ReleaseId": "[parameters('releaseId')]"
+      },
+      "properties": {},
+      "resources": [
         {
-            "comments": "Container (namespace) for Service Bus' queues.",
-            "type": "Microsoft.ServiceBus/namespaces",
-            "sku": {
-                "name": "Standard",
-                "tier": "Standard"
-            },
-            "kind": "Messaging",
-            "name": "[parameters('serviceBusName')]",
-            "apiVersion": "2015-08-01",
-            "location": "[resourceGroup().location]",
-            "tags": {
-                "ReleaseId": "[parameters('releaseId')]"
-            },
-            "properties": {},
-            "resources": [],
-            "dependsOn": []
-        },
-        {
-            "comments": "Access key to Service Bus' queues.",
-            "type": "Microsoft.ServiceBus/namespaces/AuthorizationRules",
-            "name": "[concat(parameters('serviceBusName'),'/',variables('authorizationKeyName'))]",
-            "apiVersion": "2015-08-01",
-            "tags": {
-                "ReleaseId": "[parameters('releaseId')]"
-            },
-            "properties": {
-                "rights": [
-                    "Listen",
-                    "Manage",
-                    "Send"
-                ]
-            },
-            "resources": [],
-            "dependsOn": [
-                "[resourceId('Microsoft.ServiceBus/namespaces', parameters('serviceBusName'))]"
-            ]
-        },
-        {
-            "comments": "API connection to Service Bus used by Logic Apps",
-            "type": "Microsoft.Web/connections",
-            "name": "[parameters('serviceBusName')]",
-            "apiVersion": "2016-06-01",
-            "location": "[resourceGroup().location]",
-            "tags": {
-                "ReleaseId": "[parameters('releaseId')]"
-            },
-            "properties": {
-                "api": {
-                    "id": "[concat(subscription().id,'/providers/Microsoft.Web/locations/',resourceGroup().location,'/managedApis/servicebus')]"
-                },
-                "displayName": "[parameters('serviceBusName')]",
-                "parameterValues": {
-                    "connectionString": "[listKeys(resourceId(subscription().subscriptionId,resourceGroup().name,'Microsoft.ServiceBus/namespaces/authorizationRules',parameters('serviceBusName'),variables('authorizationKeyName')),'2015-08-01').primaryConnectionString]"
+          "type": "providers/diagnosticSettings",
+          "name": "Microsoft.ServiceBus/namespaces",
+          "dependsOn": [
+            "[concat('Microsoft.ServiceBus/namespaces/',parameters('serviceBusName'))]"
+          ],
+          "apiVersion": "2017-05-01-preview",
+          "properties": {
+            "name": "Microsoft.Insights/workflow",
+            "storageAccountId": "[resourceId(subscription().subscriptionId,parameters('operationsResourceGroupName'),'Microsoft.Storage/storageAccounts', parameters('diagnosticsStorageAccountName'))]",
+            "logs": [
+              {
+                "category": "OperationalLogs",
+                "enabled": true,
+                "retentionPolicy": {
+                  "days": 0,
+                  "enabled": false
                 }
-            },
-            "dependsOn": [
-                "[resourceId(subscription().subscriptionId,resourceGroup().name,'Microsoft.ServiceBus/namespaces/authorizationRules',parameters('serviceBusName'),variables('authorizationKeyName'))]"
+              }
+            ],
+            "metrics": [
+              {
+                "category": "AllMetrics",
+                "enabled": true,
+                "retentionPolicy": {
+                  "enabled": false,
+                  "days": 0
+                }
+              }
             ]
+          }
         }
-    ]
+      ],
+      "dependsOn": []
+    },
+    {
+      "comments": "Access key to Service Bus' queues.",
+      "type": "Microsoft.ServiceBus/namespaces/AuthorizationRules",
+      "name": "[concat(parameters('serviceBusName'),'/',variables('authorizationKeyName'))]",
+      "apiVersion": "2015-08-01",
+      "tags": {
+        "ReleaseId": "[parameters('releaseId')]"
+      },
+      "properties": {
+        "rights": [
+          "Listen",
+          "Manage",
+          "Send"
+        ]
+      },
+      "resources": [],
+      "dependsOn": [
+        "[resourceId('Microsoft.ServiceBus/namespaces', parameters('serviceBusName'))]"
+      ]
+    },
+    {
+      "comments": "API connection to Service Bus used by Logic Apps",
+      "type": "Microsoft.Web/connections",
+      "name": "[parameters('serviceBusName')]",
+      "apiVersion": "2016-06-01",
+      "location": "[resourceGroup().location]",
+      "tags": {
+        "ReleaseId": "[parameters('releaseId')]"
+      },
+      "properties": {
+        "api": {
+          "id": "[concat(subscription().id,'/providers/Microsoft.Web/locations/',resourceGroup().location,'/managedApis/servicebus')]"
+        },
+        "displayName": "[parameters('serviceBusName')]",
+        "parameterValues": {
+          "connectionString": "[listKeys(resourceId(subscription().subscriptionId,resourceGroup().name,'Microsoft.ServiceBus/namespaces/authorizationRules',parameters('serviceBusName'),variables('authorizationKeyName')),'2015-08-01').primaryConnectionString]"
+        }
+      },
+      "dependsOn": [
+        "[resourceId(subscription().subscriptionId,resourceGroup().name,'Microsoft.ServiceBus/namespaces/authorizationRules',parameters('serviceBusName'),variables('authorizationKeyName'))]"
+      ]
+    }
+  ]
 }

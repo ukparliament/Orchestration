@@ -35,12 +35,11 @@
       "comments": "Container (namespace) for Service Bus' queues.",
       "type": "Microsoft.ServiceBus/namespaces",
       "sku": {
-        "name": "Standard",
-        "tier": "Standard"
+        "name": "Standard"
       },
       "kind": "Messaging",
       "name": "[parameters('serviceBusName')]",
-      "apiVersion": "2015-08-01",
+      "apiVersion": "2017-04-01",
       "location": "[resourceGroup().location]",
       "tags": {
         "ReleaseId": "[parameters('releaseId')]"
@@ -49,13 +48,13 @@
       "resources": [
         {
           "type": "providers/diagnosticSettings",
-          "name": "Microsoft.ServiceBus/namespaces",
+          "name": "Microsoft.Insights/servicebus",
           "dependsOn": [
             "[concat('Microsoft.ServiceBus/namespaces/',parameters('serviceBusName'))]"
           ],
           "apiVersion": "2017-05-01-preview",
           "properties": {
-            "name": "Microsoft.Insights/workflow",
+            "name": "Microsoft.Insights/servicebus",
             "storageAccountId": "[resourceId(subscription().subscriptionId,parameters('operationsResourceGroupName'),'Microsoft.Storage/storageAccounts', parameters('diagnosticsStorageAccountName'))]",
             "logs": [
               {

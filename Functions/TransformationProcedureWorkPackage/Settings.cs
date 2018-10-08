@@ -50,7 +50,8 @@
 				select wp.ProcedureWorkPackageTripleStoreId as TripleStoreId,
 	                null as WorkPackagedThing, null as [Procedure],
 	                cast(1 as bit) as IsDeleted
-                from DeletedProcedureWorkPackagedThing wp";
+                from DeletedProcedureWorkPackagedThing wp
+                where wp.Id={dataUrl}";
         }
     }
 }

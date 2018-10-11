@@ -17,8 +17,8 @@
     <PackageReference Include="Microsoft.Azure.WebJobs.ServiceBus" Version="2.1.0-beta1" />
     <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="1.0.6" />
     <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
-    <PackageReference Include="Parliament.Model" Version="1.1.1" />
-    <PackageReference Include="Parliament.Rdf.Serialization" Version="1.1.2-r1646" />
+    <PackageReference Include="Parliament.Model" Version="1.1.2-r1854" />
+    <PackageReference Include="Parliament.Rdf.Serialization" Version="1.1.2-r1864" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Microsoft.CSharp" />

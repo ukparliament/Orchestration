@@ -10,7 +10,7 @@ namespace Functions
         public SparqlParameterizedString Sparql { get; private set; }
         private static NodeFactory nodeFactory = new NodeFactory();
 
-        public SparqlConstructor(string sparqlText, Dictionary<string,INode> parameters)
+        public SparqlConstructor(string sparqlText, Dictionary<string, INode> parameters)
         {
             Sparql = new SparqlParameterizedString(sparqlText);
             foreach (KeyValuePair<string, INode> parameter in parameters)
@@ -59,7 +59,10 @@ namespace Functions
 
         public static INode GetNodeDate(DateTimeOffset value)
         {
-            return value.ToLiteralDate(nodeFactory);
+            DateTimeOffset dt = value;
+            TimeSpan offset = TimeZoneInfo.Local.GetUtcOffset(dt);
+            dt = dt.Add(offset).Subtract(dt.Offset);
+            return new DateTimeOffset(dt.UtcTicks, TimeSpan.Zero).ToLiteralDate(nodeFactory);
         }
 
         public static INode GetNodeTime(DateTimeOffset value)

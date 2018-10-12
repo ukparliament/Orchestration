@@ -60,9 +60,8 @@ namespace Functions
         public static INode GetNodeDate(DateTimeOffset value)
         {
             DateTimeOffset dt = value;
-            TimeSpan offset = TimeZoneInfo.Local.GetUtcOffset(dt);
-            dt = dt.Add(offset).Subtract(dt.Offset);
-            return new DateTimeOffset(dt.UtcTicks, TimeSpan.Zero).ToLiteralDate(nodeFactory);
+            dt = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(dt, "GMT Standard Time");
+            return dt.ToLiteralDate(nodeFactory);
         }
 
         public static INode GetNodeTime(DateTimeOffset value)

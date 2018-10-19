@@ -45,7 +45,7 @@
             return $@"select b.TripleStoreId, lb.TripleStoreId as LayingBody, 
 	                wp.TripleStoreId as WorkPackaged, li.LayingDate, cast(0 as bit) as IsDeleted
                 from ProcedureLaying li
-                join LayingBody lb on lb.Id=li.LayingBodyId
+                left join LayingBody lb on lb.Id=li.LayingBodyId
                 join ProcedureBusinessItem b on b.Id=li.ProcedureBusinessItemId
                 join ProcedureWorkPackagedThing wp on wp.Id=li.ProcedureWorkPackagedId
                 where li.Id={dataUrl}

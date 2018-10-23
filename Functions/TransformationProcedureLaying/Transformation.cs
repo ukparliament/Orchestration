@@ -22,22 +22,22 @@ namespace Functions.TransformationProcedureLaying
             if (Convert.ToBoolean(row["IsDeleted"]))
                 return new BaseResource[] { laying };
 
-            Uri layingBodyUri = GiveMeUri(GetText(row["LayingBody"]));
-            if (layingBodyUri != null)
-            {
-                laying.LayingHasLayingBody = new LayingBody()
-                {
-                    Id = layingBodyUri
-                };
-                Uri workPackagedUri = GiveMeUri(GetText(row["WorkPackaged"]));
-                if (workPackagedUri != null)
-                    laying.LayingHasLaidThing = new List<LaidThing>
+            Uri workPackagedUri = GiveMeUri(GetText(row["WorkPackaged"]));
+            if (workPackagedUri != null)
+                laying.LayingHasLaidThing = new List<LaidThing>
                     {
                         new LaidThing()
                         {
                             Id = workPackagedUri
                         }
                     };
+            Uri layingBodyUri = GiveMeUri(GetText(row["LayingBody"]));
+            if (layingBodyUri != null)
+            {
+                laying.LayingHasLayingBody = new LayingBody()
+                {
+                    Id = layingBodyUri
+                };                
             }
 
             if ((DateTimeOffset.TryParse(row["LayingDate"]?.ToString(), out DateTimeOffset dateTime))

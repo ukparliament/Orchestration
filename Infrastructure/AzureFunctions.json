@@ -83,9 +83,9 @@
       "comments": "App Service plan for the Azure Functions",
       "type": "Microsoft.Web/serverfarms",
       "sku": {
-        "name": "S1",
+        "name": "S2",
         "tier": "Standard",
-        "size": "S1",
+        "size": "S2",
         "family": "S",
         "capacity": 1
       },

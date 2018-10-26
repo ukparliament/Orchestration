@@ -24,13 +24,10 @@ namespace Functions.TransformationProcedureLaying
 
             Uri workPackagedUri = GiveMeUri(GetText(row["WorkPackaged"]));
             if (workPackagedUri != null)
-                laying.LayingHasLaidThing = new List<LaidThing>
-                    {
-                        new LaidThing()
-                        {
-                            Id = workPackagedUri
-                        }
-                    };
+                laying.LayingHasLaidThing = new LaidThing()
+                {
+                    Id = workPackagedUri
+                };
             Uri layingBodyUri = GiveMeUri(GetText(row["LayingBody"]));
             if (layingBodyUri != null)
             {

@@ -7,9 +7,8 @@ namespace Functions.IdGenerator
     public class IdMaker
     {
         private static string idNamespace = Environment.GetEnvironmentVariable("IdNamespace", EnvironmentVariableTarget.Process);
-        protected Logger logger = new Logger(new Microsoft.Azure.WebJobs.ExecutionContext());
-
-        public string MakeId()
+        
+        public string MakeId(Logger logger)
         {
             if (idNamespace[idNamespace.Length - 1] != '/')
                 idNamespace = $"{idNamespace}/";
@@ -17,11 +16,11 @@ namespace Functions.IdGenerator
             string id = null;
             do
                 id = $"{idNamespace}{generator.GetAlphanumericId(8)}";
-            while (ExistsInTripleStore(id));
+            while (ExistsInTripleStore(id, logger));
             return id;
         }
 
-        private bool ExistsInTripleStore(string id)
+        private bool ExistsInTripleStore(string id, Logger logger)
         {
             string command = @"
                 CONSTRUCT {?id a <https://example.org/object>.}

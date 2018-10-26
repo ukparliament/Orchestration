@@ -14,7 +14,7 @@ namespace Functions.IdGenerator
             Logger logger = new Logger(executionContext);
             logger.Triggered();
             IdMaker generator = new IdMaker();
-            string id = generator.MakeId();
+            string id = generator.MakeId(logger);
 
             return id;
         }

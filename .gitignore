@@ -4,3 +4,4 @@ obj
 *.settings.json
 PublishProfiles
 *.user
+packages

@@ -7,6 +7,10 @@ namespace Functions
 {
     public static class DataRetrieval
     {
+        private static HttpClient client = new HttpClient()
+        {
+            Timeout = TimeSpan.FromSeconds(180)
+        };
 
         public static async Task<string> DataFromUrl(string url, string acceptHeader, Logger logger)
         {
@@ -42,18 +46,14 @@ namespace Functions
         private static async Task<string> getText(string url, string acceptHeader)
         {
             string result = null;
-            using (HttpClient client = new HttpClient())
+            using (HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, url))
             {
-                client.Timeout = TimeSpan.FromSeconds(180);
-                using (HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, url))
+                if (string.IsNullOrWhiteSpace(acceptHeader) == false)
+                    request.Headers.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue(acceptHeader));
+                using (HttpResponseMessage response = await client.SendAsync(request))
                 {
-                    if (string.IsNullOrWhiteSpace(acceptHeader) == false)
-                        request.Headers.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue(acceptHeader));
-                    using (HttpResponseMessage response = await client.SendAsync(request))
-                    {
-                        if (response.IsSuccessStatusCode == true)
-                            result = await response.Content.ReadAsStringAsync();
-                    }
+                    if (response.IsSuccessStatusCode == true)
+                        result = await response.Content.ReadAsStringAsync();
                 }
             }
 

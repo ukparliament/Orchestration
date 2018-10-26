@@ -88,7 +88,7 @@ namespace Functions
 
         protected Uri GenerateNewId()
         {
-            string id = new IdGenerator.IdMaker().MakeId();
+            string id = new IdGenerator.IdMaker().MakeId(logger);
             return new Uri(id);
         }
 

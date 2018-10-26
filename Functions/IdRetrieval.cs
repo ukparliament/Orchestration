@@ -58,7 +58,7 @@ namespace Functions
             {
                 if (canCreateNewId == true)
                 {
-                    string id = new IdGenerator.IdMaker().MakeId();
+                    string id = new IdGenerator.IdMaker().MakeId(logger);
                     logger.Verbose($"Created new id ({id})");
                     return new Uri(id);
                 }

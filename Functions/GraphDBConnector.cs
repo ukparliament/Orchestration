@@ -7,6 +7,7 @@ using System.Text;
 using VDS.RDF;
 using VDS.RDF.Parsing;
 using VDS.RDF.Storage;
+using VDS.RDF.Update.Commands;
 using VDS.RDF.Writing.Formatting;
 
 namespace Functions
@@ -22,34 +23,11 @@ namespace Functions
         {
         }
 
-        public override void UpdateGraph(Uri graphUri, IEnumerable<Triple> additions, IEnumerable<Triple> removals)
+        public void UpdateGraph(Uri graphUri, GraphDiffReport difference)
         {
-            StringBuilder sb = new StringBuilder();
-            SparqlFormatter sparqlFormatter = new SparqlFormatter();
-            if ((removals != null) && (removals.Any()))
-            {
-                sb.AppendLine("DELETE DATA {");
-                foreach (Triple removed in removals)
-                    sb.AppendLine(sparqlFormatter.Format(removed));
-                sb.Append("}");
-                if ((additions != null) && (additions.Any()))
-                    sb.AppendLine(";");
-                else
-                    sb.AppendLine();
-            }
-            if ((additions != null) && (additions.Any()))
-            {
-                sb.AppendLine("INSERT DATA {");
-                foreach (Triple added in additions)
-                    sb.AppendLine(sparqlFormatter.Format(added));
-                sb.AppendLine("}");
-            }
-            /*if (((removals != null) && (removals.Any())) ||
-                ((additions != null) && (additions.Any())))
-                sb.AppendLine(addProvenance(additions, removals));*/
-            string sparqlUpdate = sb.ToString();
+            ModifyCommand modifyCommand = difference.AsUpdate();
             SparqlUpdateParser parser = new SparqlUpdateParser();
-            parser.ParseFromString(sparqlUpdate);
+            parser.ParseFromString(modifyCommand.ToString());
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create($"{BaseUri}{this._repositoriesPrefix}Master{this._updatePath}");
             request.Method = "POST";
             request.ContentType = "application/sparql-update";
@@ -57,7 +35,7 @@ namespace Functions
             request.Headers.Add("Api-Version", apiVersion);
             using (StreamWriter writer = new StreamWriter(request.GetRequestStream(), new UTF8Encoding(Options.UseBomForUtf8)))
             {
-                writer.Write(EscapeQuery(sparqlUpdate));
+                writer.Write(EscapeQuery(modifyCommand.ToString()));
             }
             HttpWebResponse response = (HttpWebResponse)request.GetResponse();
             response.Dispose();

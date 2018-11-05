@@ -19,7 +19,7 @@ namespace Functions
                 {
                     connector.Timeout = 180 * 1000;
                     Uri uri = null;
-                    connector.UpdateGraph(uri, difference.AddedTriples, difference.RemovedTriples);
+                    connector.UpdateGraph(uri, difference);
                 }
             }
             catch (Exception e)

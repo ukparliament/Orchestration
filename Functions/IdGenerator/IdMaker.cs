@@ -32,7 +32,7 @@ namespace Functions.IdGenerator
             bool? result = GraphRetrieval.GetAskQueryResult(sparql.ToString(), logger, "true");
             if (result.HasValue == false)
                 throw new ArgumentOutOfRangeException("No response from ask query", new Exception("Possible connectivity issue"));
-            return true;
+            return result.Value;
         }
     }
 }

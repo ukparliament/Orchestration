@@ -67,7 +67,7 @@ namespace Functions
             }
             catch (VDS.RDF.Parsing.RdfParserSelectionException e)
             {
-                logger.Exception(e);
+                logger.Verbose(e.Message);
                 graph = new Graph();
             }
             catch (Exception e)

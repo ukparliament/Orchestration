@@ -61,7 +61,7 @@ namespace Functions.TransformationContactPointHouse
 
         public string ParameterizedString(string dataUrl)
         {
-            return System.Environment.GetEnvironmentVariable("CUSTOMCONNSTR_SharepointItem", EnvironmentVariableTarget.Process).Replace("{listId}", "261f09cd-9c4e-4e76-a928-b7b8c5b3cdcd").Replace("{id}", dataUrl);
+            return System.Environment.GetEnvironmentVariable("CUSTOMCONNSTR_SharepointItem", EnvironmentVariableTarget.Process).Replace("{listId}", "e26c9ee4-8c90-4d89-aeb3-449506027ea5").Replace("{id}", dataUrl);
         }
     }
 }

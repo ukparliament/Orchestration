@@ -48,7 +48,7 @@
                   }
                 },
                 "method": "get",
-                "path": "/datasets/@{encodeURIComponent(encodeURIComponent('https://hopuk.sharepoint.com/sites/datateam/datasources'))}/tables/@{encodeURIComponent(encodeURIComponent(triggerOutputs()['relativePathParameters']['listId']))}/items/@{encodeURIComponent(triggerOutputs()['relativePathParameters']['id'])}"
+                "path": "/datasets/@{encodeURIComponent(encodeURIComponent('https://hopuk.sharepoint.com/sites/bct-datasources'))}/tables/@{encodeURIComponent(encodeURIComponent(triggerOutputs()['relativePathParameters']['listId']))}/items/@{encodeURIComponent(triggerOutputs()['relativePathParameters']['id'])}"
               },
               "runAfter": {},
               "type": "ApiConnection"

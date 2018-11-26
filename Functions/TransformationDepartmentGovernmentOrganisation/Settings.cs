@@ -39,7 +39,7 @@ namespace Functions.TransformationDepartmentGovernmentOrganisation
 
         public string ParameterizedString(string dataUrl)
         {
-            return Environment.GetEnvironmentVariable("CUSTOMCONNSTR_SharepointItem", EnvironmentVariableTarget.Process).Replace("{listId}", "a55100f4-8dd9-43a3-8614-3a3f121c8fbf").Replace("{id}", dataUrl);
+            return Environment.GetEnvironmentVariable("CUSTOMCONNSTR_SharepointItem", EnvironmentVariableTarget.Process).Replace("{listId}", "9855a9e1-54e1-431d-b6dd-bf0455d1b244").Replace("{id}", dataUrl);
         }
     }
 }

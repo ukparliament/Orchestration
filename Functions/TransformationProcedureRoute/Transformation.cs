@@ -32,17 +32,10 @@ namespace Functions.TransformationProcedureRoute
                 return null;
             }
 
-            Uri procedureUri = GiveMeUri(GetText(row["Procedure"]));
-            if (procedureUri != null)
-                procedureRoute.ProcedureRouteHasProcedure = new List<Procedure>()
-                {
-                    new Procedure()
-                    {
-                        Id=procedureUri
-                    }
-                };
-            else
-                return null;
+            procedureRoute.ProcedureRouteHasProcedure = giveMeUris(dataset.Tables[1], "TripleStoreId")
+                .Select(u => new Procedure() { Id = u })
+                .ToArray();
+
             Uri fromStepUri = GiveMeUri(GetText(row["FromStep"]));
             if (fromStepUri != null)
             {
@@ -120,6 +113,18 @@ namespace Functions.TransformationProcedureRoute
         {
             return source;
         }
-        
+
+        private IEnumerable<Uri> giveMeUris(DataTable dataTable, string columnName)
+        {
+            foreach (DataRow row in dataTable.Rows)
+            {
+                string itemId = row[columnName]?.ToString();
+                if (string.IsNullOrWhiteSpace(itemId))
+                    continue;
+                if (Uri.TryCreate($"{idNamespace}{itemId}", UriKind.Absolute, out Uri itemUri))
+                    yield return itemUri;
+            }
+        }
+
     }
 }

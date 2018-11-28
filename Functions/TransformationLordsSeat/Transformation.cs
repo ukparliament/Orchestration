@@ -13,7 +13,7 @@ namespace Functions.TransformationLordsSeat
         {
             HouseSeat houseSeat = new HouseSeat();
 
-            string id = ((JValue)jsonResponse.SelectToken("ID0")).GetText();
+            string id = ((JValue)jsonResponse.SelectToken("OData__x0049_D0")).GetText();
             Uri uri = null;
             if (string.IsNullOrWhiteSpace(id))
             {

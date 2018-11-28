@@ -15,7 +15,7 @@ namespace Functions.TransformationLordsSeatIncumbency
         {
             ParliamentaryIncumbency parliamentaryIncumbency = new ParliamentaryIncumbency();
 
-            string id = ((JValue)jsonResponse.SelectToken("ID0")).GetText();
+            string id = ((JValue)jsonResponse.SelectToken("OData__x0049_D0")).GetText();
             Uri uri = null;
             if (string.IsNullOrWhiteSpace(id))
             {

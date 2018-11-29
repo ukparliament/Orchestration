@@ -22,20 +22,17 @@ namespace Functions.IdGenerator
 
         private bool ExistsInTripleStore(string id, Logger logger)
         {
-            string command = @"
-                CONSTRUCT {?id a <https://example.org/object>.}
-                WHERE {
-                    BIND(@id AS ?id)
-                    {?id ?p ?o.}
-                    union
-                    {?s ?p1 ?id.}
-                } LIMIT 1";
+            string command = @"ask{
+                {@id ?p ?o.}
+                union
+                {?s ?p1 @id.}
+            }";                    
             SparqlParameterizedString sparql = new SparqlParameterizedString(command);
             sparql.SetUri("id", new Uri(id));
-            IGraph graph = GraphRetrieval.GetGraph(sparql.ToString(), logger, "false");
-            if (graph.IsEmpty)
-                return false;
-            return true;
+            bool? result = GraphRetrieval.GetAskQueryResult(sparql.ToString(), logger, "true");
+            if (result.HasValue == false)
+                throw new ArgumentOutOfRangeException("No response from ask query", new Exception("Possible connectivity issue"));
+            return result.Value;
         }
     }
 }

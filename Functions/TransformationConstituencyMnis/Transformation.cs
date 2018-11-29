@@ -55,10 +55,10 @@ namespace Functions.TransformationConstituencyMnis
         public override BaseResource[] SynchronizeIds(BaseResource[] source, Uri subjectUri, BaseResource[] target)
         {
             ConstituencyGroup constituency = source.OfType<ConstituencyGroup>().SingleOrDefault();
-            HouseSeat houseSeat = target.OfType<HouseSeat>().SingleOrDefault();
+            ConstituencyGroup constituencyGroup = target.OfType<ConstituencyGroup>().SingleOrDefault();
             if ((constituency.ConstituencyGroupHasHouseSeat != null) && (constituency.ConstituencyGroupHasHouseSeat.Any()) &&
-                (houseSeat != null))
-                constituency.ConstituencyGroupHasHouseSeat.SingleOrDefault().Id = houseSeat.Id;
+                (constituencyGroup != null) && (constituencyGroup.ConstituencyGroupHasHouseSeat!=null))
+                constituency.ConstituencyGroupHasHouseSeat.SingleOrDefault().Id = constituencyGroup.ConstituencyGroupHasHouseSeat.SingleOrDefault().Id;
 
             constituency.Id = subjectUri;
             return new BaseResource[] { constituency };

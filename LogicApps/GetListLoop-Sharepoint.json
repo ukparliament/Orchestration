@@ -108,7 +108,7 @@
                   }
                 },
                 "method": "get",
-                "path": "[concat('/datasets/@{encodeURIComponent(encodeURIComponent(''https://hopuk.sharepoint.com/sites/datateam/datasources''))}/tables/@{encodeURIComponent(''',variables('logicAppsSettings')[copyIndex()].listUri,''')}/items')]",
+                "path": "[concat('/datasets/@{encodeURIComponent(encodeURIComponent(''https://hopuk.sharepoint.com/sites/bct-datasources''))}/tables/@{encodeURIComponent(''',variables('logicAppsSettings')[copyIndex()].listUri,''')}/items')]",
                 "queries": {
                   "$filter": "Modified gt '@{addHours(utcNow(),-24)}'",
                   "$top": 10000

@@ -52,7 +52,7 @@ namespace Functions.TransformationCommittee
 
         public string ParameterizedString(string dataUrl)
         {
-            return System.Environment.GetEnvironmentVariable("CUSTOMCONNSTR_SharepointItem", EnvironmentVariableTarget.Process).Replace("{listId}", "035fa54f-492a-4008-93da-5ee912a2d0cf").Replace("{id}", dataUrl);
+            return System.Environment.GetEnvironmentVariable("CUSTOMCONNSTR_SharepointItem", EnvironmentVariableTarget.Process).Replace("{listId}", "934ea442-0a9b-491f-99b9-cfb18a016b45").Replace("{id}", dataUrl);
         }
     }
 }

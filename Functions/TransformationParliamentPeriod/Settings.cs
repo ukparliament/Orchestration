@@ -50,7 +50,7 @@ namespace Functions.TransformationParliamentPeriod
 
         public string ParameterizedString(string dataUrl)
         {
-            return System.Environment.GetEnvironmentVariable("CUSTOMCONNSTR_SharepointItem", EnvironmentVariableTarget.Process).Replace("{listId}", "FFCFA882-EE6D-4467-B146-68CD62924256").Replace("{id}", dataUrl);
+            return System.Environment.GetEnvironmentVariable("CUSTOMCONNSTR_SharepointItem", EnvironmentVariableTarget.Process).Replace("{listId}", "cf5e06e7-53b8-4c44-94d5-b9cd0d3e2a33").Replace("{id}", dataUrl);
         }
     }
 }

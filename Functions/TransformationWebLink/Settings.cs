@@ -38,7 +38,7 @@ namespace Functions.TransformationWebLink
 
         public string ParameterizedString(string dataUrl)
         {
-            return System.Environment.GetEnvironmentVariable("CUSTOMCONNSTR_SharepointItem", EnvironmentVariableTarget.Process).Replace("{listId}", "7cb6d78b-5f45-49d2-bb77-009f71a83390").Replace("{id}", dataUrl);
+            return System.Environment.GetEnvironmentVariable("CUSTOMCONNSTR_SharepointItem", EnvironmentVariableTarget.Process).Replace("{listId}", "9d21ee83-90a7-4c99-8648-523e5eaee734").Replace("{id}", dataUrl);
         }
     }
 }

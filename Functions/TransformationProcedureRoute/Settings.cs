@@ -62,17 +62,20 @@ namespace Functions.TransformationProcedureRoute
 
         public string ParameterizedString(string dataUrl)
         {
-            return $@"select r.TripleStoreId, p.TripleStoreId as [Procedure], t.ProcedureRouteTypeName,
+            return $@"select r.TripleStoreId, t.ProcedureRouteTypeName,
                     fs.TripleStoreId as FromStep, ts.TripleStoreId as ToStep, cast(0 as bit) as IsDeleted from ProcedureRoute r
-                join [Procedure] p on p.Id=r.ProcedureId
                 join ProcedureRouteType t on t.Id=r.ProcedureRouteTypeId
                 join ProcedureStep fs on fs.Id=r.FromProcedureStepId
                 join ProcedureStep ts on ts.Id=r.ToProcedureStepId
                 where r.Id={dataUrl}
                 union
-				select r.TripleStoreId, null as [Procedure], null as ProcedureRouteTypeName,
+				select r.TripleStoreId, null as ProcedureRouteTypeName,
                     null as FromStep, null as ToStep, cast(1 as bit) as IsDeleted from DeletedProcedureRoute r
-                where r.Id={dataUrl};";
+                where r.Id={dataUrl};
+                select p.TripleStoreId from ProcedureRouteProcedure rp
+                join ProcedureRoute r on r.Id=rp.ProcedureRouteId
+                join [Procedure] p on p.Id= rp.ProcedureId
+                where r.Id={dataUrl}";
         }
     }
 }

@@ -292,7 +292,7 @@ $logicAppVariable=@(
 	New-Object -TypeName PSObject -Property @{
         "name"="weblink";
 		"sourceKind"=[SourceType]::Sharepoint;
-        "listUri"="7cb6d78b-5f45-49d2-bb77-009f71a83390";
+        "listUri"="9d21ee83-90a7-4c99-8648-523e5eaee734";
         "listAcceptHeader"="";
         "foreachObject"="@json('')";
         "idObject"="@json('')";
@@ -306,7 +306,7 @@ $logicAppVariable=@(
 	New-Object -TypeName PSObject -Property @{
         "name"="photo";
 		"sourceKind"=[SourceType]::Sharepoint;
-        "listUri"="2460c6bf-f26e-4049-94d0-c6096e036f3a";
+        "listUri"="838713ed-b86c-45f5-855b-d7bac1bee94b";
         "listAcceptHeader"="";
         "foreachObject"="@json('')";
         "idObject"="@json('')";
@@ -348,7 +348,7 @@ $logicAppVariable=@(
 	New-Object -TypeName PSObject -Property @{
         "name"="houseseattype";
 		"sourceKind"=[SourceType]::Sharepoint;
-        "listUri"="85fe54cd-d26a-43af-88a5-9063f747c4a9";
+        "listUri"="fa0d3696-92be-4506-93c9-13f5e9dd6b80";
         "listAcceptHeader"="";
         "foreachObject"="@json('')";
         "idObject"="@json('')";
@@ -362,7 +362,7 @@ $logicAppVariable=@(
 	New-Object -TypeName PSObject -Property @{
         "name"="lordsseat";
 		"sourceKind"=[SourceType]::Sharepoint;
-        "listUri"="4a000e4a-aa78-4338-806d-92c0dd42e1a6";
+        "listUri"="37847503-9069-467b-be45-ffed7c405863";
         "listAcceptHeader"="";
         "foreachObject"="@json('')";
         "idObject"="@json('')";
@@ -376,7 +376,7 @@ $logicAppVariable=@(
 	New-Object -TypeName PSObject -Property @{
         "name"="lordsseatincumbency";
 		"sourceKind"=[SourceType]::Sharepoint;
-        "listUri"="a9c47d77-9ccb-44cc-bc90-c3d07ea8aa0e";
+        "listUri"="5c1600fd-34ed-4227-b6f8-dcb03ed6d8be";
         "listAcceptHeader"="";
         "foreachObject"="@json('')";
         "idObject"="@json('')";
@@ -404,7 +404,7 @@ $logicAppVariable=@(
 	New-Object -TypeName PSObject -Property @{
         "name"="departmentgovernmentorganisation";
 		"sourceKind"=[SourceType]::Sharepoint;
-        "listUri"="a55100f4-8dd9-43a3-8614-3a3f121c8fbf";
+        "listUri"="9855a9e1-54e1-431d-b6dd-bf0455d1b244";
         "listAcceptHeader"="";
         "foreachObject"="@json('')";
         "idObject"="@json('')";
@@ -446,7 +446,7 @@ $logicAppVariable=@(
 	New-Object -TypeName PSObject -Property @{
         "name"="contactpointhouse";
 		"sourceKind"=[SourceType]::Sharepoint;
-        "listUri"="261f09cd-9c4e-4e76-a928-b7b8c5b3cdcd";
+        "listUri"="e26c9ee4-8c90-4d89-aeb3-449506027ea5";
         "listAcceptHeader"="";
         "foreachObject"="@json('')";
         "idObject"="@json('')";
@@ -460,7 +460,7 @@ $logicAppVariable=@(
 	New-Object -TypeName PSObject -Property @{
         "name"="committee";
 		"sourceKind"=[SourceType]::Sharepoint;
-        "listUri"="035fa54f-492a-4008-93da-5ee912a2d0cf";
+        "listUri"="934ea442-0a9b-491f-99b9-cfb18a016b45";
         "listAcceptHeader"="";
         "foreachObject"="@json('')";
         "idObject"="@json('')";
@@ -474,7 +474,7 @@ $logicAppVariable=@(
 	New-Object -TypeName PSObject -Property @{
         "name"="committeetype";
 		"sourceKind"=[SourceType]::Sharepoint;
-        "listUri"="774e8a14-a613-4948-a645-a434ef6a8f1f";
+        "listUri"="f18a9772-f950-4d45-ab90-08d4f592e08c";
         "listAcceptHeader"="";
         "foreachObject"="@json('')";
         "idObject"="@json('')";
@@ -488,7 +488,7 @@ $logicAppVariable=@(
 	New-Object -TypeName PSObject -Property @{
         "name"="parliamentperiod";
 		"sourceKind"=[SourceType]::Sharepoint;
-        "listUri"="ffcfa882-ee6d-4467-b146-68cd62924256";
+        "listUri"="cf5e06e7-53b8-4c44-94d5-b9cd0d3e2a33";
         "listAcceptHeader"="";
         "foreachObject"="@json('')";
         "idObject"="@json('')";
@@ -544,7 +544,7 @@ $logicAppVariable=@(
 	New-Object -TypeName PSObject -Property @{
         "name"="lordsseatincumbencyinterruption";
 		"sourceKind"=[SourceType]::Sharepoint;
-        "listUri"="1447ca1f-249d-4491-b9a0-9225b5cd505a";
+        "listUri"="919f9534-241d-4f78-9e48-5b37e539aa39";
         "listAcceptHeader"="";
         "foreachObject"="@json('')";
         "idObject"="@json('')";

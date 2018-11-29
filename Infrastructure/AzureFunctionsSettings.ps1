@@ -62,15 +62,13 @@ Log "Gets current connection strings"
 $connectionStrings=$webApp.SiteConfig.ConnectionStrings
 $connections = @{}
 foreach($connection in $connectionStrings){
-	if (($connection.Name -ne "Data") -or ($connection.Name -ne "SharepointItem") -or ($connection.Name -ne "InterimSqlServer")) {
+	if (($connection.Name -ne "SharepointItem") -or ($connection.Name -ne "InterimSqlServer")) {
 		$connections[$connection.Name]=@{Type=if ($connection.Type -eq $null){"Custom"}else{$connection.Type.ToString()};Value=$connection.ConnectionString}
 	}
 }
 
 Log "Sets new url for sharepoint"
 $connections["SharepointItem"]=@{Type="Custom";Value=$sharepointUrl}
-Log "Sets new data connection"
-$connections["Data"]=@{Type="Custom";Value="https://$APIManagementName.azure-api.net/rdf4j"}
 Log "Sets new interim sql connection string"
 $connections["InterimSqlServer"]=@{Type="Custom";Value=$InterimSqlServerConnectionString}
 

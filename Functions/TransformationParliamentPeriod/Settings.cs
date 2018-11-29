@@ -28,7 +28,7 @@ namespace Functions.TransformationParliamentPeriod
         construct {
             ?parliamentPeriod a parl:ParliamentPeriod;
                 parl:parliamentPeriodNumber ?parliamentPeriodNumber;
-                parl:parliamentPeriodWikidataId ?parliamentPeriodWikidataId;
+                parl:wikidataThingHasEquivalentWikidataResource ?wikidataResource;
                 parl:parliamentPeriodHasImmediatelyPreviousParliamentPeriod ?parliamentPeriodHasImmediatelyPreviousParliamentPeriod;
                 parl:parliamentPeriodHasImmediatelyFollowingParliamentPeriod ?parliamentPeriodHasImmediatelyFollowingParliamentPeriod;
                 parl:parliamentPeriodStartDate ?parliamentPeriodStartDate;
@@ -39,7 +39,7 @@ namespace Functions.TransformationParliamentPeriod
         where {
             bind(@subject as ?parliamentPeriod)
             optional {?parliamentPeriod parl:parliamentPeriodNumber ?parliamentPeriodNumber}
-            optional {?parliamentPeriod parl:parliamentPeriodWikidataId ?parliamentPeriodWikidataId}
+            optional {?parliamentPeriod parl:wikidataThingHasEquivalentWikidataResource ?wikidataResource}
             optional {?parliamentPeriod parl:parliamentPeriodHasImmediatelyPreviousParliamentPeriod ?parliamentPeriodHasImmediatelyPreviousParliamentPeriod}
             optional {?parliamentPeriod parl:parliamentPeriodHasImmediatelyFollowingParliamentPeriod ?parliamentPeriodHasImmediatelyFollowingParliamentPeriod}
             optional {?parliamentPeriod parl:parliamentPeriodStartDate ?parliamentPeriodStartDate}

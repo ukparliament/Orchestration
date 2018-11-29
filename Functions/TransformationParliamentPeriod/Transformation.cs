@@ -49,9 +49,19 @@ namespace Functions.TransformationParliamentPeriod
                     }
                 };
 
-            parliamentPeriod.ParliamentPeriodWikidataId = ((JValue)jsonResponse.SelectToken("parliamentPeriodWikidataId")).GetText();
+            WikidataThing wikidataThing = new WikidataThing();
+            wikidataThing.Id = id;
+            var wikidataId = ((JValue)jsonResponse.SelectToken("parliamentPeriodWikidataId")).GetText();
+            var wikidataUri = new Uri(new Uri("http://www.wikidata.org/entity/"), wikidataId);
+            wikidataThing.WikidataThingHasEquivalentWikidataResource = new WikidataResource[]
+            {
+                new WikidataResource()
+                {
+                    Id = wikidataUri
+                }
+            };
 
-            return new BaseResource[] { parliamentPeriod };
+            return new BaseResource[] { parliamentPeriod, wikidataThing };
         }
 
         public override Uri GetSubjectFromSource(BaseResource[] deserializedSource)
@@ -63,9 +73,6 @@ namespace Functions.TransformationParliamentPeriod
 
         public override BaseResource[] SynchronizeIds(BaseResource[] source, Uri subjectUri, BaseResource[] target)
         {
-            foreach (BaseResource period in source)
-                period.Id = subjectUri;
-
             return source;
         }
 

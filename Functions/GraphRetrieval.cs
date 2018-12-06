@@ -67,8 +67,13 @@ namespace Functions
             }
             catch (VDS.RDF.Parsing.RdfParserSelectionException e)
             {
-                logger.Verbose(e.Message);
-                graph = new Graph();
+                if (e.Message == "The Library does not contain any Parsers for RDF Graphs in any of the following MIME Types: ")
+                {
+                    logger.Warning(e.Message);
+                    graph = new Graph();
+                }
+                else
+                    logger.Error(e.Message);
             }
             catch (Exception e)
             {

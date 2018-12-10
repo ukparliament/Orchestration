@@ -20,8 +20,7 @@
                 ?s a parl:EPetition.
             }
             where{
-                ?s a parl:EPetition; 
-                    parl:ePetitionUkgapId @ePetitionUkgapId.
+                ?s parl:ePetitionUkgapId @ePetitionUkgapId.
             }";
             }
         }

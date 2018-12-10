@@ -21,34 +21,29 @@ This script is for use as a part of deployment in VSTS only.
 Param(
 	[Parameter(Mandatory=$true)] [string] $APIResourceGroupName,
 	[Parameter(Mandatory=$true)] [string] $APIManagementName,
+	[Parameter(Mandatory=$true)] [string] $ReleaseProductId,
 	[Parameter(Mandatory=$true)] [string] $APIPrefix,
     [Parameter(Mandatory=$true)] [string] $OrchestrationResourceGroupName,
     [Parameter(Mandatory=$true)] [string] $AzureFunctionsName,
-	[Parameter(Mandatory=$true)] [string] $BackupUrl
-    
+	[Parameter(Mandatory=$true)] [string] $BackupUrl,
+    [Parameter(Mandatory=$true)] [string] $PowershellModuleDirectory
 )
-
 $ErrorActionPreference = "Stop"
 
-function Log([Parameter(Mandatory=$true)][string]$LogText){
-    Write-Host ("{0} - {1}" -f (Get-Date -Format "HH:mm:ss.fff"), $LogText)
-}
+Import-Module -Name $PowershellModuleDirectory\Write-LogToHost.psm1
+Import-Module -Name $PowershellModuleDirectory\Get-APIMSubscriptionKey.psm1
 
-Log "Retrive trigger code for $AzureFunctionsName"
+$apiBaseUrl="https://api.parliament.uk"
+
+Write-LogToHost "Retrive trigger code for $AzureFunctionsName"
 $properties=Invoke-AzureRmResourceAction -ResourceGroupName $OrchestrationResourceGroupName -ResourceType Microsoft.Web/sites/config -ResourceName "$AzureFunctionsName/publishingcredentials" -Action list -ApiVersion 2015-08-01 -Force
 $base64Info=[Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(("{0}:{1}" -f $properties.properties.publishingUserName,$properties.properties.publishingPassword)))
 $masterKeyResponse=Invoke-RestMethod -Uri "https://$AzureFunctionsName.scm.azurewebsites.net/api/functions/admin/masterkey" -Headers @{Authorization=("Basic {0}" -f $base64Info)} -Method GET
 
-Log "Restore data from $BackupUrl"
+Write-LogToHost "Restore data from $BackupUrl"
 Invoke-RestMethod -Uri "https://$AzureFunctionsName.azurewebsites.net/api/GraphDBRestore?code=$($masterKeyResponse.masterKey)" -Method Post -ContentType "application/json" -Body (ConvertTo-Json @{backupUrl="$BackupUrl"}) -TimeoutSec 30 -Verbose
 
-Log "Get API Management context"
-$management=New-AzureRmApiManagementContext -ResourceGroupName $APIResourceGroupName -ServiceName $APIManagementName
-Log "Get product id"
-$apiReleaseProductId=(Get-AzureRmApiManagementProduct -Context $management -Title "$APIPrefix - Parliament [Release]").ProductId
-Log "Retrives subscription"
-$subscription=Get-AzureRmApiManagementSubscription -Context $management -ProductId $apiReleaseProductId
-$subscriptionKey=$subscription.PrimaryKey
+$subscriptionKey=Get-APIMSubscriptionKey -APIResourceGroupName $APIResourceGroupName -APIManagementName $APIManagementName -ProductId $ReleaseProductId
 
 $header=@{"Ocp-Apim-Subscription-Key"="$subscriptionKey";"Api-Version"="$APIPrefix"}
 
@@ -60,24 +55,24 @@ function Get-JMXAttribute([Parameter(Mandatory=$true)][string]$AttributeName){
         "attribute"= "$AttributeName";
     }
     $bodyJson=ConvertTo-Json $bodyTxt
-    $response=Invoke-RestMethod -Uri "https://$APIManagementName.azure-api.net/jmx" -Method Post -ContentType "application/json" -Body $bodyJson -Headers $header -TimeoutSec 15
+    $response=Invoke-RestMethod -Uri "$apiBaseUrl/jmx" -Method Post -ContentType "application/json" -Body $bodyJson -Headers $header -TimeoutSec 15
     $response.value
 }
 
-Log "Wait 30sec"
+Write-LogToHost "Wait 30sec"
 Start-Sleep -Seconds 30
 
 $result=1
 $counter=0;
 while($result -ne 0) {
-    Log "Counter $counter"
+    Write-LogToHost "Counter $counter"
     $status=Get-JMXAttribute -AttributeName "NumberOfTriples"
     if ($status -gt 223){
-        Log "Number of triples: $status"
+        Write-LogToHost "Number of triples: $status"
         break
     }
 	if ($status -le 223){
-        Log "Wait 30 seconds, response ($status)"
+        Write-LogToHost "Wait 30 seconds, response ($status)"
         $counter++
         Start-Sleep -Seconds 30
     }
@@ -87,4 +82,4 @@ while($result -ne 0) {
 }
 
 
-Log "Job well done!"
+Write-LogToHost "Job well done!"

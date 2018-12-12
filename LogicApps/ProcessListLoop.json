@@ -92,7 +92,10 @@
                       "method": "POST",
                       "uri": "[listsecrets(concat(resourceId('Microsoft.Web/sites',parameters('azureFunctionsName')),concat('/functions/Transformation',variables('logicAppsSettings')[copyIndex()].name)),'2015-08-01').trigger_url]"
                     },
-                    "unsubscribe": {}
+                    "unsubscribe": {},
+                    "retryPolicy": {
+                      "type": "none"
+                    }
                   },
                   "limit": {
                     "timeout": "PT5M"

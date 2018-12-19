@@ -70,7 +70,7 @@
         "ReleaseId": "[parameters('releaseId')]"
       },
       "properties": {
-        "startTime": "05:00",
+        "startTime": "00:00",
         "action": {
           "request": {
             "uri": "[listsecrets(concat(resourceId('Microsoft.Web/sites',parameters('azureFunctionsName')),'/functions/GraphDBBackup'),'2015-08-01').trigger_url]",
@@ -83,7 +83,7 @@
         },
         "recurrence": {
           "frequency": "Hour",
-          "interval": 24
+          "interval": 2
         },
         "state": "Enabled"
       },

@@ -149,7 +149,7 @@ $logicAppVariable=@(
 		"queueReadInterval"=90;
 		"queueReadFrequency"="Second";
     }
-    New-Object -TypeName PSObject -Property @{
+    <#New-Object -TypeName PSObject -Property @{
         "name"="membermnis";
 		"sourceKind"=[SourceType]::Mnis;
         "listUri"="http://data.parliament.uk/membersdataplatform/open/OData.svc/Members?`$select=Member_Id";
@@ -162,7 +162,7 @@ $logicAppVariable=@(
         "queueReadBatchSize"=150;
 		"queueReadInterval"=90;
 		"queueReadFrequency"="Second";
-    }
+    }#>
 	New-Object -TypeName PSObject -Property @{
         "name"="governmentincumbencymnis";
 		"sourceKind"=[SourceType]::Mnis;

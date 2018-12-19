@@ -16,7 +16,7 @@ namespace Functions.GraphDBBackup
     {
         private static Logger logger;
 
-        private static readonly string releaseId = Environment.GetEnvironmentVariable("ReleaseId", EnvironmentVariableTarget.Process);
+        private static readonly string backupContainer = Environment.GetEnvironmentVariable("BackupContainer", EnvironmentVariableTarget.Process);
         private static readonly string storageAccountConnectionString = Environment.GetEnvironmentVariable("CUSTOMCONNSTR_BackupStorage", EnvironmentVariableTarget.Process);
         private static readonly string dataAPI = Environment.GetEnvironmentVariable("CUSTOMCONNSTR_Data", EnvironmentVariableTarget.Process);
         private static readonly string subscriptionKey = Environment.GetEnvironmentVariable("SubscriptionKey", EnvironmentVariableTarget.Process);
@@ -88,7 +88,7 @@ namespace Functions.GraphDBBackup
             logger.Verbose("Connecting to storage");
             CloudStorageAccount storageAccount = CloudStorageAccount.Parse(storageAccountConnectionString);
             CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
-            CloudBlobContainer blobContainer = blobClient.GetContainerReference($"r{releaseId}graphdb-backup");
+            CloudBlobContainer blobContainer = blobClient.GetContainerReference(backupContainer);
             logger.Verbose("Ensuring container");
             await blobContainer.CreateIfNotExistsAsync();
             await blobContainer.SetPermissionsAsync(new BlobContainerPermissions { PublicAccess = BlobContainerPublicAccessType.Off });

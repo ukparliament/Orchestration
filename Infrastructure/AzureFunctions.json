@@ -138,7 +138,7 @@
             "IdNamespace": "[parameters('idNamespace')]",
             "SchemaNamespace": "[parameters('schemaNamespace')]",
             "ApplicationInsightsInstrumentationKey": "[reference(resourceId(subscription().subscriptionId,parameters('operationsResourceGroupName'),'Microsoft.Insights/Components',parameters('applicationInsightsName')),'2014-04-01').InstrumentationKey]",
-            "ReleaseId": "[parameters('releaseId')]",
+            "BackupContainer": "[concat('r',parameters('releaseId'),'graphdb-backup')]",
             "SubscriptionKey": "",
             "ApiVersion": "",
             "LowestLoggingLevel": "[parameters('lowestLoggingLevel')]"

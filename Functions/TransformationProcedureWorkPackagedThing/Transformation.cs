@@ -32,25 +32,32 @@ namespace Functions.TransformationProcedureWorkPackagedThing
                         Id=uri
                     }
                 };
-            if (Convert.ToBoolean(row["IsStatutoryInstrument"]))
+
+            switch (Convert.ToInt32(row["WorkPackagedType"]))
             {
-                workPackagedThing.StatutoryInstrumentPaperName = GetText(row["WorkPackagedThingName"]);
-                workPackagedThing.StatutoryInstrumentPaperComingIntoForceNote = GetText(row["ComingIntoForceNote"]);
-                if ((DateTimeOffset.TryParse(row["ComingIntoForceDate"]?.ToString(), out DateTimeOffset comingIntoForceDate))
-                    && (comingIntoForceDate != null))
-                   workPackagedThing.StatutoryInstrumentPaperComingIntoForceDate = comingIntoForceDate;
-                if ((DateTimeOffset.TryParse(row["MadeDate"]?.ToString(), out DateTimeOffset madeDate))
-                    && (madeDate != null))
-                    workPackagedThing.StatutoryInstrumentPaperMadeDate = madeDate;
-                if (int.TryParse(row["StatutoryInstrumentNumber"]?.ToString(), out int statutoryInstrumentNumber))
-                    workPackagedThing.StatutoryInstrumentPaperNumber = statutoryInstrumentNumber;
-                workPackagedThing.StatutoryInstrumentPaperPrefix = GetText(row["StatutoryInstrumentNumberPrefix"]);
-                if (int.TryParse(row["StatutoryInstrumentNumberYear"]?.ToString(), out int statutoryInstrumentNumberYear))
-                    workPackagedThing.StatutoryInstrumentPaperYear = statutoryInstrumentNumberYear;
+                case 1:
+                    workPackagedThing.StatutoryInstrumentPaperName = GetText(row["WorkPackagedThingName"]);
+                    workPackagedThing.StatutoryInstrumentPaperComingIntoForceNote = GetText(row["ComingIntoForceNote"]);
+                    if ((DateTimeOffset.TryParse(row["ComingIntoForceDate"]?.ToString(), out DateTimeOffset comingIntoForceDate))
+                        && (comingIntoForceDate != null))
+                        workPackagedThing.StatutoryInstrumentPaperComingIntoForceDate = comingIntoForceDate;
+                    if ((DateTimeOffset.TryParse(row["MadeDate"]?.ToString(), out DateTimeOffset madeDate))
+                        && (madeDate != null))
+                        workPackagedThing.StatutoryInstrumentPaperMadeDate = madeDate;
+                    if (int.TryParse(row["StatutoryInstrumentNumber"]?.ToString(), out int statutoryInstrumentNumber))
+                        workPackagedThing.StatutoryInstrumentPaperNumber = statutoryInstrumentNumber;
+                    workPackagedThing.StatutoryInstrumentPaperPrefix = GetText(row["StatutoryInstrumentNumberPrefix"]);
+                    if (int.TryParse(row["StatutoryInstrumentNumberYear"]?.ToString(), out int statutoryInstrumentNumberYear))
+                        workPackagedThing.StatutoryInstrumentPaperYear = statutoryInstrumentNumberYear;
+                    break;
+                case 2:
+                    workPackagedThing.ProposedNegativeStatutoryInstrumentPaperName = GetText(row["WorkPackagedThingName"]);
+                    break;
+                case 3:
+                    workPackagedThing.TreatyName = GetText(row["WorkPackagedThingName"]);
+                    break;
             }
-            else
-                workPackagedThing.ProposedNegativeStatutoryInstrumentPaperName= GetText(row["WorkPackagedThingName"]);
-            return new BaseResource[] { workPackagedThing  };
+            return new BaseResource[] { workPackagedThing };
         }
 
         public override Uri GetSubjectFromSource(BaseResource[] deserializedSource)

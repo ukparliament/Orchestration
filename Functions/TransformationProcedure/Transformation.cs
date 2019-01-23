@@ -32,6 +32,7 @@ namespace Functions.TransformationProcedure
             if (Convert.ToBoolean(row["IsDeleted"]))
                 return new BaseResource[] { procedure };
             procedure.ProcedureName = GetText(row["ProcedureName"]);
+            procedure.ProcedureDescription = GetText(row["ProcedureDescription"]);
 
             return new BaseResource[] { procedure };
         }

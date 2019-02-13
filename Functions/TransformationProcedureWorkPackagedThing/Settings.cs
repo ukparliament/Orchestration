@@ -28,6 +28,8 @@
                 ?workPackagedThingType ?workPackagedThingName;
                 parl:statutoryInstrumentPaperNumber ?statutoryInstrumentPaperNumber;
                 parl:statutoryInstrumentPaperPrefix ?statutoryInstrumentPaperPrefix;
+                parl:treatyNumber ?treatyNumber;
+                parl:treatyPrefix ?treatyPrefix;
                 parl:statutoryInstrumentPaperYear ?statutoryInstrumentPaperYear;
                 parl:statutoryInstrumentPaperComingIntoForceDate ?statutoryInstrumentPaperComingIntoForceDate;
                 parl:statutoryInstrumentPaperComingIntoForceNote ?statutoryInstrumentPaperComingIntoForceNote;
@@ -51,6 +53,8 @@
             }
             optional {?workPackagedThing parl:statutoryInstrumentPaperNumber ?statutoryInstrumentPaperNumber}
             optional {?workPackagedThing parl:statutoryInstrumentPaperPrefix ?statutoryInstrumentPaperPrefix}
+            optional {?workPackagedThing parl:treatyNumber ?treatyNumber}
+            optional {?workPackagedThing parl:treatyPrefix ?treatyPrefix}            
             optional {?workPackagedThing parl:statutoryInstrumentPaperYear ?statutoryInstrumentPaperYear}
             optional {?workPackagedThing parl:statutoryInstrumentPaperComingIntoForceDate ?statutoryInstrumentPaperComingIntoForceDate}
             optional {?workPackagedThing parl:statutoryInstrumentPaperComingIntoForceNote ?statutoryInstrumentPaperComingIntoForceNote}
@@ -64,8 +68,10 @@
         {
             return $@"select wp.TripleStoreId,
                     coalesce(si.ProcedureStatutoryInstrumentName, nsi.ProcedureProposedNegativeStatutoryInstrumentName, t.ProcedureTreatyName) as WorkPackagedThingName,
-	                si.StatutoryInstrumentNumber, si.StatutoryInstrumentNumberPrefix, si.StatutoryInstrumentNumberYear,
-	                si.ComingIntoForceNote, si.ComingIntoForceDate, si.MadeDate, wp.WebLink, cast (0 as bit) as IsDeleted,
+	                coalesce(si.StatutoryInstrumentNumber, t.TreatyNumber) as Number,
+                    coalesce(si.StatutoryInstrumentNumberPrefix, t.TreatyPrefix) as Prefix,
+                    si.StatutoryInstrumentNumberYear, si.ComingIntoForceNote, si.ComingIntoForceDate, 
+                    si.MadeDate, wp.WebLink, cast (0 as bit) as IsDeleted,
                     case
 	                    when si.ProcedureStatutoryInstrumentName is not null then 1
                         when nsi.ProcedureProposedNegativeStatutoryInstrumentName is not null then 2
@@ -79,8 +85,10 @@
                 union
 				select wp.TripleStoreId,
                     null as WorkPackagedThingName,
-	                null as StatutoryInstrumentNumber, null as StatutoryInstrumentNumberPrefix, null as StatutoryInstrumentNumberYear,
-	                null as ComingIntoForceNote, null as ComingIntoForceDate, null as MadeDate, null as WebLink, cast (1 as bit) as IsDeleted,
+	                null as Number,
+                    null as Prefix,
+                    null as StatutoryInstrumentNumberYear, null as ComingIntoForceNote, null as ComingIntoForceDate,
+                    null as MadeDate, null as WebLink, cast (1 as bit) as IsDeleted,
 	                null as WorkPackagedType
                 from DeletedProcedureWorkPackagedThing wp
                 where wp.Id={dataUrl}";

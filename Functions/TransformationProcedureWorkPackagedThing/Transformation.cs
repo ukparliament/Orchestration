@@ -44,9 +44,9 @@ namespace Functions.TransformationProcedureWorkPackagedThing
                     if ((DateTimeOffset.TryParse(row["MadeDate"]?.ToString(), out DateTimeOffset madeDate))
                         && (madeDate != null))
                         workPackagedThing.StatutoryInstrumentPaperMadeDate = madeDate;
-                    if (int.TryParse(row["StatutoryInstrumentNumber"]?.ToString(), out int statutoryInstrumentNumber))
+                    if (int.TryParse(row["Number"]?.ToString(), out int statutoryInstrumentNumber))
                         workPackagedThing.StatutoryInstrumentPaperNumber = statutoryInstrumentNumber;
-                    workPackagedThing.StatutoryInstrumentPaperPrefix = GetText(row["StatutoryInstrumentNumberPrefix"]);
+                    workPackagedThing.StatutoryInstrumentPaperPrefix = GetText(row["Prefix"]);
                     if (int.TryParse(row["StatutoryInstrumentNumberYear"]?.ToString(), out int statutoryInstrumentNumberYear))
                         workPackagedThing.StatutoryInstrumentPaperYear = statutoryInstrumentNumberYear;
                     break;
@@ -55,6 +55,10 @@ namespace Functions.TransformationProcedureWorkPackagedThing
                     break;
                 case 3:
                     workPackagedThing.TreatyName = GetText(row["WorkPackagedThingName"]);
+                    if (int.TryParse(row["Number"]?.ToString(), out int treatyNumber))
+                        workPackagedThing.TreatyNumber = treatyNumber;
+                    workPackagedThing.TreatyPrefix = GetText(row["Prefix"]);
+
                     break;
             }
             return new BaseResource[] { workPackagedThing };

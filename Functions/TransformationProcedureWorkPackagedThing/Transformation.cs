@@ -55,7 +55,9 @@ namespace Functions.TransformationProcedureWorkPackagedThing
                     break;
                 case 3:
                     workPackagedThing.TreatyName = GetText(row["WorkPackagedThingName"]);
-                    workPackagedThing.TreatyComingIntoForceNote = new string[] { GetText(row["ComingIntoForceNote"]) };
+                    string treatyComingIntoForceNote = GetText(row["ComingIntoForceNote"]);
+                    if (string.IsNullOrWhiteSpace(treatyComingIntoForceNote) == false)
+                        workPackagedThing.TreatyComingIntoForceNote = new string[] { treatyComingIntoForceNote };
                     if ((DateTimeOffset.TryParse(row["ComingIntoForceDate"]?.ToString(), out DateTimeOffset treatyComingIntoForceDate))
                         && (treatyComingIntoForceDate != null))
                         workPackagedThing.TreatyComingIntoForceDate = new DateTimeOffset[] { treatyComingIntoForceDate };

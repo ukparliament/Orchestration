@@ -80,8 +80,8 @@
           "triggers": {
             "Recurrence": {
               "recurrence": {
-                "frequency": "[variables('logicAppsSettings')[copyIndex()].queueReadFrequency]",
-                "interval": "[variables('logicAppsSettings')[copyIndex()].queueReadInterval]",
+                "frequency": "[variables('logicAppsSettings')[copyIndex()].frequency]",
+                "interval": "[variables('logicAppsSettings')[copyIndex()].interval]",
                 "startTime": "[concat(parameters('currentDate'),'T',variables('logicAppsSettings')[copyIndex()].triggerTime,'Z')]"
               },
               "type": "Recurrence"
@@ -143,11 +143,8 @@
           "actions": {
             "GraphDBBackup": {
               "inputs": {
-                "host": {
-                  "triggerName": "manual",
-                  "function": {
-                    "id": "[concat(subscription().id,'/resourceGroups/',resourceGroup().name,'/providers/Microsoft.Web/sites/',parameters('azureFunctionsName'),'/functions/GraphDBBackup')]"
-                  }
+                "function": {
+                  "id": "[concat(subscription().id,'/resourceGroups/',resourceGroup().name,'/providers/Microsoft.Web/sites/',parameters('azureFunctionsName'),'/functions/GraphDBBackup')]"
                 }
               },
               "runAfter": {},

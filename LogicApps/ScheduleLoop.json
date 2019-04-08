@@ -1,0 +1,210 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "base64Settings": {
+      "type": "string",
+      "metadata": {
+        "description": "Base64 (UTF-8) encoded array of settings."
+      }
+    },
+    "azureFunctionsName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the Azure Functions."
+      }
+    },
+    "currentDate": {
+      "type": "string",
+      "metadata": {
+        "description": "Date YYYY-MM-DD."
+      }
+    },
+    "operationsResourceGroupName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the Resource Group where diagnostics storage is."
+      }
+    },
+    "diagnosticsStorageAccountName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the diagnostics storage account."
+      }
+    },
+    "releaseId": {
+      "type": "int",
+      "metadata": {
+        "description": "The identifier of the current release record."
+      }
+    }
+  },
+  "variables": {
+    "logicAppsSettings": "[base64ToJson(parameters('base64Settings'))]"
+  },
+  "resources": [
+    {
+      "comments": "Logic App that schedules getlist-* Logic Apps.",
+      "type": "Microsoft.Logic/workflows",
+      "copy": {
+        "name": "workflowcopy",
+        "count": "[length(variables('logicAppsSettings'))]"
+      },
+      "name": "[concat('schedule-',variables('logicAppsSettings')[copyIndex()].name)]",
+      "apiVersion": "2017-07-01",
+      "location": "[resourceGroup().location]",
+      "tags": {
+        "ReleaseId": "[parameters('releaseId')]"
+      },
+      "properties": {
+        "state": "Enabled",
+        "definition": {
+          "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+          "actions": {
+            "Run_logic_app": {
+              "inputs": {
+                "host": {
+                  "triggerName": "manual",
+                  "workflow": {
+                    "id": "[resourceId('Microsoft.Logic/workflows/',concat('getlist-',variables('logicAppsSettings')[copyIndex()].name))]"
+                  }
+                }
+              },
+              "runAfter": {},
+              "type": "Workflow"
+            }
+          },
+          "contentVersion": "1.0.0.0",
+          "outputs": {},
+          "parameters": {},
+          "triggers": {
+            "Recurrence": {
+              "recurrence": {
+                "frequency": "[variables('logicAppsSettings')[copyIndex()].queueReadFrequency]",
+                "interval": "[variables('logicAppsSettings')[copyIndex()].queueReadInterval]",
+                "startTime": "[concat(parameters('currentDate'),'T',variables('logicAppsSettings')[copyIndex()].triggerTime,'Z')]"
+              },
+              "type": "Recurrence"
+            }
+          }
+        },
+        "parameters": {
+        }
+      },
+      "resources": [
+        {
+          "type": "providers/diagnosticSettings",
+          "name": "Microsoft.Insights/workflow",
+          "apiVersion": "2017-05-01-preview",
+          "properties": {
+            "name": "Microsoft.Insights/workflow",
+            "storageAccountId": "[resourceId(subscription().subscriptionId,parameters('operationsResourceGroupName'),'Microsoft.Storage/storageAccounts', parameters('diagnosticsStorageAccountName'))]",
+            "logs": [
+              {
+                "category": "WorkflowRuntime",
+                "enabled": true,
+                "retentionPolicy": {
+                  "days": 0,
+                  "enabled": false
+                }
+              }
+            ],
+            "metrics": [
+              {
+                "category": "AllMetrics",
+                "enabled": true,
+                "retentionPolicy": {
+                  "enabled": false,
+                  "days": 0
+                }
+              }
+            ]
+          },
+          "dependsOn": [
+            "[concat('Microsoft.Logic/workflows/','schedule-',variables('logicAppsSettings')[copyIndex()].name)]"
+          ]
+        }
+      ],
+      "dependsOn": []
+    },
+    {
+      "comments": "Logic App that schedules GraphDB backup.",
+      "type": "Microsoft.Logic/workflows",
+      "name": "graphdbbackup",
+      "apiVersion": "2017-07-01",
+      "location": "[resourceGroup().location]",
+      "tags": {
+        "ReleaseId": "[parameters('releaseId')]"
+      },
+      "properties": {
+        "state": "Enabled",
+        "definition": {
+          "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+          "actions": {
+            "GraphDBBackup": {
+              "inputs": {
+                "host": {
+                  "triggerName": "manual",
+                  "function": {
+                    "id": "[resourceId('Microsoft.Web/sites/',parameters('azureFunctionsName'),'GraphDBBackup')]"
+                  }
+                }
+              },
+              "runAfter": {},
+              "type": "Function"
+            }
+          },
+          "contentVersion": "1.0.0.0",
+          "outputs": {},
+          "parameters": {},
+          "triggers": {
+            "Recurrence": {
+              "recurrence": {
+                "frequency": "Hour",
+                "interval": "2",
+                "startTime": "[concat(parameters('currentDate'),'T00:00:00Z')]"
+              },
+              "type": "Recurrence"
+            }
+          }
+        },
+        "parameters": {}
+      },
+      "resources": [
+        {
+          "type": "providers/diagnosticSettings",
+          "name": "Microsoft.Insights/workflow",
+          "apiVersion": "2017-05-01-preview",
+          "properties": {
+            "name": "Microsoft.Insights/workflow",
+            "storageAccountId": "[resourceId(subscription().subscriptionId,parameters('operationsResourceGroupName'),'Microsoft.Storage/storageAccounts', parameters('diagnosticsStorageAccountName'))]",
+            "logs": [
+              {
+                "category": "WorkflowRuntime",
+                "enabled": true,
+                "retentionPolicy": {
+                  "days": 0,
+                  "enabled": false
+                }
+              }
+            ],
+            "metrics": [
+              {
+                "category": "AllMetrics",
+                "enabled": true,
+                "retentionPolicy": {
+                  "enabled": false,
+                  "days": 0
+                }
+              }
+            ]
+          },
+          "dependsOn": [
+            "Microsoft.Logic/workflows/graphdbbackup"
+          ]
+        }
+      ],
+      "dependsOn": []
+    }
+  ]
+}

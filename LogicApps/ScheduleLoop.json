@@ -146,7 +146,7 @@
                 "host": {
                   "triggerName": "manual",
                   "function": {
-                    "id": "[resourceId('Microsoft.Web/sites/',parameters('azureFunctionsName'),'GraphDBBackup')]"
+                    "id": "[concat(subscription().id,'/resourceGroups/',resourceGroup().name,'/providers/Microsoft.Web/sites/',parameters('azureFunctionsName'),'/functions/GraphDBBackup')]"
                   }
                 }
               },

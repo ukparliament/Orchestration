@@ -693,7 +693,10 @@ foreach ($kind in [enum]::GetValues([SourceType])) {
     }    
 }
 $settings=($logicAppVariable | Select-Object name, frequency, interval, triggerTime, queueReadBatchSize, queueReadInterval, queueReadFrequency)
+$currentDate=Get-Date -Format "yyyy-MM-dd"
 Set-Base64TaskVariable -VariableName "LogicAppsSettings_all" -VariableValue $settings
 Write-Host "##vso[task.setvariable variable=SubscriptionKeyOrchestration]$subscriptionKey"
+Write-Host "##vso[task.setvariable variable=CurrentDate]$currentDate"
+
 
 Log "Job well done!"

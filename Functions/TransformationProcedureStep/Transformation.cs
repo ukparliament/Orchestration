@@ -24,6 +24,15 @@ namespace Functions.TransformationProcedureStep
 
             procedureStep.ProcedureStepName = GetText(stepRow["ProcedureStepName"]);
             procedureStep.ProcedureStepDescription = GetText(stepRow["ProcedureStepDescription"]);
+            var scopeNote = GetText(stepRow["ProcedureStepScopeNote"]);
+            if (!String.IsNullOrEmpty(scopeNote))
+                procedureStep.ProcedureStepScopeNote = new string[] { scopeNote };
+            var linkNote = GetText(stepRow["ProcedureStepLinkNote"]);
+            if (!String.IsNullOrEmpty(linkNote))
+                procedureStep.ProcedureStepLinkNote = new string[] { linkNote };
+            var dateNote = GetText(stepRow["ProcedureStepDateNote"]);
+            if (!String.IsNullOrEmpty(dateNote))
+                procedureStep.ProcedureStepDateNote = new string[] { dateNote };
             List<House> houses = new List<House>();
             if ((dataset.Tables.Count == 2) && (dataset.Tables[1].Rows != null))
                 foreach (DataRow row in dataset.Tables[1].Rows)

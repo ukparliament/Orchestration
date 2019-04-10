@@ -33,6 +33,31 @@ namespace Functions.TransformationProcedureStep
             var dateNote = GetText(stepRow["ProcedureStepDateNote"]);
             if (!String.IsNullOrEmpty(dateNote))
                 procedureStep.ProcedureStepDateNote = new string[] { dateNote };
+
+            Uri PubTripleStoreId = GiveMeUri(GetText(stepRow["PubTripleStoreId"]));
+            if (PubTripleStoreId != null)
+            {
+                var PublicationName = GetText(stepRow["PublicationName"]);
+                var PublicationUrl = GetText(stepRow["PublicationUrl"]);
+                procedureStep.ProcedureStepHasProcedureStepPublication = new ProcedureStepPublication[]
+                {
+                    new ProcedureStepPublication(){ Id = PubTripleStoreId}
+                };
+                if ( !string.IsNullOrWhiteSpace(PublicationName) )
+                {
+                    procedureStep.ProcedureStepHasProcedureStepPublication.First().ProcedureStepPublicationName
+                        = new string[] { PublicationName };
+                }
+                if (!string.IsNullOrWhiteSpace(PublicationUrl))
+                {
+                    procedureStep.ProcedureStepHasProcedureStepPublication.First().ProcedureStepPublicationUrl
+                        = new string[] { PublicationUrl };
+                }
+            }
+
+            Uri linkedIdUri = GiveMeUri(GetText(stepRow["LinkedTripleStoreId"]));
+            if (linkedIdUri != null)
+                procedureStep.ProcedureStepIsCommonlyActualisedAlongsideProcedureStep = new ProcedureStep[] { new ProcedureStep() { Id= linkedIdUri } };
             List<House> houses = new List<House>();
             if ((dataset.Tables.Count == 2) && (dataset.Tables[1].Rows != null))
                 foreach (DataRow row in dataset.Tables[1].Rows)
